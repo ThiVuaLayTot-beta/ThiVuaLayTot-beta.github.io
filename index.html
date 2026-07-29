@@ -47,10 +47,119 @@ title: Trang chủ
                 </div>
             </div>
         </div>
-        <a href="#about" class="scroll-indicator wow fadeIn" data-wow-delay="1.2s">
+        <a href="#stats" class="scroll-indicator wow fadeIn" data-wow-delay="1.2s">
             <span>Khám phá</span>
             <div class="mouse"></div>
         </a>
+    </div>
+
+    <hr class="wow fadeIn text-center" data-wow-delay="0.3s">
+
+    <!-- STAT CARDS SECTION -->
+    <div class="stats-section wow fadeInUp" data-wow-delay="0.1s" id="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="bx bxs-medal"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-num">{% raw %}{{ SỐ_GIẢI_ĐẤU }}{% endraw %}</div>
+                        <div class="stat-title">Giải đấu</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="bx bxs-group"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-num">{% raw %}{{ SỐ_THÀNH_VIÊN }}{% endraw %}</div>
+                        <div class="stat-title">Thành viên</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="bx bxs-chess"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-num">{% raw %}{{ SỐ_VÁN_ĐẤU }}{% endraw %}</div>
+                        <div class="stat-title">Ván đấu</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="bx bxs-crown"></i></div>
+                    <div class="stat-info">
+                        <div class="stat-num">{% raw %}{{ SỐ_NHÀ_VÔ_ĐỊCH }}{% endraw %}</div>
+                        <div class="stat-title">Nhà vô địch</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="wow fadeIn text-center" data-wow-delay="0.3s">
+
+    <!-- FEATURED EVENTS SECTION -->
+    <div class="featured-section wow fadeInUp" data-wow-delay="0.1s" id="featured-events">
+        <div class="container">
+            <div class="section-header text-center">
+                <p><span class="bx bxs-calendar-star header-icon"></span> Sự kiện nổi bật</p>
+                <h2>Giải đấu sắp diễn ra</h2>
+            </div>
+            <div class="featured-grid">
+                <!-- Main Event Card with Live Countdown -->
+                <div class="featured-main-card" id="featured-main-card" data-countdown-date="2025-12-31T23:59:59+07:00">
+                    <div class="featured-banner-wrapper">
+                        <img src="/images/events/sieu-giai-thi-vua-lay-tot.png" id="main-event-banner" alt="Main Event Banner">
+                        <div class="featured-badge" id="main-event-badge">SẮP DIỄN RA</div>
+                    </div>
+                    <div class="featured-card-body">
+                        <h3 id="main-event-title">Giải Thí Vua Lấy Tốt</h3>
+                        <div class="countdown-container" id="countdown-timer">
+                            <div class="countdown-segment">
+                                <span class="countdown-val" id="countdown-days">00</span>
+                                <span class="countdown-label">Ngày</span>
+                            </div>
+                            <div class="countdown-segment">
+                                <span class="countdown-val" id="countdown-hours">00</span>
+                                <span class="countdown-label">Giờ</span>
+                            </div>
+                            <div class="countdown-segment">
+                                <span class="countdown-val" id="countdown-minutes">00</span>
+                                <span class="countdown-label">Phút</span>
+                            </div>
+                            <div class="countdown-segment">
+                                <span class="countdown-val" id="countdown-seconds">00</span>
+                                <span class="countdown-label">Giây</span>
+                            </div>
+                        </div>
+                        <div class="featured-details">
+                            <p id="main-event-time-para"><i class="bx bx-calendar"></i> <span id="main-event-time">Đang tải lịch thi đấu...</span></p>
+                            <p id="main-event-rules-para"><i class="bx bx-info-circle"></i> <span id="main-event-rules">Thể thức: Đấu trường Arena</span></p>
+                        </div>
+                        <a href="/schedule" id="main-event-btn" class="btn"><i class="bx bxs-direction-right"></i> Xem chi tiết</a>
+                    </div>
+                </div>
+
+                <!-- Secondary Event Cards Column -->
+                <div class="featured-secondary-column">
+                    <div class="featured-sub-card" id="sub-card-1">
+                        <div class="sub-card-img">
+                            <img src="/images/events/giai-chien-truong-thi-quan.png" id="sub-event-banner-1" alt="Sub Event 1">
+                        </div>
+                        <div class="sub-card-content">
+                            <h4 id="sub-event-title-1">Chiến Trường Thí Quân</h4>
+                            <p class="sub-event-time" id="sub-event-time-1"><i class="bx bx-calendar"></i> Đang tải...</p>
+                            <a href="/schedule" id="sub-event-btn-1" class="sub-card-link">Xem chi tiết <i class="bx bx-chevron-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="featured-sub-card" id="sub-card-2">
+                        <div class="sub-card-img">
+                            <img src="/images/events/su-kien-co-bi-thi-tot.png" id="sub-event-banner-2" alt="Sub Event 2">
+                        </div>
+                        <div class="sub-card-content">
+                            <h4 id="sub-event-title-2">Cờ Bí Thí Tốt</h4>
+                            <p class="sub-event-time" id="sub-event-time-2"><i class="bx bx-calendar"></i> Đang tải...</p>
+                            <a href="/schedule" id="sub-event-btn-2" class="sub-card-link">Xem chi tiết <i class="bx bx-chevron-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <hr class="wow fadeIn text-center" data-wow-delay="0.3s">
@@ -178,6 +287,7 @@ title: Trang chủ
             </header>
             <div class="timeline">
                 <div class="timeline-item left wow slideInLeft" data-wow-delay="0.1s">
+                    <div class="timeline-icon-box"><i class="bx bxs-video"></i></div>
                     <div class="timeline-text">
                         <div class="timeline-date">4 thg 11, 2021</div>
                         <h2>Mr.TungJohn ra Video đầu tiên</h2>
@@ -186,6 +296,7 @@ title: Trang chủ
                     </div>
                 </div>
                 <div class="timeline-item right wow slideInRight" data-wow-delay="0.1s">
+                    <div class="timeline-icon-box"><i class="bx bxs-group"></i></div>
                     <div class="timeline-text">
                         <div class="timeline-date">17 thg 11, 2021</div>
                         <h2>Câu lạc bộ Thí Vua Lấy Tốt được thành lập</h2>
@@ -194,6 +305,7 @@ title: Trang chủ
                     </div>
                 </div>
                 <div class="timeline-item left wow slideInLeft" data-wow-delay="0.1s">
+                    <div class="timeline-icon-box"><i class="bx bxs-star"></i></div>
                     <div class="timeline-text">
                         <div class="timeline-date">31 thg 12, 2021</div>
                         <h2>TungJohn đạt 10.000 người đăng ký kênh</h2>
@@ -202,6 +314,7 @@ title: Trang chủ
                     </div>
                 </div>
                 <div class="timeline-item right wow slideInRight" data-wow-delay="0.1s">
+                    <div class="timeline-icon-box"><i class="bx bxs-id-card"></i></div>
                     <div class="timeline-text">
                         <div class="timeline-date">30 thg 1, 2022</div>
                         <h2>TungJohn làm video giới thiệu bản thân</h2>
@@ -210,6 +323,7 @@ title: Trang chủ
                     </div>
                 </div>
                 <div class="timeline-item left wow slideInLeft" data-wow-delay="0.1s">
+                    <div class="timeline-icon-box"><i class="bx bxs-medal"></i></div>
                     <div class="timeline-text">
                         <div class="timeline-date">15 thg 10, 2022</div>
                         <h2>Giải Thí Vua Lấy Tốt được tổ chức chức lần đầu tiên</h2>
@@ -218,6 +332,7 @@ title: Trang chủ
                     </div>
                 </div>
                 <div class="timeline-item right wow slideInRight" data-wow-delay="0.1s">
+                    <div class="timeline-icon-box"><i class="bx bxs-shield-quarter"></i></div>
                     <div class="timeline-text">
                         <div class="timeline-date">2022 - 2023</div>
                         <h2>Các Admin mới được bổ nhiệm</h2>
@@ -226,6 +341,7 @@ title: Trang chủ
                     </div>
                 </div>
                 <div class="timeline-item left wow slideInLeft" data-wow-delay="0.1s">
+                    <div class="timeline-icon-box"><i class="bx bx-world"></i></div>
                     <div class="timeline-text">
                         <div class="timeline-date">7 thg 1, 2024</div>
                         <h2>Website Thí Vua Lấy Tốt được ra mắt</h2>
@@ -234,6 +350,7 @@ title: Trang chủ
                     </div>
                 </div>
                 <div class="timeline-item right wow slideInRight" data-wow-delay="0.1s">
+                    <div class="timeline-icon-box"><i class="bx bxs-award"></i></div>
                     <div class="timeline-text">
                         <div class="timeline-date">10 thg 10, 2024</div>
                         <h2>TungJohn đạt 100.000 người đăng ký!!</h2>
@@ -242,6 +359,7 @@ title: Trang chủ
                     </div>
                 </div>
                 <div class="timeline-item left wow slideInLeft" data-wow-delay="0.1s">
+                    <div class="timeline-icon-box"><i class="bx bxs-check-shield"></i></div>
                     <div class="timeline-text">
                         <div class="timeline-date">6 thg 8, 2025</div>
                         <h2>Câu lạc bộ Thí Vua Lấy Tốt trên Chess.com nhận thẻ "Chính thức"!</h2>
@@ -265,7 +383,10 @@ title: Trang chủ
                 {% for post in site.posts limit:3 %}
                 <article class="card">
                     <div class="card_image_container">
-                        <a href="{{ post.url }}" title="{{ post.title }}"><img src="/images/{{ post.id }}.png" class="card_image" alt="{{ post.title }}" loading="lazy" decoding="async"></a>
+                        <a href="{{ post.url }}" title="{{ post.title }}">
+                            <!-- Use post.id for fallback, if post has no custom header/banner image -->
+                            <img src="/images/{{ post.id }}.png" class="card_image" alt="{{ post.title }}" onerror="this.onerror=null; this.src='/images/tvltlogo.png';" loading="lazy" decoding="async">
+                        </a>
                     </div>
                     <div class="card_content">
                         <div class="card_detail">
@@ -289,6 +410,49 @@ title: Trang chủ
     </div>
 
     <hr class="wow fadeIn text-center" data-wow-delay="0.3s">
+
+    <!-- CONTACT CHANNELS SECTION -->
+    <div class="contact-channels wow fadeInUp" data-wow-delay="0.1s" id="contact-channels">
+        <div class="container">
+            <div class="section-header text-center">
+                <p><span class="bx bxs-envelope header-icon"></span> Kênh liên hệ</p>
+                <h2>Kết nối với chúng tôi</h2>
+            </div>
+            <div class="channels-grid">
+                <!-- Chess.com Club Card -->
+                <div class="channel-card">
+                    <div class="channel-icon text-chess"><i class="bx bxs-chess"></i></div>
+                    <h3>Chess.com Club</h3>
+                    <p>Tham gia các giải đấu cờ vua, giao lưu cùng hơn 19k+ thành viên của câu lạc bộ.</p>
+                    <a href="https://link.chess.com/club/0CVQh6" target="_blank" class="btn btn-secondary channel-btn">Tham gia ngay</a>
+                </div>
+                <!-- Zalo Group Card -->
+                <div class="channel-card">
+                    <div class="channel-icon text-zalo"><img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo" width="36" height="36" style="vertical-align: middle;"></div>
+                    <h3>Nhóm Chat Zalo</h3>
+                    <p>Nhận thông báo giải đấu trực tiếp và giao lưu trò chuyện thân mật cùng cộng đồng fan.</p>
+                    <a href="https://zalo.me/g/zhrwtn779" target="_blank" class="btn btn-secondary channel-btn">Tham gia nhóm</a>
+                </div>
+                <!-- Facebook Group Card -->
+                <div class="channel-card">
+                    <div class="channel-icon text-facebook"><i class="bx bxl-facebook-square"></i></div>
+                    <h3>Nhóm Facebook</h3>
+                    <p>Theo dõi tin tức, chia sẻ các thế cờ đẹp và thảo luận sôi nổi về cờ vua.</p>
+                    <a href="https://facebook.com/groups/586909589413729" target="_blank" class="btn btn-secondary channel-btn">Ghé thăm nhóm</a>
+                </div>
+                <!-- YouTube Card -->
+                <div class="channel-card">
+                    <div class="channel-icon text-youtube"><i class="bx bxl-youtube"></i></div>
+                    <h3>Kênh YouTube</h3>
+                    <p>Xem các video phân tích cờ vua đỉnh cao và cập nhật những trận đấu hấp dẫn hàng tuần.</p>
+                    <a href="https://youtube.com/channel/UCvNW1NAWWjblgrP6JQI4MbQ" target="_blank" class="btn btn-secondary channel-btn">Đăng ký kênh</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="wow fadeIn text-center" data-wow-delay="0.3s">
+
     <button id="back-to-top" aria-label="Quay lại đầu trang"><span class="bx bxs-to-top"></span></button>
 
     {% include footer.html %}
