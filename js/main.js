@@ -146,7 +146,7 @@ if (backToTopBtn) {
 }
 
 /**
- * Interactive Daily Chess Puzzle (Smothered Mate) Logic
+ * Interactive Daily Chess Puzzle (Smothered Mate) Logic - CYBER THEME
  */
 document.addEventListener("DOMContentLoaded", function() {
     const knight = document.getElementById("draggable-knight");
@@ -196,7 +196,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (isCorrect) {
             knight.className = "piece-overlay white-knight knight-moved-correct";
             feedback.className = "puzzle-feedback feedback-correct";
-            feedback.innerHTML = '<i class="bx bxs-check-circle"></i> CHÍNH XÁC! Mã f7 chiếu bí thắt nghẹt (Smothered Mate) hoàn hảo. Vua đen bất động!';
+            feedback.innerHTML = '<i class="bx bxs-check-circle"></i> [GIẢI MÃ THÀNH CÔNG] Mã nhảy f7 chiếu bí thắt nghẹt (Smothered Mate) hoàn hảo. Vua đen hoàn toàn bất động!';
             feedback.style.display = "flex";
             solutionBtn.style.display = "none";
             hintBtn.style.display = "none";
@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             knight.className = "piece-overlay white-knight knight-moved-incorrect";
             feedback.className = "puzzle-feedback feedback-incorrect";
-            feedback.innerHTML = '<i class="bx bxs-x-circle"></i> SAI RỒI! Ăn Xe ở g8 tuy bắt được quân nhưng không thể chiếu bí Vua đen ngay lập tức!';
+            feedback.innerHTML = '<i class="bx bxs-x-circle"></i> [SYS_ERROR: SAI LẦM] Ăn Xe ở g8 tuy thu được vật chất nhưng không thể dứt điểm trận đấu ngay lập tức!';
             feedback.style.display = "flex";
             resetBtn.style.display = "inline-flex";
         }
@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     hintBtn.addEventListener("click", function() {
         feedback.className = "puzzle-feedback feedback-hint";
-        feedback.innerHTML = '<i class="bx bxs-help-circle"></i> GỢI Ý: Hãy tìm ô cờ mà quân Mã có thể chiếu trực tiếp Vua Đen h8 mà không để cho Xe Đen ăn mất, tận dụng việc các quân tốt đen tự chặn đường thoát của Vua!';
+        feedback.innerHTML = '<i class="bx bxs-help-circle"></i> [DATA_HINT]: Tìm tọa độ Mã chiếu trực tiếp Vua Đen h8 mà không bị Xe Đen tiêu diệt, tận dụng các quân tốt đen tự bao vây Vua của chúng!';
         feedback.style.display = "flex";
     });
 
