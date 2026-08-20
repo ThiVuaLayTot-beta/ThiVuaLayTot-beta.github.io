@@ -1,0 +1,72 @@
+/* Performance + resilience layer. Keep this file small and dependency-free. */
+
+html {
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+img,
+video,
+svg,
+canvas {
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+iframe {
+  max-width: 100%;
+  border: 0;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+
+/* Avoid expensive paint work on sections that are far below the fold. */
+.home-page > section:not(.hero-v2),
+.blog-page > section:not(:first-child),
+.schedule-page > section:not(:first-child) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 720px;
+}
+
+/* Promote only deliberate animated surfaces; avoid blanket will-change. */
+.hero-v2__visual,
+.board-piece {
+  backface-visibility: hidden;
+}
+
+@media (max-width: 768px) {
+  .home-page > section:not(.hero-v2),
+  .blog-page > section:not(:first-child),
+  .schedule-page > section:not(:first-child) {
+    contain-intrinsic-size: auto 560px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
