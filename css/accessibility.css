@@ -1,0 +1,34 @@
+/* Accessibility and motion preferences */
+
+:focus-visible {
+  outline: 3px solid var(--color-accent, #38bdf8);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+#menu:focus-visible,
+#back-to-top:focus-visible,
+.dropdown-trigger:focus-visible {
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid CanvasText;
+  }
+}
