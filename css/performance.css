@@ -42,6 +42,12 @@ textarea {
   contain-intrinsic-size: auto 720px;
 }
 
+/* The homepage grid texture does not need to remain fixed during scroll. */
+.home-page::before,
+.home-page::after {
+  position: absolute;
+}
+
 /* Promote only deliberate animated surfaces; avoid blanket will-change. */
 .hero-v2__visual,
 .board-piece {
@@ -53,6 +59,16 @@ textarea {
   .blog-page > section:not(:first-child),
   .schedule-page > section:not(:first-child) {
     contain-intrinsic-size: auto 560px;
+  }
+
+  /* Reduce large decorative paint layers on constrained devices. */
+  .home-page::before {
+    opacity: 0.08;
+  }
+
+  .home-page::after {
+    opacity: 0.5;
+    filter: blur(16px);
   }
 }
 
