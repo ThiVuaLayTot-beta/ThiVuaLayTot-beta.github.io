@@ -9,14 +9,16 @@
 <body>
     {% include navbar.html %}
 
-    <div id="section-page" style="padding-top: var(--space-4xl);">
+    <main id="section-page" style="padding-top: var(--space-4xl);">
         <div class="container">
             {{ content }}
             <br><br>
             <hr>
-            <button id="back-to-top" title="Quay lại đầu trang"><span class="bx bxs-to-top"></span></button>
+            <button id="back-to-top" type="button" title="Quay lại đầu trang" aria-label="Quay lại đầu trang" aria-hidden="true">
+                <span class="bx bxs-to-top" aria-hidden="true"></span>
+            </button>
         </div>
-    </div>
+    </main>
 
     {% include footer.html %}
     <script src="/js/main.js"></script>
