@@ -1,51 +1,40 @@
+---
+---
 <!DOCTYPE html>
-<html>
-
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="100;url=https://thivualaytot.github.io">
-    <title>Không Tìm Thấy Trang</title>
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://thivualaytot.github.io/css/main.css" rel="stylesheet">
-    <link href="https://thivualaytot.github.io/css/animation.css" rel="stylesheet">
-    <link href="https://cobaohieu.github.io/assets/css/style.css" rel="stylesheet">
-
-    <body>
-
-        <header class="top-header">
-        </header>
-
-        <div>
-            <div class="starsec"></div>
-            <div class="starthird"></div>
-            <div class="starfourth"></div>
-            <div class="starfifth"></div>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#0b1020">
+    <title>404 — Không tìm thấy trang | Thí Vua Lấy Tốt</title>
+    <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="/css/animation.css">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
+    <style>
+        body{min-height:100vh;display:grid;place-items:center;margin:0;background:#070b16;color:#fff}
+        .error-page{width:min(680px,calc(100% - 32px));text-align:center;padding:48px 24px}
+        .error-page__icon{font-size:64px;line-height:1;margin-bottom:20px}
+        .error-page h1{font-size:clamp(64px,15vw,120px);line-height:.9;margin:0 0 18px}
+        .error-page h2{margin:0 0 14px;font-size:clamp(24px,5vw,38px)}
+        .error-page p{max-width:560px;margin:0 auto 28px;line-height:1.7;opacity:.78}
+        .error-page__actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+        .error-page__actions a{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border-radius:12px;text-decoration:none}
+        .error-page__primary{background:#fff;color:#080b14}
+        .error-page__secondary{border:1px solid rgba(255,255,255,.18);color:#fff}
+    </style>
+</head>
+<body>
+    <main class="error-page" aria-labelledby="error-title">
+        <div class="error-page__icon" aria-hidden="true">♟</div>
+        <h1>404</h1>
+        <h2 id="error-title">Nước đi này không tồn tại.</h2>
+        <p>Trang bạn đang tìm có thể đã được di chuyển, đổi tên hoặc không còn tồn tại. Hãy quay về bàn cờ và chọn một nước đi khác.</p>
+        <div class="error-page__actions">
+            <a class="error-page__primary" href="/"><i class="bx bx-home-alt-2"></i> Về trang chủ</a>
+            <a class="error-page__secondary" href="/events/tournaments/"><i class="bx bx-trophy"></i> Xem giải đấu</a>
         </div>
-
-        <div class="lamp_wrap">
-            <div class="lamp">
-                <div class="cable"></div>
-                <div class="cover"></div>
-                <div class="in-cover">
-                    <div class="bulb"></div>
-                </div>
-                <div class="light"></div>
-            </div>
-        </div>
-        <section class="error">
-        <div class="error__content">
-            <div class="error__message message">
-            <h1 class="message__title">Page Not Found</h1>
-            <p class="message__text">Rất tiếc, trang bạn đang tìm kiếm không có ở đây. Liên kết bạn đã truy cập có thể bị hỏng hoặc không còn tồn tại. Vui lòng thử lại hoặc xem trang khác của chúng tôi.</p>
-            <a href="/leaders">Các quản trị viên</a>
-            </div>
-            <div class="error__nav e-nav">
-            <a href="/" target="_top" class="e-nav__link"></a>
-            </div>
-        </div>
-        </section>
-
-    </body>
-
+    </main>
+</body>
 </html>
