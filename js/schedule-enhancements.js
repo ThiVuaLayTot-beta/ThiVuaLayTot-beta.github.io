@@ -10,25 +10,33 @@
         let timer = 0;
         window.filterSchedule = function optimizedFilterSchedule() {
             window.clearTimeout(timer);
-            timer = window.setTimeout(() => {
-                scheduleFilter();
-            }, 120);
+            timer = window.setTimeout(scheduleFilter, 120);
         };
     }
 
     const observeScheduleImages = () => {
-        const root = document.getElementById('schedule-page') || document;
-        const images = root.querySelectorAll('img:not([loading])');
-        images.forEach((img) => {
-            if (!img.closest('#modal-banner, #modal-logo')) {
-                img.loading = 'lazy';
-                img.decoding = 'async';
-            }
+        const roots = [
+            document.getElementById('calendar-body'),
+            document.getElementById('list-container')
+        ].filter(Boolean);
+
+        roots.forEach((root) => {
+            root.querySelectorAll('img:not([loading])').forEach((img) => {
+                if (!img.closest('#modal-banner, #modal-logo')) {
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                }
+            });
         });
     };
 
+    let imageFrame = 0;
     const imageObserver = new MutationObserver(() => {
-        requestAnimationFrame(observeScheduleImages);
+        if (imageFrame) return;
+        imageFrame = requestAnimationFrame(() => {
+            imageFrame = 0;
+            observeScheduleImages();
+        });
     });
 
     const init = () => {
