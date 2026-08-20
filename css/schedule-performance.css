@@ -1,0 +1,56 @@
+/* Schedule performance layer */
+
+/* Keep off-screen calendar/list content from participating in layout/paint until needed. */
+#calendar-wrapper,
+#list-wrapper {
+  contain: layout style;
+}
+
+#calendar-table {
+  contain: layout paint;
+}
+
+.events-list-grid {
+  contain: layout;
+}
+
+/* Avoid accidental horizontal scrolling on narrow screens. */
+.schedule-control-bar,
+.month-nav-wrapper,
+.cc-modal-dialog {
+  max-width: 100%;
+}
+
+/* Make interactive controls comfortable on touch devices. */
+.month-nav-btn,
+.segment-btn,
+.compact-btn,
+.cc-modal-close,
+.btn {
+  touch-action: manipulation;
+}
+
+@media (max-width: 640px) {
+  #calendar-table {
+    table-layout: fixed;
+  }
+
+  #calendar-table th,
+  #calendar-table td {
+    overflow: hidden;
+  }
+
+  .cc-modal-dialog {
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #calendar-wrapper,
+  #list-wrapper,
+  .cc-modal-dialog {
+    scroll-behavior: auto;
+  }
+}
