@@ -88,16 +88,22 @@ const backToTopBtn = document.getElementById("back-to-top");
 const timeline = document.querySelector(".timeline");
 const rootStyle = document.documentElement.style;
 let isScrolling = false;
+let timelineVisible = Boolean(timeline);
+let lastScrollTop = -1;
+let scrollFrame = 0;
 
 function handleScrollEffects() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    if (scrollTop === lastScrollTop) return;
+    lastScrollTop = scrollTop;
 
     if (backToTopBtn) {
-        backToTopBtn.style.display = scrollTop > 100 ? "flex" : "none";
-        backToTopBtn.setAttribute("aria-hidden", scrollTop > 100 ? "false" : "true");
+        const visible = scrollTop > 100;
+        backToTopBtn.style.display = visible ? "flex" : "none";
+        backToTopBtn.setAttribute("aria-hidden", String(!visible));
     }
 
-    if (timeline) {
+    if (timeline && timelineVisible) {
         const rect = timeline.getBoundingClientRect();
         const windowHeight = window.innerHeight;
         if (rect.top < windowHeight && rect.bottom > 0) {
@@ -109,12 +115,20 @@ function handleScrollEffects() {
     }
 }
 
+if (timeline && "IntersectionObserver" in window) {
+    const timelineObserver = new IntersectionObserver((entries) => {
+        timelineVisible = entries.some((entry) => entry.isIntersecting);
+    }, { rootMargin: "200px 0px" });
+    timelineObserver.observe(timeline);
+}
+
 window.addEventListener("scroll", () => {
     if (isScrolling) return;
     isScrolling = true;
-    window.requestAnimationFrame(() => {
+    scrollFrame = window.requestAnimationFrame(() => {
         handleScrollEffects();
         isScrolling = false;
+        scrollFrame = 0;
     });
 }, { passive: true });
 
