@@ -91,6 +91,16 @@
         });
     };
 
+    const formatModalTime = (value) => {
+        if (!value) return value;
+
+        const match = value.match(/^(Dự kiến\s*:?\s*)?(\d{1,2})[:h](\d{2}),\s*(Thứ\s+\d|Chủ\s+Nhật)\s*-\s*ngày\s*(\d{1,2})\/(\d{1,2})\/(\d{4})/i);
+        if (!match) return value;
+
+        const [, tentative = '', hours, minutes, dayName, day, month, year] = match;
+        return `${tentative ? 'Dự kiến ' : ''}${dayName}, ${Number(day)} thg ${Number(month)}, ${year} lúc ${hours.padStart(2, '0')}h${minutes} (UTC+7)`;
+    };
+
     const init = () => {
         // Memoize repeated date parsing only after schedule.js has defined the helper.
         const originalDateParts = window.getVietnamDateParts;
@@ -138,9 +148,23 @@
         const modal = document.getElementById('eventModal');
         const modalDialog = modal?.querySelector('.cc-modal-dialog');
         const closeButton = modal?.querySelector('.cc-modal-close');
+        const modalTime = document.getElementById('modal-time');
         let previousFocus = null;
 
         if (!modal) return;
+
+        if (modalTime) {
+            const formatTime = () => {
+                const formatted = formatModalTime(modalTime.textContent.trim());
+                if (formatted && formatted !== modalTime.textContent.trim()) {
+                    modalTime.textContent = formatted;
+                }
+            };
+
+            const timeObserver = new MutationObserver(formatTime);
+            timeObserver.observe(modalTime, { childList: true, characterData: true, subtree: true });
+            formatTime();
+        }
 
         const modalObserver = new MutationObserver(() => {
             const opened = modal.classList.contains('open');
