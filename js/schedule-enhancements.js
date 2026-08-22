@@ -1,78 +1,131 @@
 /**
  * Schedule performance + accessibility enhancements.
- * Loaded after schedule.js so the core schedule logic stays isolated.
+ * Loaded before schedule.js so the API cache can intercept the initial request.
  */
 (() => {
     'use strict';
 
-    // Memoize date parsing: renderCalendar can inspect the same event date many times.
-    const originalDateParts = window.getVietnamDateParts;
-    const dateCache = new Map();
-    if (typeof originalDateParts === 'function') {
-        window.getVietnamDateParts = (dateStr) => {
-            const key = String(dateStr ?? '');
-            if (dateCache.has(key)) return dateCache.get(key);
-            const value = originalDateParts(dateStr);
-            dateCache.set(key, value);
-            return value;
-        };
-    }
-
-    // Keep a short-lived local cache so repeat visits can recover instantly while the API refreshes.
-    const CACHE_KEY = 'tvlt:schedule:v2';
+    const API_MARKER = 'script.google.com/macros/s/';
+    const CACHE_KEY = 'tvlt:schedule:v3';
     const CACHE_TTL = 5 * 60 * 1000;
-    const readScheduleCache = () => {
+    const nativeFetch = window.fetch?.bind(window);
+
+    const readCache = (allowExpired = false) => {
         try {
             const raw = localStorage.getItem(CACHE_KEY);
             if (!raw) return null;
             const cached = JSON.parse(raw);
-            return cached?.events?.length && Date.now() - cached.time < CACHE_TTL ? cached.events : null;
+            if (!cached?.time || !cached?.payload) return null;
+            if (!allowExpired && Date.now() - cached.time >= CACHE_TTL) return null;
+            return cached;
         } catch (_) {
             return null;
         }
     };
-    const writeScheduleCache = (events) => {
+
+    const writeCache = (payload) => {
         try {
-            if (Array.isArray(events)) localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), events }));
-        } catch (_) { /* Storage may be unavailable. */ }
+            if (payload && typeof payload === 'object' && Array.isArray(payload.events || payload.tournaments)) {
+                localStorage.setItem(CACHE_KEY, JSON.stringify({ time: Date.now(), payload }));
+            }
+        } catch (_) {
+            // Storage may be unavailable or full; the live API remains authoritative.
+        }
     };
 
-    const scheduleFilter = window.filterSchedule;
-    if (typeof scheduleFilter === 'function') {
-        let timer = 0;
-        window.filterSchedule = function optimizedFilterSchedule() {
-            window.clearTimeout(timer);
-            timer = window.setTimeout(scheduleFilter, 120);
+    const cacheResponse = (cached) => new Response(JSON.stringify(cached.payload), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    const refreshCache = (input, init) => {
+        if (!nativeFetch) return;
+        nativeFetch(input, init).then((response) => {
+            if (!response.ok) return;
+            response.clone().json().then(writeCache).catch(() => {});
+        }).catch(() => {});
+    };
+
+    // Intercept only the schedule API. Cached data renders immediately; a background
+    // request refreshes the cache for the next visit without blocking the UI.
+    if (nativeFetch) {
+        window.fetch = (input, init) => {
+            const url = typeof input === 'string' ? input : input?.url || '';
+            if (!url.includes(API_MARKER)) return nativeFetch(input, init);
+
+            const fresh = readCache();
+            if (fresh) {
+                refreshCache(input, init);
+                return Promise.resolve(cacheResponse(fresh));
+            }
+
+            return nativeFetch(input, init).then((response) => {
+                if (response.ok) {
+                    response.clone().json().then(writeCache).catch(() => {});
+                }
+                return response;
+            }).catch((error) => {
+                const stale = readCache(true);
+                if (stale) return cacheResponse(stale);
+                throw error;
+            });
         };
     }
 
     const observeScheduleImages = () => {
-        const roots = [document.getElementById('calendar-body'), document.getElementById('list-container')].filter(Boolean);
-        roots.forEach((root) => root.querySelectorAll('img:not([loading])').forEach((img) => {
-            if (!img.closest('#modal-banner, #modal-logo')) {
-                img.loading = 'lazy';
-                img.decoding = 'async';
-            }
-        }));
+        const roots = [
+            document.getElementById('calendar-body'),
+            document.getElementById('list-container')
+        ].filter(Boolean);
+
+        roots.forEach((root) => {
+            root.querySelectorAll('img:not([loading])').forEach((img) => {
+                if (!img.closest('#modal-banner, #modal-logo')) {
+                    img.loading = 'lazy';
+                    img.decoding = 'async';
+                }
+            });
+        });
     };
 
-    let imageFrame = 0;
-    const imageObserver = new MutationObserver(() => {
-        if (imageFrame) return;
-        imageFrame = requestAnimationFrame(() => {
-            imageFrame = 0;
-            observeScheduleImages();
-        });
-    });
-
     const init = () => {
+        // Memoize repeated date parsing only after schedule.js has defined the helper.
+        const originalDateParts = window.getVietnamDateParts;
+        if (typeof originalDateParts === 'function' && !originalDateParts.__tvltMemoized) {
+            const dateCache = new Map();
+            const memoizedDateParts = (dateStr) => {
+                const key = String(dateStr ?? '');
+                if (dateCache.has(key)) return dateCache.get(key);
+                const value = originalDateParts(dateStr);
+                dateCache.set(key, value);
+                return value;
+            };
+            memoizedDateParts.__tvltMemoized = true;
+            window.getVietnamDateParts = memoizedDateParts;
+        }
+
+        // Debounce rapid search/filter input so typing does not repeatedly rebuild the UI.
+        const originalFilter = window.filterSchedule;
+        if (typeof originalFilter === 'function' && !originalFilter.__tvltDebounced) {
+            let timer = 0;
+            const debouncedFilter = () => {
+                window.clearTimeout(timer);
+                timer = window.setTimeout(originalFilter, 120);
+            };
+            debouncedFilter.__tvltDebounced = true;
+            window.filterSchedule = debouncedFilter;
+        }
+
         observeScheduleImages();
 
-        const cachedEvents = readScheduleCache();
-        if (cachedEvents && Array.isArray(window.tournaments) && !window.tournaments.length) {
-            window.tournaments = cachedEvents;
-            window.dispatchEvent(new CustomEvent('tvlt:schedule-cache-ready'));
-        }
+        let imageFrame = 0;
+        const imageObserver = new MutationObserver(() => {
+            if (imageFrame) return;
+            imageFrame = requestAnimationFrame(() => {
+                imageFrame = 0;
+                observeScheduleImages();
+            });
+        });
 
         const calendarBody = document.getElementById('calendar-body');
         const listContainer = document.getElementById('list-container');
@@ -84,54 +137,38 @@
         const closeButton = modal?.querySelector('.cc-modal-close');
         let previousFocus = null;
 
-        if (modal) {
-            const modalObserver = new MutationObserver(() => {
-                const opened = modal.classList.contains('open');
-                if (opened && !previousFocus) {
-                    previousFocus = document.activeElement;
-                    closeButton?.focus({ preventScroll: true });
-                } else if (!opened && previousFocus) {
-                    previousFocus.focus?.({ preventScroll: true });
-                    previousFocus = null;
-                }
-            });
-            modalObserver.observe(modal, { attributes: true, attributeFilter: ['class'] });
+        if (!modal) return;
 
-            modal.addEventListener('keydown', (event) => {
-                if (event.key !== 'Tab' || !modal.classList.contains('open')) return;
-                const focusable = modalDialog?.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])');
-                if (!focusable?.length) return;
-                const first = focusable[0];
-                const last = focusable[focusable.length - 1];
-                if (event.shiftKey && document.activeElement === first) {
-                    event.preventDefault();
-                    last.focus();
-                } else if (!event.shiftKey && document.activeElement === last) {
-                    event.preventDefault();
-                    first.focus();
-                }
-            });
-        }
+        const modalObserver = new MutationObserver(() => {
+            const opened = modal.classList.contains('open');
+            if (opened && !previousFocus) {
+                previousFocus = document.activeElement;
+                closeButton?.focus({ preventScroll: true });
+            } else if (!opened && previousFocus) {
+                previousFocus.focus?.({ preventScroll: true });
+                previousFocus = null;
+            }
+        });
+        modalObserver.observe(modal, { attributes: true, attributeFilter: ['class'] });
+
+        modal.addEventListener('keydown', (event) => {
+            if (event.key !== 'Tab' || !modal.classList.contains('open')) return;
+            const focusable = modalDialog?.querySelectorAll(
+                'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            );
+            if (!focusable?.length) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        });
     };
-
-    // Capture successful live responses without replacing the core loader.
-    const nativeFetch = window.fetch;
-    if (typeof nativeFetch === 'function') {
-        window.fetch = function scheduleAwareFetch(input, init) {
-            const url = typeof input === 'string' ? input : input?.url;
-            return nativeFetch.call(this, input, init).then((response) => {
-                if (url?.includes('script.google.com/macros/s/') && response.ok) {
-                    response.clone().text().then((text) => {
-                        try {
-                            const data = JSON.parse(text);
-                            writeScheduleCache(data.events || data.tournaments || []);
-                        } catch (_) { /* Preserve the original response for schedule.js. */ }
-                    });
-                }
-                return response;
-            });
-        };
-    }
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init, { once: true });
