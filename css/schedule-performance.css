@@ -1,9 +1,16 @@
 /* Schedule performance layer */
 
-/* Keep off-screen calendar/list content from participating in layout/paint until needed. */
-#calendar-wrapper,
-#list-wrapper {
-  contain: layout style;
+/* Keep the calendar itself as the horizontal scroll surface on narrow screens. */
+#calendar-wrapper {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto !important;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: auto;
+  contain: none;
 }
 
 #calendar-table {
@@ -14,20 +21,62 @@
   contain: layout;
 }
 
-/* Avoid accidental horizontal scrolling on narrow screens. */
+/* The calendar needs a real intrinsic width so the wrapper can scroll it. */
+@media (max-width: 900px) {
+  #calendar-table {
+    width: 900px;
+    min-width: 900px;
+    table-layout: fixed;
+  }
+
+  #calendar-table th,
+  #calendar-table td {
+    min-width: 124px;
+  }
+}
+
+/* Avoid accidental horizontal scrolling on narrow screens outside the calendar. */
 .schedule-control-bar,
-.month-nav-wrapper,
-.cc-modal-dialog {
+.month-nav-wrapper {
   max-width: 100%;
 }
 
-/* Make interactive controls comfortable on touch devices. */
-.month-nav-btn,
-.segment-btn,
-.compact-btn,
-.cc-modal-close,
-.btn {
-  touch-action: manipulation;
+/* Keep dropdown popups above the filter bar and allow their full menu to render. */
+.schedule-control-bar {
+  overflow: visible;
+}
+
+.tour-dropdown {
+  position: relative;
+  z-index: 30;
+}
+
+.tour-dropdown-menu {
+  z-index: 1000;
+  max-width: min(360px, calc(100vw - 32px));
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Make the filter controls fit instead of forcing the whole page wider. */
+.search-wrapper,
+.control-group,
+.tour-dropdown,
+.segmented-control {
+  min-width: 0;
+}
+
+.search-input {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Restore the previous event-dialog geometry; the hardening layer should not
+   change the dialog's visual proportions on mobile. */
+.cc-modal-dialog {
+  max-height: 90vh;
+  overflow-y: auto;
+  overscroll-behavior: auto;
 }
 
 @media (max-width: 640px) {
@@ -41,9 +90,8 @@
   }
 
   .cc-modal-dialog {
-    max-height: 92dvh;
+    max-height: 90vh;
     overflow-y: auto;
-    overscroll-behavior: contain;
   }
 }
 
