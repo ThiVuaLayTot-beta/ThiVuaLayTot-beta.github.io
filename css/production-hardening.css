@@ -1,0 +1,38 @@
+/*
+ * Production hardening
+ * Deliberately avoids changing layout, spacing, colors or component geometry.
+ */
+
+/* Keyboard users get a visible, non-invasive focus indicator. */
+:where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+/* Prevent long user/API-provided strings from forcing horizontal overflow. */
+:where(.container, main, section, article, .modal, .card) {
+    overflow-wrap: anywhere;
+}
+
+/* Respect OS-level motion preferences without disabling functional transitions. */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto !important;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Avoid accidental media overflow on narrow touch screens. */
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
+}
