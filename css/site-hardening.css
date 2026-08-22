@@ -1,39 +1,17 @@
 /* Site-wide hardening and performance polish. */
 
-:root {
-  color-scheme: dark;
-}
+:root { color-scheme: dark; }
+html { scrollbar-gutter: stable; }
+body { min-width: 320px; }
+img, video, iframe, svg, canvas { max-inline-size: 100%; }
 
-html {
-  scrollbar-gutter: stable;
-}
-
-body {
-  min-width: 320px;
-}
-
-/* Prevent media from causing layout overflow on small screens. */
-img,
-video,
-iframe,
-svg,
-canvas {
-  max-inline-size: 100%;
-}
-
-/* Consistent keyboard target sizing without changing desktop layout. */
 @media (pointer: coarse) {
-  button,
-  [role="button"],
-  input[type="checkbox"],
-  input[type="radio"] {
+  button, [role="button"], input[type="checkbox"], input[type="radio"] {
     min-height: 40px;
     min-width: 40px;
   }
 }
 
-/* Native buttons used by the accessible navbar should visually match the old
-   anchor-based navbar instead of exposing browser button chrome. */
 #menu,
 .topnav_content .dropdown-trigger {
   appearance: none !important;
@@ -62,31 +40,19 @@ canvas {
   white-space: nowrap;
 }
 
-.topnav_content .section {
-  background: transparent !important;
-}
-
-.topnav_content .section > .dropdown-trigger {
-  color: var(--color-text-primary, inherit) !important;
-}
-
-#menu {
-  padding: 0 !important;
-}
-
-#menu:hover,
-.dropdown-trigger:hover,
-#menu:active,
-.dropdown-trigger:active,
-#menu:focus,
-.dropdown-trigger:focus {
+.topnav_content .section { background: transparent !important; }
+.topnav_content .section > .dropdown-trigger { color: var(--color-text-primary, inherit) !important; }
+#menu { padding: 0 !important; }
+#menu:hover, .dropdown-trigger:hover, #menu:active, .dropdown-trigger:active,
+#menu:focus, .dropdown-trigger:focus {
   background: transparent !important;
   background-color: transparent !important;
   box-shadow: none !important;
 }
 
-/* Match the original mobile navbar spacing that was supplied by the old
-   anchor selector in main.css. */
+.topnav_content .section.dropdown:focus-within > .dropdown-menu { display: block; }
+.topnav_content .section.dropdown:focus-within > .dropdown-trigger .dropdown-arrow { transform: rotate(180deg); }
+
 @media (max-width: 1024px) {
   .topnav_content .section .dropdown-trigger {
     width: 100%;
@@ -96,54 +62,34 @@ canvas {
   }
 }
 
-/* Keep schedule filter popups from being clipped or pushed off-screen. */
-.schedule-control-bar,
-.control-group,
-.tour-dropdown {
-  overflow: visible;
-}
+.schedule-control-bar, .control-group, .tour-dropdown { overflow: visible; }
+.schedule-control-bar { min-width: 0; }
 
-.schedule-control-bar {
-  min-width: 0;
-}
-
-/* Reduce expensive decorative effects on low-power/mobile contexts. */
 @media (max-width: 768px) {
-  .backdrop-filter,
-  [style*="backdrop-filter"] {
+  .backdrop-filter, [style*="backdrop-filter"] {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
-
-  .hero-v2__noise {
-    opacity: 0.04;
-  }
-
-  .topnav_content,
-  .nav_content,
-  .topnav {
-    min-width: 0;
-  }
+  .hero-v2__noise { opacity: 0.04; }
+  .topnav_content, .nav_content, .topnav { min-width: 0; }
 }
 
-/* Keep hidden interactive controls out of the accessibility tree. */
-#back-to-top[aria-hidden="true"] {
-  pointer-events: none;
-}
+#back-to-top[aria-hidden="true"] { pointer-events: none; }
 
-/* Better text wrapping for long tournament names and external URLs. */
-a,
-p,
-li,
-span,
-strong {
-  overflow-wrap: anywhere;
-}
+.event-card-title,
+.event-card-details,
+.event-card-details span,
+.event-card-details a,
+.cc-modal-info-item,
+.cc-modal-info-item span,
+.cc-modal-info-item a,
+.tournament-name,
+.event-description,
+article p,
+article li { overflow-wrap: anywhere; }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-v2__noise,
-  .board-piece,
-  .hero-v2__visual {
+  .hero-v2__noise, .board-piece, .hero-v2__visual {
     animation: none !important;
     transition: none !important;
   }
