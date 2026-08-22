@@ -7,6 +7,7 @@ const menuBtn = document.getElementById("menu");
 const nav = document.getElementById("tvltTopnav");
 const menuIcon = document.getElementById("menuIcon");
 const dropdowns = document.querySelectorAll(".section.dropdown");
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
 function closeDropdowns() {
     dropdowns.forEach((dropdown) => {
@@ -106,9 +107,10 @@ function handleScrollEffects() {
     if (timeline && timelineVisible) {
         const rect = timeline.getBoundingClientRect();
         const windowHeight = window.innerHeight;
-        if (rect.top < windowHeight && rect.bottom > 0) {
+        const range = rect.bottom - rect.top;
+        if (rect.top < windowHeight && rect.bottom > 0 && range > 0) {
             const current = windowHeight * 0.7;
-            let scrollPercent = ((current - rect.top) / (rect.bottom - rect.top)) * 100;
+            let scrollPercent = ((current - rect.top) / range) * 100;
             scrollPercent = Math.min(Math.max(scrollPercent, 0), 100);
             rootStyle.setProperty("--timeline-progress", `${scrollPercent}%`);
         }
@@ -134,7 +136,7 @@ window.addEventListener("scroll", () => {
 
 if (backToTopBtn) {
     backToTopBtn.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: 0, behavior: reduceMotion.matches ? "auto" : "smooth" });
     });
 }
 
