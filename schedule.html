@@ -8,9 +8,10 @@ title: Lịch sự kiện của tháng - CLB Thí Vua Lấy Tốt
     {% include head.html %}
     <title>Lịch sự kiện của tháng - CLB Thí Vua Lấy Tốt</title>
     <link href="/css/schedule.css" rel="stylesheet">
+    <link href="/css/schedule-performance.css" rel="stylesheet">
 </head>
 
-<body>
+<body class="schedule-page">
     {% include navbar.html %}
 
     <div id="section-page">
@@ -112,16 +113,16 @@ title: Lịch sự kiện của tháng - CLB Thí Vua Lấy Tốt
                     </div>
                 </div>
                 <div class="btn-group">
-                    <a id="modal-join" href="#" target="_blank" rel="noopener noreferrer"><button class="btn btn-primary" type="button"><span class="bx bx-user-plus" aria-hidden="true"></span> Tham gia</button></a>
-                    <a id="modal-rule" href="#" target="_blank" rel="noopener noreferrer"><button class="btn btn-secondary" type="button"><span class="bx bx-task" aria-hidden="true"></span> Thể lệ</button></a>
-                    <a id="modal-results" href="#" target="_blank" rel="noopener noreferrer"><button class="btn btn-secondary" type="button"><span class="bx bx-trophy" aria-hidden="true"></span> Kết quả</button></a>
+                    <a id="modal-join" class="btn btn-primary" href="#" target="_blank" rel="noopener noreferrer"><span class="bx bx-user-plus" aria-hidden="true"></span> Tham gia</a>
+                    <a id="modal-rule" class="btn btn-secondary" href="#" target="_blank" rel="noopener noreferrer"><span class="bx bx-task" aria-hidden="true"></span> Thể lệ</a>
+                    <a id="modal-results" class="btn btn-secondary" href="#" target="_blank" rel="noopener noreferrer"><span class="bx bx-trophy" aria-hidden="true"></span> Kết quả</a>
                 </div>
             </div>
         </div>
         <br><hr><br>
         <button id="back-to-top" title="Quay lại đầu trang" aria-label="Quay lại đầu trang"><span class="bx bxs-to-top" aria-hidden="true"></span></button>
+        <script src="/js/schedule-enhancements.js"></script>
         <script src="/js/schedule.js" charset="utf-8"></script>
-        <script src="/js/schedule-enhancements.js" defer></script>
         {% include footer.html %}
         <script src="/js/main.js"></script>
 </body>
