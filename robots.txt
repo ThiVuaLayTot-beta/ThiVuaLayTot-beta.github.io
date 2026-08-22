@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://thivualaytot-beta.github.io/sitemap.xml
+Sitemap: https://thivualaytot.github.io/sitemap.xml
