@@ -62,8 +62,11 @@
             return nativeFetch(input, init).then((response) => {
                 if (response.ok) {
                     response.clone().json().then(writeCache).catch(() => {});
+                    return response;
                 }
-                return response;
+
+                const stale = readCache(true);
+                return stale ? cacheResponse(stale) : response;
             }).catch((error) => {
                 const stale = readCache(true);
                 if (stale) return cacheResponse(stale);
