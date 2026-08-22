@@ -48,6 +48,13 @@ canvas {
   box-shadow: none;
 }
 
+.topnav_content .section .dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  width: auto;
+}
+
 .dropdown-trigger {
   padding: 0;
 }
@@ -62,6 +69,17 @@ canvas {
 .dropdown-trigger:active {
   background: transparent;
   box-shadow: none;
+}
+
+/* Match the original mobile navbar spacing that was supplied by the old
+   anchor selector in main.css. */
+@media (max-width: 1024px) {
+  .topnav_content .section .dropdown-trigger {
+    width: 100%;
+    padding: 0.8rem 0;
+    font-size: 1.1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
 }
 
 /* Keep schedule filter popups from being clipped or pushed off-screen. */
