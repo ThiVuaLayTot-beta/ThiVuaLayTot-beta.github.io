@@ -121,14 +121,6 @@
   white-space: nowrap;
 }
 
-/* Restore the previous event-dialog geometry; the hardening layer should not
-   change the dialog's visual proportions on mobile. */
-.cc-modal-dialog {
-  max-height: 90vh;
-  overflow-y: auto;
-  overscroll-behavior: auto;
-}
-
 /* Tablet/small desktop: keep the filter bar usable without creating page-wide
    horizontal overflow. */
 @media (max-width: 900px) {
@@ -205,17 +197,11 @@
   #calendar-table td {
     overflow: hidden;
   }
-
-  .cc-modal-dialog {
-    max-height: 90vh;
-    overflow-y: auto;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   #calendar-wrapper,
-  #list-wrapper,
-  .cc-modal-dialog {
+  #list-wrapper {
     scroll-behavior: auto;
   }
 }
