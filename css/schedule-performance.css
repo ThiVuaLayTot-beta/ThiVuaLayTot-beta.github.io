@@ -23,9 +23,14 @@
 
 /* The calendar needs a real intrinsic width so the wrapper can scroll it. */
 @media (max-width: 900px) {
+  #calendar-wrapper {
+    max-width: 100%;
+    overflow-x: auto !important;
+  }
+
   #calendar-table {
-    width: 900px;
-    min-width: 900px;
+    width: 900px !important;
+    min-width: 900px !important;
     table-layout: fixed;
   }
 
@@ -71,6 +76,51 @@
   max-width: 100%;
 }
 
+/* Stable desktop layout: search stays on the left and the filter controls
+   stay grouped on the right without stretching or clipping each other. */
+.schedule-control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.schedule-control-bar > .search-wrapper,
+.schedule-control-bar > .control-item.search-wrapper {
+  flex: 0 1 300px;
+  width: min(300px, 100%);
+  max-width: 300px;
+  min-width: 0;
+}
+
+.schedule-control-bar > .control-group {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin-left: auto;
+  justify-content: flex-end;
+}
+
+.schedule-control-bar .tour-dropdown {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.schedule-control-bar .tour-dropdown-btn.compact-btn {
+  min-width: 224px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.schedule-control-bar .compact-switch-container {
+  flex: 0 0 auto;
+}
+
+.schedule-control-bar .segmented-control {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
 /* Restore the previous event-dialog geometry; the hardening layer should not
    change the dialog's visual proportions on mobile. */
 .cc-modal-dialog {
@@ -79,7 +129,74 @@
   overscroll-behavior: auto;
 }
 
-@media (max-width: 640px) {
+/* Tablet/small desktop: keep the filter bar usable without creating page-wide
+   horizontal overflow. */
+@media (max-width: 900px) {
+  .schedule-control-bar {
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  .schedule-control-bar > .search-wrapper,
+  .schedule-control-bar > .control-item.search-wrapper {
+    flex: 1 1 240px;
+    width: auto;
+    max-width: 300px;
+  }
+
+  .schedule-control-bar > .control-group {
+    flex: 1 1 auto;
+    margin-left: auto;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  /* The filter controls become two clean rows instead of being squeezed into
+     the viewport. The calendar remains the only horizontal scroll surface. */
+  .schedule-control-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    overflow: visible;
+  }
+
+  .schedule-control-bar > .search-wrapper,
+  .schedule-control-bar > .control-item.search-wrapper {
+    width: 100%;
+    max-width: none;
+    flex: 0 0 auto;
+  }
+
+  .schedule-control-bar > .control-group {
+    width: 100%;
+    flex: 0 0 auto;
+    margin-left: 0;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .schedule-control-bar .tour-dropdown {
+    flex: 1 1 220px;
+    min-width: 0;
+  }
+
+  .schedule-control-bar .tour-dropdown-btn.compact-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .schedule-control-bar .compact-switch-container {
+    flex: 0 0 auto;
+  }
+
+  .schedule-control-bar .segmented-control {
+    flex: 0 0 auto;
+    max-width: 100%;
+  }
+
   #calendar-table {
     table-layout: fixed;
   }
