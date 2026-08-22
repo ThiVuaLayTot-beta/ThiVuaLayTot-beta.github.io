@@ -32,6 +32,49 @@ canvas {
   }
 }
 
+/* Native buttons used by the accessible navbar should visually match the old
+   anchor-based navbar instead of exposing browser button chrome. */
+#menu,
+.dropdown-trigger {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  margin: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  text-decoration: none;
+  box-shadow: none;
+}
+
+.dropdown-trigger {
+  padding: 0;
+}
+
+#menu {
+  padding: 0;
+}
+
+#menu:hover,
+.dropdown-trigger:hover,
+#menu:active,
+.dropdown-trigger:active {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Keep schedule filter popups from being clipped or pushed off-screen. */
+.schedule-control-bar,
+.control-group,
+.tour-dropdown {
+  overflow: visible;
+}
+
+.schedule-control-bar {
+  min-width: 0;
+}
+
 /* Reduce expensive decorative effects on low-power/mobile contexts. */
 @media (max-width: 768px) {
   .backdrop-filter,
@@ -42,6 +85,12 @@ canvas {
 
   .hero-v2__noise {
     opacity: 0.04;
+  }
+
+  .topnav_content,
+  .nav_content,
+  .topnav {
+    min-width: 0;
   }
 }
 
