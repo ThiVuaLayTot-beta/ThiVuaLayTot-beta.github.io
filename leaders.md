@@ -1,131 +1,36 @@
 ---
 layout: default
 title: Ban cán sự của Thí Vua Lấy Tốt
+permalink: /leaders
 ---
 
-<h1 class="title"><span>Các thành viên điều hành chính</span></h1>
-<ul class="nav-tabs">
-    <li><a href="#admins"><span class="bx bxs-shield admin-icon"></span>Các điều hành viên</a></li>
-    <li><a href="#contact"><span class="bx bxs-help-circle admin-icon"></span> Liên hệ & Hỗ trợ</a></li>
-</ul>
-<div id="admins" class="pos_header">
-    <h2>Các thành viên điều hành</h2>
-    <div class="people">
-        <div id="own" class="list-item-people">
-            <div class="list-item-info">
-                <img class="profile-thumbnail" src="https://images.chesscomfiles.com/uploads/v1/group/515437.8435c963.160x160o.57cc274de812.png" />
-                <div class="list-people-detail">
-                    <div class="name"><a href="https://chess.com/member/tungjohn2005" target="_blank">Mr. TungJohn</a></div>
-                    <div class="list-detail">
-                        <p class="role-admin"><span class="bx bx-microphone admin-icon"></span>Chủ kênh</p>
-                        <p><span class="bx bx-task task-icon"></span>Đứng đầu, Chủ giải <a href="/events/tvlt-thi-vua-lay-tot">Thí Vua Lấy Tốt</a>, Nhà sáng tạo nội dung</p>
-                    </div>
-                </div>
-            </div>
-            <div class="social_btn social">
-                <a href="https://youtube.com/channel/UCvNW1NAWWjblgrP6JQI4MbQ" target="_blank" title="Kênh Youtube của TungJohn"><span class="bx bxl-youtube"></span></a>
-                <a href="https://facebook.com/TungJohn2005" target="_blank" title="Trang Facebook của TungJohn"><span class="bx bxl-facebook-square"></span></a>
-                <a href="https://twitch.tv/tungjohnplayingchess" target="_blank" title="Kênh Twitch của TungJohn"><span class="bx bxl-twitch"></span></a>
-                <a href="https://tiktok.com/@tungjohn2005" target="_blank" title="Tài khoản Tiktok của TungJohn"><span class="bx bxl-tiktok"></span></a>
-                <a href="https://chess.com/member/tungjohn2005" target="_blank" title="Tài khoản Chess.com của TungJohn"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" /></a>
-                <a href="https://lichess.org/Tungjohn2005" target="_blank" title="Tài khoản Lichess của TungJohn"><img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" /></a>
-            </div>
-        </div>
-        <div id="admin4" class="list-item-people">
-            <div class="list-item-info">
-                <img class="profile-thumbnail" src="https://images.chesscomfiles.com/uploads/v1/user/98639406.387c082e.160x160o.418e5655b3c6.jpg">
-                <div class="list-people-detail">
-                    <div class="name"><a href="https://chess.com/member/vn-senjin" target="_blank">VN-SenJin</a></div>
-                    <div class="list-detail">
-                        <p class="role-success"><span class="bx bx-check-shield admin-icon"></span>Quản trị viên</p>
-                        <p><span class="bx bx-task task-icon"></span>Quản lý giải <a href="/events/cbtt-co-bi-thi-tot">Cờ Bí Thí Tốt</a>, Phát triển cộng đồng, Sáng tạo nội dung
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="social_btn social">
-                <a href="https://lichess.org/JohnnyHoan" target="_blank"><img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" /></a>
-                <a href="https://chess.com/member/vn-senjin" target="_blank"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" /></a>
-                <a href="https://open.spotify.com/user/31zgo6yz7o2zfcm24ih2swuwlnyu" target="_blank"><span class="bx bxl-spotify"></span></a>
-            </div>
-        </div>
-        <div id="admin5" class="list-item-people">
-            <div class="list-item-info">
-                <img class="profile-thumbnail" src="https://images.chesscomfiles.com/uploads/v1/user/169633533.eba6f687.160x160o.e6a4dfc10e60.jpg" />
-                <div class="list-people-detail">
-                    <div class="name"><a href="https://chess.com/member/giabao18012010" target="_blank">Giabao18012010</a></div>
-                    <div class="list-detail">
-                        <p class="role-success"><span class="bx bx-check-shield admin-icon"></span>Quản trị viên</p>
-                        <p><span class="bx bx-task task-icon"></span>Phát triển cộng đồng</p>
-                    </div>
-                </div>
-            </div>
-            <div class="social_btn social">
-                <a href="https://lichess.org/Giabao20101801" target="_blank"><img
-                        src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" /></a>
-                <a href="https://chess.com/member/giabao18012010" target="_blank"><img
-                        src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" /></a>
-                <a href="https://facebook.com/61550645465442" target="_blank"><span
-                        class="bx bxl-facebook-square"></span></a>
-            </div>
-        </div>
-        <div id="admin3" class="list-item-people">
-            <div class="list-item-info">
-                <img class="profile-thumbnail" src="https://avatars.githubusercontent.com/u/134517889" />
-                <div class="list-people-detail">
-                    <div class="name"><a href="https://chess.com/member/M-DinhHoangViet"
-                            target="_blank">M-DinhHoangViet</a></div>
-                    <div class="list-detail">
-                        <p class="role-success"><span class="bx bx-check-shield admin-icon"></span>Quản trị viên</p>
-                        <p><span class="bx bx-task task-icon"></span>Phát triển web, Quản lý giải <a href="/events/cttq-chien-truong-thi-quan">Chiến Trường Thí Quân</a>, Phát triển cộng đồng</p>
-                    </div>
-                </div>
-            </div>
-            <div class="social_btn social">
-                <a href="https://chess.com/member/M-DinhHoangViet" target="_blank"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" /></a>
-                <a href="https://lichess.org/M_DinhHoangViet" target="_blank"><img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" /></a>
-                <a href="https://twitch.tv/masterdinhhoangviet" target="_blank"><span class="bx bxl-twitch"></span></a>
-                <a href="https://x.com/DINHHOANGVIET_" target="_blank"><span class="bx bxl-twitter"></span></a>
-                <a href="https://open.spotify.com/playlist/3vSBfEbFI7ibhqjEORjEFC" target="_blank"><span class="bx bxl-spotify"></span></a>
-                <a href="https://youtube.com/channel/UCPj3r5RWmho8CMnz8r5Aw-Q" target="_blank"><span class="bx bxl-youtube"></span></a>
-            </div>
-        </div>
-        <div id="admin2" class="list-item-people">
-            <div class="list-item-info">
-                <img class="profile-thumbnail" src="https://images.chesscomfiles.com/uploads/v1/user/208914275.d4c1060d.160x160o.7044b8c17d10.png" />
-                <div class="list-people-detail">
-                    <div class="name"><a href="https://chess.com/member/fr-ch_theclanteamismine"
-                            target="_blank">FR-CH_TheClanTeamIsMine</a></div>
-                    <div class="list-detail">
-                        <p class="role-success"><span class="bx bx-check-shield admin-icon"></span>Quản trị viên</p>
-                        <p><span class="bx bx-task task-icon"></span>Quản lý giải <a href="/events/tournaments/dttv">Đấu Trường Thí Vua</a>, Phát triển cộng đồng, Sáng tạo nội dung.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="social_btn social">
-                <a href="https://chess.com/member/fr-ch_theclanteamismine" target="_blank"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" /></a>
-                <a href="https://lichess.org/proob32njjj" target="_blank"><img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" /></a>
-                <a href="https://twitch.tv/FRCH_is_a_ClanTeam" target="_blank"><span class="bx bxl-twitch"></span></a>
-                <a href="https://facebook.com/ADTEKF" target="_blank"><span class="bx bxl-facebook-square"></span></a>
-                <a href="https://open.spotify.com/user/31voowznlz5nqvyig52tp3wqlk4u" target="_blank"><span class="bx bxl-spotify"></span></a>
-                <a href="https://youtube.com/@CH.Mini_Defender" target="_blank"><span class="bx bxl-youtube"></span></a>
-            </div>
-        </div>
+<div class="community-page leaders-page">
+  <header class="community-hero">
+    <span class="community-kicker"><span class="bx bxs-shield"></span> Đội ngũ điều hành</span>
+    <h1>Những người đứng sau <span>Thí Vua Lấy Tốt</span></h1>
+    <p>Đội ngũ quản trị, tổ chức giải đấu và phát triển cộng đồng kỳ thủ Việt Nam.</p>
+  </header>
+
+  <section id="own" class="leader-feature">
+    <div class="leader-avatar-wrap"><img src="https://images.chesscomfiles.com/uploads/v1/group/515437.8435c963.160x160o.57cc274de812.png" alt="Mr. TungJohn"></div>
+    <div>
+      <span class="leader-badge">FOUNDER · CHỦ KÊNH</span>
+      <h2><a href="https://chess.com/member/tungjohn2005" target="_blank" rel="noopener">Mr. TungJohn</a></h2>
+      <p>Đứng đầu cộng đồng, chủ giải <a href="/events/tvlt-thi-vua-lay-tot">Thí Vua Lấy Tốt</a> và nhà sáng tạo nội dung.</p>
+      <div class="leader-socials">
+        <a href="https://youtube.com/channel/UCvNW1NAWWjblgrP6JQI4MbQ" target="_blank" rel="noopener" aria-label="YouTube"><span class="bx bxl-youtube"></span></a><a href="https://facebook.com/TungJohn2005" target="_blank" rel="noopener" aria-label="Facebook"><span class="bx bxl-facebook-square"></span></a><a href="https://twitch.tv/tungjohnplayingchess" target="_blank" rel="noopener" aria-label="Twitch"><span class="bx bxl-twitch"></span></a><a href="https://tiktok.com/@tungjohn2005" target="_blank" rel="noopener" aria-label="TikTok"><span class="bx bxl-tiktok"></span></a><a href="https://chess.com/member/tungjohn2005" target="_blank" rel="noopener" aria-label="Chess.com"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" alt=""></a><a href="https://lichess.org/Tungjohn2005" target="_blank" rel="noopener" aria-label="Lichess"><img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt=""></a>
+      </div>
     </div>
-</div>
-<p align="center">Ngoài ra còn một số <a href="https://chess.com/clubs/members/thi-vua-lay-tot-tungjohn-playing-chess?filter=byRoles" target="_blank">thành viên khác.</a></p>
-<p><br /><strong>Bạn có muốn trở thành một điều phối viên? Xem <a href="/news/2024/08/10/tuyen-dieu-hanh-vien">chi tiết và ứng tuyển</a>.</strong></p>
-<hr id="contact"><br>
-<div class="pos_header">
-    <h2>Liên hệ</h2>
-    <strong>Vui lòng hãy tham gia các câu lạc bộ, cộng đồng trên một số nền tảng sau giúp bạn có thể dễ dàng trao đổi và trò chuyện với mọi người:</strong>
-    <div class="social_btn">
-        <a href="https://link.chess.com/club/0CVQh6" target="_blank"><img width="22" src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png"></a>
-        <a href="https://facebook.com/groups/586909589413729" target="_blank" title="Nhóm Facebook của Thí Vua Lấy Tốt"><span class="bx bxl-facebook-square"></span></a>
-        <a href="https://zalo.me/g/zhrwtn779" title="Nhóm chat Thí Vua Lấy Tốt trên Zalo"><img width="14" src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg"></a>
-        <a href="https://discord.gg/bggkufa4nE" target="_blank" title="Máy chủ Discord của Thí Vua Lấy Tốt"><span class="bx bxl-discord"></span></a>
-    </div>
-    <strong>Bạn cũng có thể liên hệ tới một trong <a href="#admins">các quản trị viên</a> để nhận được hỗ trợ.</strong>
-    <p>Đánh giá câu lạc bộ: <a href="https://forms.gle/iCYUAbVD5GUmbdsL8" target="_blank">https://forms.gle/iCYUAbVD5GUmbdsL8</a></p>
-    Ủng hộ cho Mr.TungJohn: <img src="/images/tvlt/payment.jpg" width="170" height="189" alt="QR Code">
+  </section>
+
+  <div class="community-section-heading"><h2>Các điều hành viên</h2><p>Mỗi thành viên phụ trách một phần khác nhau của hoạt động cộng đồng.</p></div>
+  <section class="leaders-grid">
+    <article id="admin4" class="leader-card"><img src="https://images.chesscomfiles.com/uploads/v1/user/98639406.387c082e.160x160o.418e5655b3c6.jpg" alt="VN-SenJin"><div><span class="leader-role">QUẢN TRỊ VIÊN</span><h3><a href="https://chess.com/member/vn-senjin" target="_blank" rel="noopener">VN-SenJin</a></h3><p>Quản lý <a href="/events/cbtt-co-bi-thi-tot">Cờ Bí Thí Tốt</a>, phát triển cộng đồng và sáng tạo nội dung.</p><div class="leader-socials"><a href="https://lichess.org/JohnnyHoan" target="_blank" rel="noopener" aria-label="Lichess"><img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt=""></a><a href="https://chess.com/member/vn-senjin" target="_blank" rel="noopener" aria-label="Chess.com"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" alt=""></a><a href="https://open.spotify.com/user/31zgo6yz7o2zfcm24ih2swuwlnyu" target="_blank" rel="noopener" aria-label="Spotify"><span class="bx bxl-spotify"></span></a></div></div></article>
+    <article id="admin5" class="leader-card"><img src="https://images.chesscomfiles.com/uploads/v1/user/169633533.eba6f687.160x160o.e6a4dfc10e60.jpg" alt="Giabao18012010"><div><span class="leader-role">QUẢN TRỊ VIÊN</span><h3><a href="https://chess.com/member/giabao18012010" target="_blank" rel="noopener">Giabao18012010</a></h3><p>Phát triển cộng đồng và hỗ trợ hoạt động của câu lạc bộ.</p><div class="leader-socials"><a href="https://lichess.org/Giabao20101801" target="_blank" rel="noopener" aria-label="Lichess"><img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt=""></a><a href="https://chess.com/member/giabao18012010" target="_blank" rel="noopener" aria-label="Chess.com"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" alt=""></a><a href="https://facebook.com/61550645465442" target="_blank" rel="noopener" aria-label="Facebook"><span class="bx bxl-facebook-square"></span></a></div></div></article>
+    <article id="admin3" class="leader-card"><img src="https://avatars.githubusercontent.com/u/134517889" alt="M-DinhHoangViet"><div><span class="leader-role">QUẢN TRỊ VIÊN</span><h3><a href="https://chess.com/member/M-DinhHoangViet" target="_blank" rel="noopener">M-DinhHoangViet</a></h3><p>Phát triển website, quản lý <a href="/events/cttq-chien-truong-thi-quan">Chiến Trường Thí Quân</a> và phát triển cộng đồng.</p><div class="leader-socials"><a href="https://chess.com/member/M-DinhHoangViet" target="_blank" rel="noopener" aria-label="Chess.com"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" alt=""></a><a href="https://lichess.org/M_DinhHoangViet" target="_blank" rel="noopener" aria-label="Lichess"><img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt=""></a><a href="https://twitch.tv/masterdinhhoangviet" target="_blank" rel="noopener" aria-label="Twitch"><span class="bx bxl-twitch"></span></a><a href="https://x.com/DINHHOANGVIET_" target="_blank" rel="noopener" aria-label="X"><span class="bx bxl-twitter"></span></a><a href="https://youtube.com/channel/UCPj3r5RWmho8CMnz8r5Aw-Q" target="_blank" rel="noopener" aria-label="YouTube"><span class="bx bxl-youtube"></span></a></div></div></article>
+    <article id="admin2" class="leader-card"><img src="https://images.chesscomfiles.com/uploads/v1/user/208914275.d4c1060d.160x160o.7044b8c17d10.png" alt="FR-CH_TheClanTeamIsMine"><div><span class="leader-role">QUẢN TRỊ VIÊN</span><h3><a href="https://chess.com/member/fr-ch_theclanteamismine" target="_blank" rel="noopener">FR-CH_TheClanTeamIsMine</a></h3><p>Quản lý <a href="/events/tournaments/dttv">Đấu Trường Thí Vua</a>, phát triển cộng đồng và sáng tạo nội dung.</p><div class="leader-socials"><a href="https://chess.com/member/fr-ch_theclanteamismine" target="_blank" rel="noopener" aria-label="Chess.com"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" alt=""></a><a href="https://lichess.org/proob32njjj" target="_blank" rel="noopener" aria-label="Lichess"><img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt=""></a><a href="https://twitch.tv/FRCH_is_a_ClanTeam" target="_blank" rel="noopener" aria-label="Twitch"><span class="bx bxl-twitch"></span></a><a href="https://facebook.com/ADTEKF" target="_blank" rel="noopener" aria-label="Facebook"><span class="bx bxl-facebook-square"></span></a><a href="https://youtube.com/@CH.Mini_Defender" target="_blank" rel="noopener" aria-label="YouTube"><span class="bx bxl-youtube"></span></a></div></div></article>
+  </section>
+
+  <div class="leaders-footer"><span class="bx bxs-group"></span> Ngoài đội ngũ chính còn có <a href="https://chess.com/clubs/members/thi-vua-lay-tot-tungjohn-playing-chess?filter=byRoles" target="_blank" rel="noopener">các thành viên điều phối khác</a> hỗ trợ cộng đồng.</div>
+  <div class="community-cta"><strong>Muốn trở thành điều phối viên?</strong> <a href="/news/2024/08/10/tuyen-dieu-hanh-vien">Xem yêu cầu và ứng tuyển <span class="bx bx-right-arrow-alt"></span></a></div>
 </div>
