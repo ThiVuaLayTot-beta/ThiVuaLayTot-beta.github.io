@@ -1,0 +1,283 @@
+:root {
+  --tvlt-nav-bg: rgba(5, 8, 18, .82);
+  --tvlt-nav-surface: rgba(13, 18, 34, .78);
+  --tvlt-nav-border: rgba(148, 163, 184, .14);
+  --tvlt-nav-text: #e9efff;
+  --tvlt-nav-muted: #8e9ab4;
+  --tvlt-nav-blue: #4da3ff;
+  --tvlt-nav-violet: #8b7cff;
+}
+
+.page-header {
+  position: sticky;
+  top: 12px;
+  z-index: 1000;
+  width: min(1380px, calc(100% - 24px));
+  margin: 12px auto 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 8px 10px 8px 14px;
+  background: linear-gradient(135deg, var(--tvlt-nav-bg), rgba(8, 12, 25, .72));
+  border: 1px solid var(--tvlt-nav-border);
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .28), inset 0 1px rgba(255, 255, 255, .045);
+  backdrop-filter: blur(18px) saturate(135%);
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+}
+
+.page-header::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(100deg, rgba(77, 163, 255, .16), transparent 32%, rgba(139, 124, 255, .1));
+  opacity: .75;
+  z-index: -1;
+}
+
+.page-header > div:first-child {
+  flex: 0 0 auto;
+}
+
+.tvlt_details {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 238px;
+}
+
+.tvlt_details .logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 11px;
+  filter: drop-shadow(0 0 12px rgba(77, 163, 255, .24));
+}
+
+.tvlt_name {
+  display: block;
+  color: var(--tvlt-nav-text);
+  font-size: .93rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  line-height: 1.05;
+}
+
+.tungjohn {
+  display: block;
+  margin-top: 3px;
+  color: var(--tvlt-nav-muted);
+  font-size: .66rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  line-height: 1;
+}
+
+.topnav {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.nav_content,
+.topnav_content {
+  display: flex;
+  align-items: center;
+}
+
+.topnav_content {
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.section {
+  position: relative;
+}
+
+.dropdown-trigger {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 11px !important;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: var(--tvlt-nav-muted) !important;
+  font-size: .79rem;
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none !important;
+  transition: .2s ease;
+}
+
+.dropdown-trigger .bx:first-child {
+  color: #aeb9d1;
+  font-size: 1.05rem;
+  transition: color .2s ease, transform .2s ease;
+}
+
+.dropdown-trigger .dropdown-arrow {
+  font-size: .95rem;
+  opacity: .55;
+  transition: transform .2s ease;
+}
+
+.dropdown:hover > .dropdown-trigger,
+.dropdown:focus-within > .dropdown-trigger,
+.dropdown.is-open > .dropdown-trigger {
+  color: var(--tvlt-nav-text) !important;
+  background: rgba(255, 255, 255, .055);
+  border-color: rgba(148, 163, 184, .1);
+}
+
+.dropdown:hover > .dropdown-trigger .bx:first-child,
+.dropdown:focus-within > .dropdown-trigger .bx:first-child,
+.dropdown.is-open > .dropdown-trigger .bx:first-child {
+  color: var(--tvlt-nav-blue);
+  transform: translateY(-1px);
+}
+
+.dropdown:hover .dropdown-arrow,
+.dropdown:focus-within .dropdown-arrow,
+.dropdown.is-open .dropdown-arrow {
+  transform: rotate(180deg);
+  color: var(--tvlt-nav-blue);
+}
+
+.dropdown-menu {
+  margin-top: 8px !important;
+  min-width: 235px;
+  padding: 7px !important;
+  border: 1px solid var(--tvlt-nav-border) !important;
+  border-radius: 14px !important;
+  background: rgba(8, 12, 24, .96) !important;
+  box-shadow: 0 24px 55px rgba(0, 0, 0, .42) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.dropdown-menu a {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 11px !important;
+  border-radius: 9px;
+  color: #aeb9d1 !important;
+  font-size: .78rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  transition: .18s ease;
+}
+
+.dropdown-menu a .bx {
+  width: 20px;
+  color: #71809f;
+  font-size: 1rem;
+  text-align: center;
+  transition: color .18s ease;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu a:focus-visible {
+  color: #fff !important;
+  background: linear-gradient(90deg, rgba(77, 163, 255, .11), rgba(139, 124, 255, .06));
+  outline: none;
+}
+
+.dropdown-menu a:hover .bx,
+.dropdown-menu a:focus-visible .bx {
+  color: var(--tvlt-nav-blue);
+}
+
+#menu {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--tvlt-nav-border);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .04);
+  color: var(--tvlt-nav-text);
+  cursor: pointer;
+}
+
+#menu:focus-visible,
+.dropdown-trigger:focus-visible,
+.dropdown-menu a:focus-visible {
+  outline: 2px solid rgba(77, 163, 255, .7);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1080px) {
+  .tvlt_details { min-width: 205px; }
+  .dropdown-trigger { padding-inline: 8px !important; }
+  .dropdown-trigger { font-size: .74rem; }
+}
+
+@media (max-width: 860px) {
+  .page-header {
+    top: 8px;
+    width: calc(100% - 16px);
+    margin-top: 8px;
+    padding: 8px;
+  }
+
+  .tvlt_details { min-width: 0; }
+  .tvlt_name { font-size: .86rem; }
+  .tungjohn { font-size: .59rem; }
+  .tvlt_details .logo { width: 40px; height: 40px; }
+
+  #menu {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+  }
+
+  .nav_content { width: 100%; justify-content: flex-end; }
+  .topnav_content {
+    display: none;
+    position: absolute;
+    left: 8px;
+    right: 8px;
+    top: calc(100% + 8px);
+    padding: 8px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    border: 1px solid var(--tvlt-nav-border);
+    border-radius: 16px;
+    background: rgba(7, 10, 20, .97);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .45);
+    backdrop-filter: blur(20px);
+  }
+
+  .topnav_content.show,
+  .topnav_content.active { display: flex; }
+
+  .section { width: 100%; }
+  .dropdown-trigger { width: 100%; justify-content: flex-start; padding: 12px !important; }
+  .dropdown-trigger .dropdown-arrow { margin-left: auto; }
+
+  .dropdown-menu {
+    position: static !important;
+    width: 100%;
+    min-width: 0;
+    margin: 2px 0 4px !important;
+    box-shadow: none !important;
+    background: rgba(255, 255, 255, .025) !important;
+  }
+
+  .dropdown-menu a { padding: 10px 12px !important; }
+}
+
+@media (max-width: 480px) {
+  .page-header { border-radius: 14px; }
+  .tvlt_details .logo { width: 36px; height: 36px; }
+  .tvlt_name { font-size: .8rem; }
+  .tungjohn { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-header *,
+  .page-header::before { transition: none !important; }
+}
