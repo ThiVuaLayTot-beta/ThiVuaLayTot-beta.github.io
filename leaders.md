@@ -1,11 +1,11 @@
 ---
 layout: default
 title: Các quản trị viên
-decription: Đội ngũ quản trị nhiệt tình, sẵn sàng hỗ trợ thành viên và không ngừng đổi mới để CLB lớn mạnh hơn.
+description: Đội ngũ quản trị nhiệt tình, sẵn sàng hỗ trợ thành viên và không ngừng đổi mới để CLB lớn mạnh hơn.
 ---
 
 <ul class="nav-tabs">
-    <li><a href="#admins"><span class="bx bxs-shield" style="color:var(--color-accent-dark)"></span>Các điều hành viên</a></li>
+    <li><a href="#admins" class="active"><span class="bx bxs-shield" style="color:var(--color-accent-dark)"></span>Các điều hành viên</a></li>
     <li><a href="/contact"><span class="bx bxs-help-circle" style="color:var(--yellow-300)"></span>Liên hệ & Hỗ trợ</a></li>
 </ul>
 
@@ -55,7 +55,6 @@ decription: Đội ngũ quản trị nhiệt tình, sẵn sàng hỗ trợ thàn
 </div>
 <p align="center">Ngoài ra còn một số <a href="https://chess.com/clubs/members/thi-vua-lay-tot-tungjohn-playing-chess?filter=byRoles&clubId=325849" target="_blank" rel="noopener">thành viên khác.</a></p>
 <p><br><strong>Bạn có muốn trở thành một điều phối viên? Xem <a href="/news/2024/08/10/tuyen-dieu-hanh-vien">chi tiết và ứng tuyển</a>.</strong></p>
-</div>
 
 <style>
 .leaders-only{max-width:1120px;margin:0 auto}

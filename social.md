@@ -1,6 +1,7 @@
 ---
 layout: default
 title: Các trang Mạng xã hội
+description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã hội và đăng ký theo dõi các tài khoản của Mr.TungJohn.
 ---
 
 <div class="social-grid">
@@ -119,7 +120,6 @@ title: Các trang Mạng xã hội
             </a>
         </div>
     </div>
-</div>
 </div>
 
 <style>

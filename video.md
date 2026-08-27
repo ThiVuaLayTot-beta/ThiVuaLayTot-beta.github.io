@@ -3,6 +3,11 @@ layout: default
 title: Thư viện Video
 ---
 
+<ul class="nav-tabs">
+    <li><a href="#videos" class="active"><span class="bx bx-play-circle" style="color:var(--color-accent-dark)"></span>Các video</a></li>
+    <li><a href="/blog"><span class="bx bx-news" style="color:var(--orange-200)"></span>Các bài viết</a></li>
+</ul>
+
 <div id="videos">
     <h2><a href="#videos">Vài Video nổi bật của TungJohn Playing Chess</a></h2>
     <div class="card-list">

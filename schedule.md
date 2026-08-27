@@ -237,7 +237,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .close-modal{color:var(--neutral-500);float:right;font-size:var(--fs-3xl);font-weight:var(--fw-bold);cursor:pointer}
 .close-modal:hover{color:var(--cyan-300);text-shadow:0 0 5px rgba(0,242,255,.5)}
 .modal-header{border-bottom:var(--border-width-thick) solid var(--cyan-400);padding-bottom:var(--space-md);margin-bottom:var(--space-lg)}
-.modal-header h2{color:var(--cyan-400);margin:0;font-size:var(--fs-2xl);text-shadow:0 0 6px var(--cyan-300)}
+.modal-header h2 a{color:var(--cyan-400);margin:0;font-size:var(--fs-2xl);text-shadow:0 0 6px var(--cyan-300)}
 .modal-banner{width:100%;max-height:300px;object-fit:cover;border-radius:var(--border-radius-md);margin-bottom:var(--space-lg);border:var(--border-width-thin) solid var(--cyan-400)}
 .modal-body{line-height:1.8}
 .modal-body p{margin-bottom:15px;display:flex;align-items:flex-start}

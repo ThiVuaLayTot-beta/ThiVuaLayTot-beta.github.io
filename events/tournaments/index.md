@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Bảng tổng kết các giải đã tổ chức
-decription: Tổng hợp các hệ thống giải đấu chính thức đã được tổ chức trong CLB.
+description: Tổng hợp các hệ thống giải đấu chính thức đã được tổ chức trong CLB.
 ---
 
 <section class="tournaments-section">
