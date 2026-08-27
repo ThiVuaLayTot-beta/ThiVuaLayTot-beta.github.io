@@ -4,50 +4,47 @@ title: Sự kiện Chiến Trường Thí Quân
 category: events
 tags: Giải đấu
 author: M-DinhHoangViet
-description: Một sự kiện diễn ra trong câu lạc bộ Thí Vua Lấy Tốt và được tổ chức hàng tháng với giải thưởng là <a href="https://chess.com/membership">tư cách thành viên kim cương Chess.com</a> 1 tháng.
+description: Chuỗi giải đấu tích điểm hàng tháng với giải thưởng là <a href="https://chess.com/membership">tư cách thành viên kim cương Chess.com</a> 1 tháng.
 permalink: /events/cttq-chien-truong-thi-quan
 ---
 
+# ⚔️ Chiến Trường Thí Quân
 
-# ⚔️ CHIẾN TRƯỜNG THÍ QUÂN
+**Chiến Trường Thí Quân (CTTQ)** được tổ chức lần đầu vào **08/2024**, dành cho các kỳ thủ muốn thi đấu nhiều giải và tích lũy điểm tổng.
 
-Sự kiện **Chiến Trường Thí Quân** được tổ chức lần đầu vào **tháng 8 năm 2024**, là chuỗi sự kiện thi đấu định kỳ dành cho các kỳ thủ yêu thích cạnh tranh và tích lũy điểm số.
+Giải do **M-DinhHoangViet** quản lý.
 
-![CTTQ_logo](/images/events/logo/cttq.png)  
-*Giải đấu được quản lý bởi Admin [M-DinhHoangViet](/leaders#admin3).*
-Bảng kết quả tổng hợp theo tháng được công bố **[tại đây](/events/tournaments/cttq)**.
+👉 [Xem bảng kết quả](/events/tournaments/cttq)
 
-👉 Tham gia câu lạc bộ trên hai nền tảng cờ vua để đủ điều kiện tham dự các sự kiện:  
-[Chess.com](https://link.chess.com/club/0CVQh6) & [Lichess](https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess)
+## ♟️ Thể lệ
 
----
-
-## ♟️ Thể lệ chính
-
-- Sự kiện được tổ chức theo **chu kỳ vài tháng một lần**; mỗi đợt bao gồm **nhiều giải**, kết quả chung được tính bằng **tổng điểm các giải trong tháng** ([xem chi tiết](/events/tournaments/cttq)).
-- Toàn bộ giải đấu áp dụng thể thức [**Arena**](https://support.chess.com/articles/8562889-what-are-arena-tournaments).
-- Luân phiên giữa **cờ tiêu chuẩn** và [**Chess960**](https://chess.com/article/chess-variants#Chess960) *(cờ tiêu chuẩn là hình thức chủ đạo)*.
-
----
-
-## 📅 Lịch
-
-- Giải đấu thường diễn ra vào **tối thứ Bảy, Chủ nhật** hoặc các dịp đặc biệt.
-- Link giải đấu hằng tháng được cập nhật [tại đây](/events/tournaments/cttq).
-
----
+- Mỗi đợt gồm **nhiều giải đấu** (tối thiểu 2 giải).
+- Xếp hạng dựa trên **tổng điểm** của các giải.
+- Tất cả giải sử dụng thể thức **Arena**.
+- Mỗi đợt tổ chức đa số theo thể thức **cờ tiêu chuẩn** và một giải sử dụng **Chess960**.
+- Cờ tiêu chuẩn là hình thức chủ đạo.
+- Giải thường diễn ra vào tối **thứ Bảy, Chủ nhật** hoặc các dịp đặc biệt.
 
 ## 🏆 Giải thưởng
 
-- Trao thưởng cho **03 kỳ thủ có tổng điểm cao nhất** mỗi đợt:
-  **[💎 01 tháng Tư cách thành viên Kim cương Chess.com](https://chess.com/membership)**
+Ba kỳ thủ có tổng điểm cao nhất nhận: **💎 1 tháng Chess.com Diamond Membership**
 
----
+| Hạng | Phần thưởng |
+|---|---|
+| 🥇 Top 1 | 💎 1 tháng |
+| 🥈 Top 2 | 💎 1 tháng |
+| 🥉 Top 3 | 💎 1 tháng |
 
-## ⚠️ Lưu ý
+## ⚠️ Quy định
 
-Người chơi bắt buộc tuân thủ luật thi đấu.
-Vi phạm có thể dẫn đến **không được nhận giải hoặc bị xử phạt**:
+Người chơi phải tuân thủ:
 
-🚫 [Luật Câu lạc bộ](https://chess.com/news/quy-dinh-cua-clb-tungjohn-playing-chess-7-2024)  
-🚫 [Luật Fair Play](https://chess.com/news/luat-choi-cong-bang-cua-clb-thi-vua-lay-tot)
+- [Luật Câu lạc bộ](https://chess.com/news/quy-dinh-cua-clb-tungjohn-playing-chess-7-2024)
+- [Luật Fair Play](https://chess.com/news/luat-choi-cong-bang-cua-clb-thi-vua-lay-tot)
+
+Vi phạm có thể dẫn đến **không được nhận giải hoặc bị xử phạt**.
+
+## ♟️ Tham gia
+
+- [Chess.com](https://link.chess.com/club/0CVQh6)
+- [Lichess](https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess)

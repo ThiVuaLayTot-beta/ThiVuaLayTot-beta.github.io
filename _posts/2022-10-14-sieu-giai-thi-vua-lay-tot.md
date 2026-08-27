@@ -8,45 +8,46 @@ description: Sự kiện nổi bật nhất với giải thưởng đa dang và 
 permalink: /events/tvlt-thi-vua-lay-tot
 ---
 
-## Một số thông tin chung
+# 🏆 Siêu giải Thí Vua Lấy Tốt
 
-*Giải đấu được quản lý bởi [Mr.TungJohn](/leaders#owner)*. Kết quả các giải theo từng tháng được công bố **[tại đây](/events/tournaments/tvlt)**.
+**Siêu giải Thí Vua Lấy Tốt (TVLT)** là chuỗi giải đấu có thưởng của câu lạc bộ Thí Vua Lấy Tốt, do **Mr.TungJohn** quản lý.
 
-Giải đấu có thưởng đầu tiên của **Thí Vua Lấy Tốt** được tổ chức vào [ngày 15 tháng 12 năm 2022](https://chess.com/tournament/live/arena/th-vua-ly-tt-2171704).  
-Sau giai đoạn thử nghiệm, thể lệ chính thức được ổn định và áp dụng từ **tháng 6 năm 2023** đến hiện tại.
-## ♟️ Thể lệ chính
+Giải đầu tiên được tổ chức vào **15/12/2022** và thể lệ chính thức được áp dụng từ **06/2023**.
 
-- Tổ chức **định kỳ khoảng 1 giải/tháng** (có thể điều chỉnh theo thực tế).
-- Phần lớn giải đấu áp dụng thể thức
-  [**hệ Thụy Sĩ**](https://chess.com/terms/swiss-chess) và đôi khi sẽ là [**Đấu trường (Arena)**](https://support.chess.com/articles/8562889-what-are-arena-tournaments).
-- **Cờ tiêu chuẩn** và  
-  [**Chess960**](https://chess.com/article/chess-variants#Chess960) sẽ được chọn ngẫu nhiên mỗi tháng (cờ tiêu chuẩn là hình thức chủ đạo).
-- Tất cả các giải đều **có xếp hạng** trên Chess.com.
+👉 [Xem kết quả các giải theo tháng](/events/tournaments/tvlt)
 
-## 📅 Lịch tổ chức
+## ♟️ Thể lệ
 
+- Khoảng **1 giải/tháng**, lịch có thể thay đổi.
+- Chủ yếu sử dụng thể thức **Swiss**, đôi khi tổ chức **Arena**.
+- Thể loại được lựa chọn giữa **cờ tiêu chuẩn** và **Chess960**; cờ tiêu chuẩn là hình thức chủ đạo.
+- Tất cả giải đều được xếp hạng trên Chess.com.
 - Giải thường diễn ra vào **thứ Bảy, Chủ nhật** hoặc các dịp đặc biệt.
 
-## 🏆 Giải thưởng
+## 🏅 Giải thưởng
 
-- Trao thưởng cho **03 kỳ thủ có thứ hạng cao nhất** mỗi giải.
-- Giải thưởng bao gồm: **huy chương**, **tư cách thành viên Chess.com**, **lì xì**, **tiền thưởng**,…
-- Một số giải đấu đặc biệt có thể có thêm nhiều giải hơn bình thường (top 4, top 5, giải may mắn,...)
+- 🥇🥈🥉 Trao thưởng cho **Top 3** mỗi giải.
+- Phần thưởng có thể gồm:
+  - Tiền thưởng
+  - Huy chương
+  - Chess.com Membership
+  - Một số hiện vật khác
+- Một số giải đặc biệt có thể có thêm các hạng thưởng như giải may mắn, giải đặc biệt,...
 
-<img src="/images/events/tvlt-medal.png">
+<img src="/images/events/tvlt-medal.png" alt="Huy chương Siêu giải Thí Vua Lấy Tốt">
 
-## ⚠️ Lưu ý
+## ⚠️ Quy định
 
-Người chơi bắt buộc tuân thủ luật thi đấu.
-Vi phạm có thể dẫn đến **không được nhận giải hoặc bị xử phạt**:
+Người chơi phải tuân thủ:
 
-🚫 [Luật Câu lạc bộ](https://chess.com/news/quy-dinh-cua-clb-tungjohn-playing-chess-7-2024)  
-🚫 [Luật Fair Play](https://chess.com/news/luat-choi-cong-bang-cua-clb-thi-vua-lay-tot)
+- [Luật Câu lạc bộ](https://chess.com/news/quy-dinh-cua-clb-tungjohn-playing-chess-7-2024)
+- [Luật Fair Play](https://chess.com/news/luat-choi-cong-bang-cua-clb-thi-vua-lay-tot)
 
----
+Vi phạm có thể dẫn đến **không được nhận giải hoặc bị xử phạt**.
 
-👉 Tham gia câu lạc bộ để đủ điều kiện dự giải:
+## ♟️ Tham gia
 
-- [Chess.com](https://link.chess.com/club/0CVQh6)  
+Để đủ điều kiện tham dự, hãy tham gia câu lạc bộ:
+
+- [Chess.com](https://link.chess.com/club/0CVQh6)
 - [Lichess](https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess)
-
