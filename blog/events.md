@@ -5,7 +5,6 @@ permalink: /events/
 ---
 
 <header class="events-hero">
-    <h1 class="page-title">Các giải đấu, sự kiện</h1>
     <p class="page-decription">Khám phá các giải đấu, hoạt động và sự kiện nổi bật của CLB Thí Vua Lấy Tốt.
         <a href="https://thivualaytot.github.io/atom.xml" aria-label="RSS các bài đăng" title="Atom RSS"><span class="bx bx-rss" aria-hidden="true"></span></a>
     </p>

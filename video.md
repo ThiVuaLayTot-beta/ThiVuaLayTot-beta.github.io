@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Thư viện Video - Thí Vua Lấy Tốt
+title: Thư viện Video
 ---
 
 <div id="videos">

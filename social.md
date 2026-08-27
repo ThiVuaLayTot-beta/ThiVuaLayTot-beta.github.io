@@ -6,7 +6,7 @@ title: Các trang Mạng xã hội
 <div class="social-grid">
     <!-- Club Section -->
     <div class="social-card-group">
-        <h3><span class="bx bxs-group group-icon"></span> Cộng đồng Câu lạc bộ</h3>
+        <h3 id="club"><span class="bx bxs-group group-icon"></span> Cộng đồng Câu lạc bộ</h3>
         <div class="social-links-list">
             <a href="https://link.chess.com/club/0CVQh6" target="_blank" class="social-link-item chess-com">
                 <div class="link-icon">
@@ -74,7 +74,7 @@ title: Các trang Mạng xã hội
     </div>
     <!-- Founder Section -->
     <div class="social-card-group">
-        <h3><span class="bx bxs-microphone group-icon"></span> Kênh cá nhân TungJohn</h3>
+        <h3 id="tungjohn"><span class="bx bxs-microphone group-icon"></span> Kênh cá nhân TungJohn</h3>
         <div class="social-links-list">
             <a href="https://youtube.com/channel/UCvNW1NAWWjblgrP6JQI4MbQ" target="_blank"
                 class="social-link-item youtube">
@@ -83,7 +83,7 @@ title: Các trang Mạng xã hội
                 </div>
                 <div class="link-info">
                     <h4>Kênh YouTube</h4>
-                    <p>Hơn 150k người đăng ký, cập nhật video phân tích và giải đấu hàng tuần.</p>
+                    <p>Hơn 150k người đăng ký, với những video phân tích hàng tuần và các giải đấu.</p>
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>

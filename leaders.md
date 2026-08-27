@@ -8,7 +8,8 @@ decription: Đội ngũ quản trị nhiệt tình, sẵn sàng hỗ trợ thàn
     <li><a href="#admins"><span class="bx bxs-shield" style="color:var(--color-accent-dark)"></span>Các điều hành viên</a></li>
     <li><a href="/contact"><span class="bx bxs-help-circle" style="color:var(--yellow-300)"></span>Liên hệ & Hỗ trợ</a></li>
 </ul>
-<div id="admins" class="pos_header">
+
+<div id="admins" class="leaders-only pos_header">
     <h2 align="center">Các thành viên điều hành</h2>
     <div class="people">
         <div id="own" class="list-item-people">

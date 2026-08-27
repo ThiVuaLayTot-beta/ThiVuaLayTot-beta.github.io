@@ -32,7 +32,9 @@
     margin-bottom: var(--space-lg);
 }
 
-.post-tag
+.post-tag {
+    text-transform: uppercase;
+}
 
 #post .content p {
     line-height: 1.8;
