@@ -260,7 +260,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 
 .cc-modal-overlay{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s ease;z-index:200}
 .cc-modal-overlay.open{opacity:1;visibility:visible}
-.cc-modal-dialog{background:radial-gradient(circle at top left,var(--color-bg-tertiary) 0%,var(--color-bg-primary) 100%);border-radius:var(--border-radius-xl);width:max-content;max-width:max-content;max-height:90vh;overflow:hidden;border:var(--border-width-base) solid var(--cyan-400);box-shadow:0 0 20px rgba(0,242,255,.3),0 0 40px rgba(0,102,204,.2);display:grid;grid-template-columns:470px 520px;grid-template-rows:auto;gap:0 1rem;padding:1rem;box-sizing:border-box}
+.cc-modal-dialog{background:radial-gradient(circle at top left,var(--color-bg-tertiary) 0%,var(--color-bg-primary) 100%);border-radius:var(--border-radius-xl);width:max-content;max-width:max-content;max-height:85vh;overflow:hidden;border:var(--border-width-base) solid var(--cyan-400);box-shadow:0 0 20px rgba(0,242,255,.3),0 0 40px rgba(0,102,204,.2);display:grid;grid-template-columns:470px 520px;grid-template-rows:auto;gap:0 1rem;padding:1rem;box-sizing:border-box}
 .cc-modal-banner-section{background:var(--color-bg-primary);max-height:320px;border-radius:14px;border:var(--border-width-thin) solid rgba(53,201,252,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 .cc-modal-banner-section img{width:100%;height:100%;object-fit:cover;display:block}
 .cc-modal-content-wrapper{padding:1.5rem;overflow-y:auto;grid-column:2;grid-row:1/4;display:flex;flex-direction:column;gap:1rem;min-width:0}
