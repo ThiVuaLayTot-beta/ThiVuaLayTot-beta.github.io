@@ -8,27 +8,28 @@ description: Một sự kiện diễn ra trong câu lạc bộ Thí Vua Lấy T�
 permalink: /events/cbtt-co-bi-thi-tot
 ---
 
+**Thể lệ đã được thay đổi và áp dụng từ tháng 9/2026*
 # 🔥 Cờ Bí Thí Tốt
 
-**Cờ Bí Thí Tốt (CBTT)** là chuỗi giải đấu có thưởng của câu lạc bộ Thí Vua Lấy Tốt, được tổ chức lần đầu vào **09/01/2023** và do **VN-SenJin** quản lý.
+**Cờ Bí Thí Tốt (CBTT)** là chuỗi giải đấu có thưởng của câu lạc bộ Thí Vua Lấy Tốt, được tổ chức lần đầu vào [**09/01/2023**](/events/tournaments/cbtt?sort=date-asc) và do [**VN-SenJin**](/leaders#admin4) quản lý.
 
-👉 [Xem kết quả các giải](/events/tournaments/cbtt)
+👉 [Xem các giải đã tổ chức](/events/tournaments/cbtt)
 
 ## ♟️ Thể lệ
 
 - Giải được tổ chức vào thứ 7 hàng tuần.
-- [Thể thức tổ chức](#-các-thể-loại) mặc định được chọn là Blitz (3|1) Đấu trường Arena 90 phút
+- [Thể thức tổ chức](#-các-thể-loại) mặc định được chọn là Blitz (3|1) [Đấu trường Arena](https://support.chess.com/articles/8562889-what-are-arena-tournaments) 90 phút
 - Các giải tổ chức đều tính Elo.
 
 ### 🔄 Các thể loại
 
-Giải có thể sử dụng: các thể thức
+Giải có thể sử dụng: các thể thức với logo như bên dưới
 
 <div>
   <a href="/events/cbtt-co-bi-thi-tot" aria-label="Các thể loại Cờ Bí Thí Tốt">
+  <img src="/images/events/logo/cbtt-superblitz.png" alt="CBTT SuperBlitz" width="50">
     <img src="/images/events/logo/cbtt-rapid.png" alt="CBTT Rapid" width="50">
     <img src="/images/events/logo/cbtt-blitz.png" alt="CBTT Blitz" width="50">
-    <img src="/images/events/logo/cbtt-superblitz.png" alt="CBTT SuperBlitz" width="50">
     <img src="/images/events/logo/cbtt-bullet.png" alt="CBTT Bullet" width="50">
     <img src="/images/events/logo/cbtt-960.png" alt="CBTT Chess960" width="50">
   </a>
@@ -61,4 +62,3 @@ Nếu các kỳ thủ bằng điểm trong thể thức Swiss, thứ hạng đư
 ## ♟️ Tham gia
 
 - [Chess.com](https://link.chess.com/club/0CVQh6)
-- [Lichess](https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess)

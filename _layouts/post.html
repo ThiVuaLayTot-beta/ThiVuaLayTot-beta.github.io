@@ -14,8 +14,8 @@
         <div class="container">
             <div id="post">
                 <div class="information" style="text-align: center">
-                    <img src="/images/{{ page.id }}.png" alt="{{ page.title }}" class="banner">
-                    <h1 class="title">{{ page.title }}</h1>
+                    <img src="/images/{{ page.id }}.png" alt="{{ page.title }}" class="post-banner">
+                    <h1 class="page-title">{{ page.title }}</h1>
                     <i class="short_text" style="display: block; margin-bottom: var(--space-md);">{{ page.description }}</i>
                 <p align="center" style="text-align: center"><a href="/{{ page.category }}" class="post-tag"><span class="bx bx-purchase-tag-alt"></span> {{ page.tags }}</a> - <i style="color: var(--color-text-muted)">bởi <span style="color: var(--green-500)">{{ page.author }}</span></i></p>
                 <ul class="nav-tabs">
@@ -26,7 +26,7 @@
                 </ul>
                 <hr><br>
                 </div>
-                <div class="content">{{ content }}</div></div>
+                <div class="post-contents">{{ content }}</div></div>
             <hr>
             <div id="other">
                 <h3>Một số bài đăng khác</h3>
