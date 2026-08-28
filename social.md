@@ -11,8 +11,7 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
         <div class="social-links-list">
             <a href="https://link.chess.com/club/0CVQh6" target="_blank" class="social-link-item chess-com">
                 <div class="link-icon">
-                    <img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png"
-                        alt="Chess.com">
+                    <img src="https://chess.com/bundles/web/favicons/favicon.5d6cb047.svg" alt="Chess.com">
                 </div>
                 <div class="link-info">
                     <h4>CLB Chess.com</h4>
@@ -20,8 +19,7 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank"
-                class="social-link-item lichess">
+            <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank" class="social-link-item lichess">
                 <div class="link-icon">
                     <img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt="Lichess">
                 </div>
@@ -115,6 +113,26 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 <div class="link-info">
                     <h4>Tài khoản TikTok</h4>
                     <p>Những video ngắn hay ho.</p>
+                </div>
+                <span class="bx bx-chevron-right arrow-icon"></span>
+            </a>
+            <a href="https://chess.com/member/tungjohn2005" target="_blank" class="social-link-item chess-com">
+                <div class="link-icon">
+                    <img src="https://chess.com/bundles/web/favicons/favicon.5d6cb047.svg" alt="Chess.com">
+                </div>
+                <div class="link-info">
+                    <h4>Tài khoản Chess.com</h4>
+                    <p>Tài khoản chính thức trên Chess.com.</p>
+                </div>
+                <span class="bx bx-chevron-right arrow-icon"></span>
+            </a>
+            <a href="https://lichess.org/@/Tungjohn2005" target="_blank" class="social-link-item lichess">
+                <div class="link-icon">
+                    <img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt="Lichess">
+                </div>
+                <div class="link-info">
+                    <h4>Tài khoản Lichess</h4>
+                    <p>Tài khoản chính thức trên Lichess.</p>
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>

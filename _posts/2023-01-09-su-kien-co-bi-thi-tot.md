@@ -18,7 +18,7 @@ permalink: /events/cbtt-co-bi-thi-tot
 ## ♟️ Thể lệ
 
 - Giải được tổ chức vào thứ 7 hàng tuần.
-- [Thể thức tổ chức](#-các-thể-loại) mặc định được chọn là Blitz (3|1) [Đấu trường Arena](https://support.chess.com/articles/8562889-what-are-arena-tournaments) 90 phút
+- [Thể thức tổ chức](#-các-thể-loại) mặc định được chọn là SuperBlitz (3|1) [Đấu trường Arena](https://support.chess.com/articles/8562889-what-are-arena-tournaments) 90 phút
 - Các giải tổ chức đều tính Elo.
 
 ### 🔄 Các thể loại
@@ -34,6 +34,7 @@ Giải có thể sử dụng: các thể thức với logo như bên dưới
     <img src="/images/events/logo/cbtt-960.png" alt="CBTT Chess960" width="50">
   </a>
 </div>
+<style>.inl-bl {display:inline-block; width: 50px;}</style>
 
 ## 🏆 Giải thưởng
 
@@ -44,6 +45,7 @@ Giải có thể sử dụng: các thể thức với logo như bên dưới
 | 🥉 Top 3 | 50.000₫ |
 
 **Hình thức trao thưởng:** MoMo hoặc chuyển khoản ngân hàng hoặc quy đổi dưới dạng thẻ cào.
+
 **Thời gian trao thưởng:** dự kiến trong vòng **7 ngày** sau khi giải kết thúc.
 
 Nếu các kỳ thủ bằng điểm trong thể thức Swiss, thứ hạng được xác định bằng [tie-break](https://support.chess.com/articles/8572860-how-do-ties-in-tournaments-work).
@@ -58,6 +60,7 @@ Nếu các kỳ thủ bằng điểm trong thể thức Swiss, thứ hạng đư
 - Người chơi phải tuân thủ:
   - [Luật Câu lạc bộ](https://chess.com/news/quy-dinh-cua-clb-tungjohn-playing-chess-7-2024)
   - [Luật Fair Play](https://chess.com/news/luat-choi-cong-bang-cua-clb-thi-vua-lay-tot)
+- Giá trị giải thưởng có thể thay đổi tùy theo kinh phí của chủ giải 🐧
 
 ## ♟️ Tham gia
 

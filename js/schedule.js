@@ -123,7 +123,7 @@ function getGameRulesWithIcon(rulesText) {
     const lower = rulesText.toLowerCase();
 
     const iconRules = [
-        { keys: ['blitz', 'biltz'], url: 'icons/smileys/2x/blitz.png', alt: 'blitz' },
+        { keys: ['blitz'], url: 'icons/smileys/2x/blitz.png', alt: 'blitz' },
         { keys: ['bullet', 'lightning'], url: 'icons/smileys/2x/bullet.png', alt: 'bullet' },
         { keys: ['rapid'], url: 'icons/smileys/2x/live.png', alt: 'rapid' },
         { keys: ['daily', 'ngày', 'nước đi'], url: 'icons/smileys/2x/daily.png', alt: 'daily' },
@@ -137,7 +137,7 @@ function getGameRulesWithIcon(rulesText) {
     const matchedIcons = iconRules
         .filter(rule => rule.keys.some(k => lower.includes(k)))
         .map(rule => {
-            const fullUrl = `https://www.chess.com/bundles/web/images/${rule.url}`;
+            const fullUrl = `https://chess.com/bundles/web/images/${rule.url}`;
             return `<img src="${fullUrl}" width="17" height="17" alt="${rule.alt}" style="vertical-align:middle; margin-left: 4px;">`;
         })
         .join('');
@@ -506,7 +506,7 @@ function openModal(tournament) {
     const type = tournament.eventType;
     let bannerUrl, newsUrl, resultUrl;
 
-    const internalTypes = ["cttq", "tvlt", "cbtt", "dttv"];
+    const internalTypes = ["cttq", "tvlt", "cbtt-superblitz", "dttv"];
     if (internalTypes.includes(type)) {
         const infoMap = {
             tvlt: "/events/tvlt-thi-vua-lay-tot",
@@ -582,7 +582,7 @@ function openModal(tournament) {
     const tParts = getVietnamDateParts(tournament.startTime);
     const dayVn = getDayOfWeekVn(tournament.startTime);
     const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
-    let formattedTime = `${pad(tParts.hours)}:${pad(tParts.minutes)}, ${dayPrefix}${dayVn} - ngày ${pad(tParts.date)}/${pad(tParts.month + 1)}/${tParts.year}`;
+    let formattedTime = `${dayPrefix}${dayVn} - ngày ${pad(tParts.date)}/${pad(tParts.month + 1)}/${tParts.year} lúc ${pad(tParts.hours)}h${pad(tParts.minutes)}`;
 
     let gameRulesText = tournament.gameRules || 'Chưa có thông tin';
     let eventRulesText = tournament.eventRules || 'Chưa có thông tin';
