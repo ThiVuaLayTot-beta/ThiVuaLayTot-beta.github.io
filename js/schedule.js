@@ -215,6 +215,15 @@ function getEventBadgesHTML(isCoThuong, isTentative) {
     }
 }
 
+function isInternalEvent(tournament) {
+    if ((CONFIG.INTERNAL_EVENT_TYPES || []).includes(tournament.eventType)) return true;
+    const name = (tournament.eventName || '').toLowerCase();
+    return name.includes('thí vua lấy tốt') ||
+           name.includes('chiến trường thí quân') ||
+           name.includes('cờ bí thí tốt') ||
+           name.includes('đấu trường thí vua');
+}
+
 function isPrizeEvent(tournament) {
     const prize = (tournament.prize || '').toLowerCase().trim();
     return prize !== '' && prize !== 'giao lưu' && prize !== 'không' && prize !== 'không có';
@@ -245,7 +254,7 @@ function matchesFilters(tournament, filters) {
         matchesPrize = isPrizeEvent(tournament);
     }
     
-    const matchesType = CONFIG.INTERNAL_EVENT_TYPES.includes(tournament.eventType) || filters.types.includes(tournament.eventType);
+    const matchesType = isInternalEvent(tournament) || filters.types.includes(tournament.eventType);
     
     return matchesSearch && matchesPrize && matchesType;
 }
