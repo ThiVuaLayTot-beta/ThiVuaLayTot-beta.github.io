@@ -28,3 +28,4 @@ title: Bảng tổng giải Chiến Trường Thí Quân
 </div>
 
 <script src="/js/aggregated-fetcher.js"></script>
+<script src="/js/cttq-player-cell.js"></script>
