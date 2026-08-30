@@ -245,7 +245,7 @@ function matchesFilters(tournament, filters) {
         matchesPrize = isPrizeEvent(tournament);
     }
     
-    const matchesType = filters.types.includes(tournament.eventType);
+    const matchesType = CONFIG.INTERNAL_EVENT_TYPES.includes(tournament.eventType) || filters.types.includes(tournament.eventType);
     
     return matchesSearch && matchesPrize && matchesType;
 }
