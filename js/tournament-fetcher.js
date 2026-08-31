@@ -136,7 +136,11 @@
             const existing = PLAYER_DATA_STORE.get(key);
             existing.avatar = data.avatar || existing.avatar;
             existing.status = data.status || existing.status;
-            existing.breakdown.push(...data.breakdown);
+            data.breakdown.forEach(newBk => {
+                if (!existing.breakdown.some(item => item.tourName === newBk.tourName && item.url === newBk.url)) {
+                    existing.breakdown.push(newBk);
+                }
+            });
         } else {
             PLAYER_DATA_STORE.set(key, data);
         }

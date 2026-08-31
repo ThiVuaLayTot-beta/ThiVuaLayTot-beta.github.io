@@ -31,6 +31,22 @@ title: Lịch sự kiện của tháng
             </div>
             <div class="tour-dropdown-menu" id="schedule-type-group">
                 <label class="custom-checkbox-container">
+                    <input type="checkbox" value="tvlt" checked onchange="filterSchedule()">
+                    <span class="checkmark"></span> Thí Vua Lấy Tốt
+                </label>
+                <label class="custom-checkbox-container">
+                    <input type="checkbox" value="cttq" checked onchange="filterSchedule()">
+                    <span class="checkmark"></span> Chiến Trường Thí Quân
+                </label>
+                <label class="custom-checkbox-container">
+                    <input type="checkbox" value="cbtt" checked onchange="filterSchedule()">
+                    <span class="checkmark"></span> Cờ Bí Thí Tốt
+                </label>
+                <label class="custom-checkbox-container">
+                    <input type="checkbox" value="dttv" checked onchange="filterSchedule()">
+                    <span class="checkmark"></span> Đấu Trường Thí Vua
+                </label>
+                <label class="custom-checkbox-container">
                     <input type="checkbox" value="multi-club-arena" checked onchange="filterSchedule()">
                     <span class="checkmark"></span> Multi-Club Arena (Đấu trường đa CLB)
                 </label>

@@ -6,8 +6,7 @@ const CONFIG = {
     MONTH_NAMES: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
                   'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
     DAY_NAMES_VN: ['Chủ Nhật', 'Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy'],
-    INTERNAL_EVENT_TYPES: ["cttq", "tvlt", "cbtt", "dttv"],
-    HIDDEN_EVENT_TYPES_FROM_UI: ["tvlt", "cbtt", "cttq", "dttv"]
+    INTERNAL_EVENT_TYPES: ["cttq", "tvlt", "cbtt", "dttv"]
 };
 
 const ORGANIZER_MAP = {
@@ -109,19 +108,6 @@ function cacheDOMElements() {
     DOM.modalJoinBtn = document.getElementById('modal-join');
     DOM.modalRuleBtn = document.getElementById('modal-rule');
     DOM.modalResultsBtn = document.getElementById('modal-results');
-}
-
-function hideEventTypeFiltersFromUI() {
-    if (!DOM.scheduleTypeGroup) return;
-    
-    const checkboxes = DOM.scheduleTypeGroup.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(checkbox => {
-        if (CONFIG.HIDDEN_EVENT_TYPES_FROM_UI.includes(checkbox.value.toLowerCase())) {
-            const container = checkbox.closest('label') || checkbox.parentElement;
-            if (container) container.style.display = 'none';
-            checkbox.checked = false;
-        }
-    });
 }
 
 function getVietnamNow() {
@@ -259,7 +245,7 @@ function matchesFilters(tournament, filters) {
         matchesPrize = isPrizeEvent(tournament);
     }
     
-    const matchesType = filters.types.length === 0 || filters.types.includes(tournament.eventType);
+    const matchesType = filters.types.includes(tournament.eventType);
     
     return matchesSearch && matchesPrize && matchesType;
 }
@@ -271,12 +257,7 @@ function loadFiltersFromURL() {
     if (params.has('tc') && DOM.scheduleTypeGroup) {
         const selectedTypes = params.get('tc').toLowerCase().split(/[\s+]+/);
         DOM.scheduleTypeGroup.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            // Don't allow hidden types
-            if (CONFIG.HIDDEN_EVENT_TYPES_FROM_UI.includes(cb.value.toLowerCase())) {
-                cb.checked = false;
-            } else {
-                cb.checked = selectedTypes.includes(cb.value.toLowerCase());
-            }
+            cb.checked = selectedTypes.includes(cb.value.toLowerCase());
         });
     }
 }
@@ -287,7 +268,6 @@ function saveFiltersToURL() {
     if (filters.search) params.set('search', filters.search);
     params.set('prize', DOM.schedulePrizeFilter?.checked ? '1' : '0');
     const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]') || [])
-        .filter(cb => !CONFIG.HIDDEN_EVENT_TYPES_FROM_UI.includes(cb.value.toLowerCase()))
         .map(cb => cb.value);
     if (filters.types.length < allTypes.length && filters.types.length > 0) {
         params.set('tc', filters.types.join(' '));
@@ -596,14 +576,23 @@ function closeModal() {
 }
 
 function updateNavButtonStates() {
+    const vnToday = getVietnamNow();
+    const realYear = vnToday.getUTCFullYear();
+    const realMonth = vnToday.getUTCMonth();
+    const currentAbsoluteMonth = realYear * 12 + realMonth;
+    const displayAbsoluteMonth = STATE.displayYear * 12 + STATE.displayMonth;
+
+    const canPrevious = displayAbsoluteMonth > currentAbsoluteMonth - 1;
+    const canNext = displayAbsoluteMonth < currentAbsoluteMonth + 1;
+
     if (DOM.btnPrevMonth) {
-        DOM.btnPrevMonth.disabled = false;
-        DOM.btnPrevMonth.style.opacity = '1';
+        DOM.btnPrevMonth.disabled = !canPrevious;
+        DOM.btnPrevMonth.style.opacity = canPrevious ? '1' : '0.3';
     }
 
     if (DOM.btnNextMonth) {
-        DOM.btnNextMonth.disabled = false;
-        DOM.btnNextMonth.style.opacity = '1';
+        DOM.btnNextMonth.disabled = !canNext;
+        DOM.btnNextMonth.style.opacity = canNext ? '1' : '0.3';
     }
 }
 
@@ -639,6 +628,15 @@ function renderActiveView() {
 }
 
 function changeMonth(offset) {
+    const vnToday = getVietnamNow();
+    const realYear = vnToday.getUTCFullYear();
+    const realMonth = vnToday.getUTCMonth();
+    const currentAbsoluteMonth = realYear * 12 + realMonth;
+    const displayAbsoluteMonth = STATE.displayYear * 12 + STATE.displayMonth;
+    const targetAbsoluteMonth = displayAbsoluteMonth + offset;
+
+    if (targetAbsoluteMonth < currentAbsoluteMonth - 1 || targetAbsoluteMonth > currentAbsoluteMonth + 1) return;
+
     STATE.displayMonth += offset;
     if (STATE.displayMonth < 0) {
         STATE.displayMonth = 11;
@@ -720,7 +718,6 @@ async function loadTournaments() {
             const vnToday = getVietnamNow();
             STATE.displayYear = vnToday.getUTCFullYear();
             STATE.displayMonth = vnToday.getUTCMonth();
-            hideEventTypeFiltersFromUI();
             renderActiveView();
         }
     } catch (error) {
