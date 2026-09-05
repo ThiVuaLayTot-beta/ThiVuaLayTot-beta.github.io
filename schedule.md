@@ -220,6 +220,8 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .event-icon:hover{filter:drop-shadow(0 0 6px rgba(125,211,255,.9));transform:scale(1.15) translateY(-2px)}
 .event-icon.tentative{filter:drop-shadow(0 0 4px var(--yellow-400))}
 .event-icon.tentative:hover{filter:drop-shadow(0 0 7px var(--yellow-300))}
+.event-icon.ended{filter:grayscale(60%) opacity(.75)}
+.event-icon.ended:hover{filter:grayscale(20%) opacity(1)}
 .event-icon.has-prize::after{content:"🏆";position:absolute;top:-2px;right:-2px;font-size:14px;line-height:1;filter:drop-shadow(0 0 3px rgba(251,191,36,.8));animation:bouncePrize 2s infinite ease-in-out}
 .event-icon img{width:55px;height:55px;object-fit:contain;cursor:pointer}
 
@@ -275,6 +277,8 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .badge-co-thuong:hover{background:rgba(245,158,11,.18);box-shadow:0 0 18px rgba(245,158,11,.45),inset 0 0 6px rgba(245,158,11,.25);transform:translateY(-1px)}
 .badge-tentative{background:rgba(244,63,94,.08);color:#f43f5e;border:1px solid rgba(244,63,94,.4);box-shadow:0 0 10px rgba(244,63,94,.15),inset 0 0 4px rgba(244,63,94,.1)}
 .badge-tentative:hover{background:rgba(244,63,94,.15);box-shadow:0 0 14px rgba(244,63,94,.35),inset 0 0 6px rgba(244,63,94,.2);transform:translateY(-1px)}
+.badge-ended{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.35);box-shadow:0 0 8px rgba(148,163,184,.1)}
+.badge-ended:hover{background:rgba(148,163,184,.18);border-color:rgba(148,163,184,.5);transform:translateY(-1px)}
 
 .cc-modal-info-section{display:grid;grid-template-columns:1fr;gap:1rem;padding:var(--space-md) var(--space-xl);width:100%;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(47,185,255,.2)}
 .cc-modal-info-item{display:flex;align-items:flex-start;gap:.8rem;font-size:1rem}
@@ -365,6 +369,8 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .event-list-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,transparent,rgba(0,242,255,.5),transparent);transform:scaleX(0);transition:transform .4s ease}
 .event-list-card:hover{transform:translateY(-5px);border-color:var(--cyan-400);box-shadow:0 12px 30px rgba(0,242,255,.2),inset 0 0 15px rgba(0,242,255,.05)}
 .event-list-card:hover::before{transform:scaleX(1)}
+.event-list-card.is-ended{opacity:.85}
+.event-list-card.is-ended:hover{opacity:1}
 .event-card-header{display:flex;gap:15px;align-items:flex-start}
 .event-card-logo{flex-shrink:0;width:68px;height:68px;border-radius:var(--border-radius-md);background:rgba(10,25,47,.7);border:1.5px solid rgba(53,201,252,.4);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .event-card-logo img{width:85%;height:85%;object-fit:contain}
