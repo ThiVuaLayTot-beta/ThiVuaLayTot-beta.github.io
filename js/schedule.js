@@ -199,20 +199,27 @@ function getGameRulesWithIcon(rulesText) {
     return rulesText + icons;
 }
 
-function getEventBadgesHTML(isCoThuong, isTentative) {
+function getEventBadgesHTML(isCoThuong, isTentative, isEnded = false) {
+    let html = '';
     if (isTentative) {
         if (isCoThuong) {
-            return `<span class="badge-schedule badge-prize-combined-premium"><span class="badge-pulse-dot-prize"></span><i class="bx bxs-award"></i> Có thưởng (Dự kiến)</span>`;
+            html += `<span class="badge-schedule badge-prize-combined-premium"><span class="badge-pulse-dot-prize"></span><i class="bx bxs-award"></i> Có thưởng (Dự kiến)</span>`;
         } else {
-            return `<span class="badge-schedule badge-combined-premium"><span class="badge-pulse-dot"></span><i class="bx bx-coffee"></i> Giao lưu (Dự kiến)</span>`;
+            html += `<span class="badge-schedule badge-combined-premium"><span class="badge-pulse-dot"></span><i class="bx bx-coffee"></i> Giao lưu (Dự kiến)</span>`;
         }
     } else {
         if (isCoThuong) {
-            return `<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>`;
+            html += `<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>`;
         } else {
-            return `<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>`;
+            html += `<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>`;
         }
     }
+
+    if (isEnded) {
+        html += `<span class="badge-schedule badge-ended"><i class="bx bx-check-circle"></i> Đã kết thúc</span>`;
+    }
+
+    return html;
 }
 
 function isPrizeEvent(tournament) {
@@ -222,6 +229,10 @@ function isPrizeEvent(tournament) {
 
 function isTentativeEvent(tournament) {
     return tournament.isTentative === 'Dự kiến' || tournament.isTentative === 'Tentative';
+}
+
+function isEndedEvent(tournament) {
+    return getEventEndTime(tournament) < Date.now();
 }
 
 function getMappedOrganizer(rawOrganizer) {
@@ -344,6 +355,7 @@ function renderCalendar() {
                 .forEach(tournament => {
                     const icon = document.createElement('span');
                     icon.className = 'event-icon';
+                    if (isEndedEvent(tournament)) icon.classList.add('ended');
                     if (isTentativeEvent(tournament)) icon.classList.add('tentative');
                     if (isPrizeEvent(tournament)) icon.classList.add('has-prize');
                     const img = document.createElement('img');
@@ -432,7 +444,9 @@ function renderEventCard(tournament, container) {
     card.className = 'event-list-card';
     const isCoThuong = isPrizeEvent(tournament);
     const isTentative = isTentativeEvent(tournament);
-    const categoryHTML = getEventBadgesHTML(isCoThuong, isTentative);
+    const isEnded = isEndedEvent(tournament);
+    if (isEnded) card.classList.add('is-ended');
+    const categoryHTML = getEventBadgesHTML(isCoThuong, isTentative, isEnded);
     const tParts = getVietnamDateParts(tournament.startTime);
     const dayVn = getDayOfWeekVn(tournament.startTime);
     const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
@@ -517,6 +531,7 @@ function openModal(tournament) {
     const urls = getModalURLs(tournament);
     const isCoThuong = isPrizeEvent(tournament);
     const isTentative = isTentativeEvent(tournament);
+    const isEnded = isEndedEvent(tournament);
 
     if (tournament.joinLink) {
         DOM.modalName.innerHTML = `<a href="${tournament.joinLink}" target="_blank">${tournament.eventName || 'Chi tiết giải đấu'}</a>`;
@@ -524,7 +539,7 @@ function openModal(tournament) {
         DOM.modalName.innerHTML = `<a href="#" onclick="event.preventDefault(); alert('Hiện chưa có link giải, hãy hỏi các quản trị viên hoặc người tổ chức giải này để tìm hiểu thêm!');">${tournament.eventName || 'Chi tiết giải đấu'}</a>`;
     }
 
-    DOM.modalCategory.innerHTML = getEventBadgesHTML(isCoThuong, isTentative);
+    DOM.modalCategory.innerHTML = getEventBadgesHTML(isCoThuong, isTentative, isEnded);
     DOM.modalOrganizer.innerHTML = getMappedOrganizer(tournament.organizer || '');
 
     const tParts = getVietnamDateParts(tournament.startTime);
