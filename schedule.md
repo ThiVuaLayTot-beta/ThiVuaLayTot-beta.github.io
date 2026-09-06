@@ -220,8 +220,6 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .event-icon:hover{filter:drop-shadow(0 0 6px rgba(125,211,255,.9));transform:scale(1.15) translateY(-2px)}
 .event-icon.tentative{filter:drop-shadow(0 0 4px var(--yellow-400))}
 .event-icon.tentative:hover{filter:drop-shadow(0 0 7px var(--yellow-300))}
-.event-icon.ended{filter:grayscale(60%) opacity(.75)}
-.event-icon.ended:hover{filter:grayscale(20%) opacity(1)}
 .event-icon.has-prize::after{content:"🏆";position:absolute;top:-2px;right:-2px;font-size:14px;line-height:1;filter:drop-shadow(0 0 3px rgba(251,191,36,.8));animation:bouncePrize 2s infinite ease-in-out}
 .event-icon img{width:55px;height:55px;object-fit:contain;cursor:pointer}
 
