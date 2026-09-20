@@ -618,7 +618,7 @@
                     newRow.setAttribute('data-status', status || 'finished');
 
                     skeletonRows[idx].replaceWith(newRow);
-                    document.getElementById('current-tournament').textContent = ++successCount;
+                    document.getElementById('current-tournament').textContent = `${++successCount}/${months.length}`;
 
                     if (typeof window.searchTable === 'function') {
                         window.searchTable();

@@ -444,7 +444,7 @@
                 skeletons[idx].setAttribute('data-variant', v.toLowerCase());
                 skeletons[idx].setAttribute('data-format', rds === 1 ? 'arena' : 'swiss');
                 skeletons[idx].className = '';
-                document.getElementById('current-tournament').textContent = ++success;
+                document.getElementById('current-tournament').textContent = `${++success}/${ids.length}`;
 
                 if (typeof window.searchTable === 'function') {
                     window.searchTable();
