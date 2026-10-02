@@ -90,7 +90,6 @@ function cacheDOMElements() {
     DOM.monthTitle = document.getElementById('month-title');
     DOM.btnPrevMonth = document.getElementById('btn-prev-month');
     DOM.btnNextMonth = document.getElementById('btn-next-month');
-    DOM.btnCurrentMonth = document.getElementById('btn-current-month');
     DOM.resultsSummary = document.getElementById('schedule-results-summary');
     DOM.resetFilters = document.getElementById('schedule-reset-filters');
     DOM.categoryButton = document.getElementById('schedule-category-button');
@@ -635,10 +634,6 @@ function updateNavButtonStates() {
         DOM.btnNextMonth.disabled = !canNext;
         DOM.btnNextMonth.style.opacity = canNext ? '1' : '0.3';
     }
-    if (DOM.btnCurrentMonth) {
-        const isCurrentMonth = displayAbsoluteMonth === currentAbsoluteMonth;
-        DOM.btnCurrentMonth.hidden = isCurrentMonth;
-    }
 }
 
 function updateViewSwitcherButtons() {
@@ -802,12 +797,6 @@ function initializeEventListeners() {
     if (DOM.categoryButton) DOM.categoryButton.addEventListener('click', () => toggleTourDropdown('schedule-category-dropdown'));
     if (DOM.btnPrevMonth) DOM.btnPrevMonth.addEventListener('click', () => changeMonth(-1));
     if (DOM.btnNextMonth) DOM.btnNextMonth.addEventListener('click', () => changeMonth(1));
-    if (DOM.btnCurrentMonth) DOM.btnCurrentMonth.addEventListener('click', () => {
-        const now = getVietnamNow();
-        STATE.displayYear = now.getUTCFullYear();
-        STATE.displayMonth = now.getUTCMonth();
-        renderActiveView();
-    });
     if (DOM.btnViewCalendar) DOM.btnViewCalendar.addEventListener('click', () => switchView('calendar'));
     if (DOM.btnViewList) DOM.btnViewList.addEventListener('click', () => switchView('list'));
 }

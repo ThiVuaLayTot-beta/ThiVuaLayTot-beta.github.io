@@ -92,7 +92,6 @@ title: Lịch sự kiện của tháng
         <i class="bx bx-chevron-left"></i>
     </button>
     <div class="month-title" id="month-title" aria-live="polite">Đang tải…</div>
-    <button type="button" class="month-nav-today" id="btn-current-month" hidden><i class="bx bx-calendar-check" aria-hidden="true"></i> Tháng này</button>
     <button type="button" class="month-nav-btn" id="btn-next-month" title="Tháng sau" aria-label="Xem tháng sau">
         <i class="bx bx-chevron-right"></i>
     </button>
@@ -205,8 +204,8 @@ title: Lịch sự kiện của tháng
 .month-nav-btn:hover{background:rgba(0,242,255,.1);color:var(--cyan-100);border-color:var(--cyan-300);box-shadow:0 0 15px rgba(0,242,255,.25);transform:translateY(-2px)}
 .month-nav-btn:active,.btn-switcher:active,.btn-primary:active,.btn-secondary:active{transform:translateY(0)}
 .month-nav-btn:disabled{cursor:not-allowed;transform:none!important}
-.month-nav-today,.reset-filters-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(53,201,252,.4);border-radius:8px;background:rgba(10,25,47,.6);color:var(--cyan-200);padding:7px 10px;font-size:13px;font-weight:var(--fw-semibold);cursor:pointer;white-space:nowrap;transition:all .2s ease}
-.month-nav-today:hover,.reset-filters-btn:hover{background:rgba(0,242,255,.12);border-color:var(--cyan-300);color:var(--cyan-100)}
+.reset-filters-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(53,201,252,.4);border-radius:8px;background:rgba(10,25,47,.6);color:var(--cyan-200);padding:7px 10px;font-size:13px;font-weight:var(--fw-semibold);cursor:pointer;white-space:nowrap;transition:all .2s ease}
+.reset-filters-btn:hover{background:rgba(0,242,255,.12);border-color:var(--cyan-300);color:var(--cyan-100)}
 .month-title{flex:1;text-align:center;font-size:var(--fs-2xl);font-family:cursive;font-weight:var(--fw-bold);color:var(--cyan-400);text-transform:uppercase;text-shadow:0 0 6px var(--cyan-300);padding:var(--space-md);background:linear-gradient(180deg,var(--color-bg-secondary) 0%,var(--color-bg-tertiary) 100%);border:var(--border-width-base) solid var(--cyan-400);border-radius:var(--border-radius-lg);box-shadow:0 0 15px var(--cyan-200),0 0 30px rgba(0,242,255,.4)}
 
 #calendar-wrapper,.calendar-wrapper{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:12px;border-radius:12px}
