@@ -3,14 +3,14 @@ layout: default
 title: Lịch sự kiện của tháng
 ---
 
-<ul style="list-style-type: circle;">
-    <li style="text-align: center;"><strong><span style="font-size: 14px;">Lịch sẽ được cập nhật thường xuyên và thường không báo trước khi có thay đổi</span></strong></li>
-    <li style="text-align: center;"><strong><span style="font-size: 14px;">Ấn vào icon để xem chi tiết thông sự kiện</span></strong></li>
-</ul>
-<br>
-<p><i>Lần cuối cập nhật: <span id="last-updated"></span></i>.<br>Nếu có vấn đề hãy bình luận trong <a
-        href="https://chess.com/clubs/forum/view/lich-su-kien-hang-thang-clb-tvlt?clubId=325849&quote_id=125015758&page=1#comment_box" target="_blank">forum này</a> hoặc liên hệ <a href="/leaders#admin3" target="_top">M-DinhHoangViet</a>.</p>
-<br>
+<div class="schedule-intro">
+    <div class="schedule-intro-main">
+        <p class="schedule-lead">Theo dõi các sự kiện và giải đấu của CLB theo từng tháng.</p>
+        <p class="schedule-note"><i>Lịch được cập nhật thường xuyên và có thể thay đổi mà không báo trước.</i></p>
+    </div>
+    <p class="schedule-help">Ấn vào icon để xem chi tiết sự kiện.<br>Nếu có vấn đề, hãy bình luận trong <a href="https://chess.com/clubs/forum/view/lich-su-kien-hang-thang-clb-tvlt?clubId=325849&quote_id=125015758&page=1#comment_box" target="_blank">forum</a> hoặc liên hệ <a href="/leaders#admin3" target="_top">M-DinhHoangViet</a>.<br><i>Lần cuối cập nhật: <span id="last-updated"></span></i>.</p>
+</div>
+
 <div id="schedule-filters" class="schedule-control-bar" style="display: none;">
     <!-- Left: Search input -->
     <div class="control-item search-wrapper">
@@ -128,13 +128,14 @@ title: Lịch sự kiện của tháng
     <i class="bx bx-calendar" style="color: #00f2ff; font-size: 2em; margin-bottom: 10px;"></i>
     <p>Không có giải đấu trong tháng này</p>
 </div>
-<br>
-<style>.inl-bl{display: inline-block;width: 50px}</style>
-<div>
-    <a href="/events/tvlt-thi-vua-lay-tot" style="display: block" target="_top"><img src="/images/tvltlogo.png" alt="TVLT" title="Thí Vua Lấy Tốt" class="inl-bl">: <b>Siêu giải Thí Vua Lấy Tốt</b></a><br>
-    <a href="/events/cttq-chien-truong-thi-quan" style="display: block" target="_top"><img src="/images/events/logo/cttq.png" alt="CTTQ" title="Chiến Trường Thí Quân" class="inl-bl">: <b>Sự kiện Chiến Trường Thí Quân</b></a><br>
-    <a href="/events/cbtt-co-bi-thi-tot" style="display: block" target="_top"><img src="/images/events/logo/cbtt-swiss.png" alt="CBTT Swiss" title="Cờ Bí Thí Tốt Swiss" class="inl-bl"><img src="/images/events/logo/cbtt-arena.png" title="Cờ Bí Thí Tốt Arena" alt="CBTT Arena" class="inl-bl">: <b>Giải đấu Cờ Bí Thí Tốt</b></a><br>
-    <a href="https://chess.com/clubs/events/thi-vua-lay-tot-tungjohn-playing-chess?clubId=325849&ref_id=89365835" target="_blank" style="display: block"><img src="https://chess.com/bundles/web/images/color-icons/time-daily.a2f7bbb6.svg" title="Daily Chess Matches" class="inl-bl"><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" title="Giải đấu hệ Thụy Sĩ (Swiss tournament)" class="inl-bl"><img src="https://chess.com/bundles/web/images/color-icons/arena-club-multi.b56c9ae4.svg" title="Đấu trường đa câu lạc bộ (Multi-Club Arena)" class="inl-bl"><img src="https://chess.com/bundles/web/images/color-icons/clipboard-vote.svg" title="Cờ vua bỏ phiếu (Votechess)" class="inl-bl"><img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" title="Giải đấu Đấu trường (Arena)" class="inl-bl">: <b>Các thể loại giải đấu khác</b></a>
+<div class="schedule-legend">
+    <p class="schedule-legend-title">Chú giải &amp; liên kết sự kiện</p>
+    <div class="schedule-legend-list">
+        <a href="/events/tvlt-thi-vua-lay-tot" target="_top"><img src="/images/tvltlogo.png" alt="TVLT" title="Thí Vua Lấy Tốt" class="inl-bl"><b>Siêu giải Thí Vua Lấy Tốt</b></a>
+        <a href="/events/cttq-chien-truong-thi-quan" target="_top"><img src="/images/events/logo/cttq.png" alt="CTTQ" title="Chiến Trường Thí Quân" class="inl-bl"><b>Chiến Trường Thí Quân</b></a>
+        <a href="/events/cbtt-co-bi-thi-tot" target="_top"><span class="inl-bl"><img src="/images/events/logo/cbtt-swiss.png" title="Cờ Bí Thí Tốt Swiss" alt="CBTT Swiss"><img src="/images/events/logo/cbtt-arena.png" title="Cờ Bí Thí Tốt Arena" alt="CBTT Arena"></span><b>Cờ Bí Thí Tốt</b></a>
+        <a href="https://chess.com/clubs/events/thi-vua-lay-tot-tungjohn-playing-chess?clubId=325849&ref_id=89365835" target="_blank"><span class="inl-bl"><img src="https://chess.com/bundles/web/images/color-icons/time-daily.a2f7bbb6.svg" title="Daily Chess Matches" alt=""><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" title="Giải đấu hệ Thụy Sĩ" alt=""><img src="https://chess.com/bundles/web/images/color-icons/arena-club-multi.b56c9ae4.svg" title="Đấu trường đa câu lạc bộ" alt=""><img src="https://chess.com/bundles/web/images/color-icons/clipboard-vote.svg" title="Cờ vua bỏ phiếu" alt=""><img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" title="Đấu trường Arena" alt=""></span><b>Các thể loại giải đấu khác</b></a>
+    </div>
 </div>
 <!-- Modal -->
 <div id="eventModal" class="cc-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true">
@@ -436,5 +437,21 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
     .events-list-grid{grid-template-columns:1fr;gap:15px}
     .btn{gap:1px;font-size:12px;}
 }
+
+.schedule-intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,360px);gap:18px;align-items:end;margin:0 0 18px;padding-bottom:4px}
+.schedule-intro-main{min-width:0}
+.schedule-lead{margin:0 0 5px;color:var(--neutral-200);font-size:1rem;line-height:1.55}
+.schedule-note{margin:0;color:var(--neutral-400);font-size:.9rem;line-height:1.5}
+.schedule-help{margin:0;color:var(--neutral-400);font-size:.85rem;line-height:1.6;text-align:right}
+.schedule-help a{color:var(--cyan-300)}
+.schedule-control-bar{margin-bottom:16px}
+.month-nav-wrapper{margin-bottom:16px}
+.schedule-legend{margin-top:22px;padding-top:18px;border-top:1px solid rgba(53,201,252,.18)}
+.schedule-legend-title{margin:0 0 10px;color:var(--cyan-300);font-size:.9rem;font-weight:var(--fw-semibold)}
+.schedule-legend-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+.schedule-legend-list a{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--neutral-300);font-size:.9rem;line-height:1.35}
+.schedule-legend-list .inl-bl{width:34px;height:34px;object-fit:contain;flex:0 0 34px}
+.schedule-legend-list .inl-bl img{width:16px;height:16px;object-fit:contain}
+@media(max-width:768px){.schedule-intro{grid-template-columns:1fr;gap:8px}.schedule-help{text-align:left}.schedule-legend-list{grid-template-columns:1fr}.schedule-legend{margin-top:18px;padding-top:14px}}
 </style>
 <script src="/js/schedule.js"></script>
