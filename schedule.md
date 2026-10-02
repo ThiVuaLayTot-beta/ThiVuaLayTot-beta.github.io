@@ -186,11 +186,12 @@ title: Lịch sự kiện của tháng
             </div>
         </div>
         <div class="btn-group">
-            <a id="modal-join" href="#" target="_blank"><button class="btn btn-primary" type="button"><span class="bx bx-user-plus"></span> Tham gia</button></a>
-            <a id="modal-rule" href="#" target="_blank"><button class="btn btn-secondary" type="button"><span class="bx bx-task"></span> Thể lệ</button></a>
-            <a id="modal-results" href="#" target="_blank"><button class="btn btn-secondary" type="button"><span class="bx bx-trophy"></span> Kết quả</button></a>
+            <a id="modal-join" class="btn btn-primary" href="#" target="_blank"><span class="bx bx-user-plus"></span> Tham gia</a>
+            <a id="modal-rule" class="btn btn-secondary" href="#" target="_blank"><span class="bx bx-task"></span> Thể lệ</a>
+            <a id="modal-results" class="btn btn-secondary" href="#" target="_blank"><span class="bx bx-trophy"></span> Kết quả</a>
         </div>
     </div>
+</div>
 <style>
 .schedule-intro{margin:0 0 20px;padding:16px 20px;border:1px solid rgba(53,201,252,.28);border-left:4px solid var(--cyan-400);border-radius:var(--border-radius-lg);background:rgba(10,25,47,.38);color:var(--neutral-200)}
 .schedule-intro-title{margin:0 0 8px;color:var(--cyan-200);font-weight:var(--fw-semibold)}
@@ -226,13 +227,13 @@ tbody tr:nth-child(odd) td:nth-child(even),tbody tr:nth-child(even) td:nth-child
 td.other-month .day-number{opacity:.35;color:var(--neutral-500)}
 td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-weight:var(--fw-bold);font-size:var(--fs-xl);text-shadow:0 0 5px rgba(250,204,21,.5)}
 
-.events-container{display:flex;width:100%;min-height:60px;justify-content:center;align-items:center}
+.events-container{display:flex;width:100%;min-height:60px;justify-content:center;align-items:center;align-content:flex-start;flex-wrap:wrap;gap:4px}
 .event-icon{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;background:transparent;border:0;filter:drop-shadow(0 0 5px var(--cyan-300));transition:all var(--transition-fast) cubic-bezier(.4,0,.2,1);border-radius:var(--border-radius-sm);flex-shrink:0;position:relative}
 .event-icon:hover,.event-icon:focus-visible{filter:drop-shadow(0 0 6px rgba(125,211,255,.9));transform:scale(1.15) translateY(-2px);outline:2px solid var(--cyan-200);outline-offset:3px}
 .event-icon.tentative{filter:drop-shadow(0 0 4px var(--yellow-400))}
 .event-icon.tentative:hover{filter:drop-shadow(0 0 7px var(--yellow-300))}
 .event-icon.has-prize::after{content:"🏆";position:absolute;top:-2px;right:-2px;font-size:14px;line-height:1;filter:drop-shadow(0 0 3px rgba(251,191,36,.8));animation:bouncePrize 2s infinite ease-in-out}
-.event-icon img{width:55px;height:55px;object-fit:contain;cursor:pointer}
+.event-icon img{width:55px;height:55px;object-fit:contain}
 
 @keyframes bouncePrize{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 @keyframes slideIn{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -253,7 +254,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 
 .cc-modal-banner-section{width:100%;overflow:hidden;position:relative;grid-column:1;grid-row:1}
 .btn-group{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:1.5rem;grid-column:1;grid-row:3;width:100%;justify-items:stretch}
-.btn-group a{display:block;width:100%;text-decoration:none}
+.btn-group a{display:inline-flex;width:100%;text-decoration:none}
 .btn{width:100%;height:44px;border:none;border-radius:10px;cursor:pointer;font-weight:600;font-size:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:all .25s cubic-bezier(.4,0,.2,1);box-sizing:border-box;white-space:nowrap}
 .btn-primary{background:linear-gradient(135deg,rgba(0,102,204,.45) 0%,rgba(0,242,255,.45) 100%);color:var(--cyan-200);border:var(--border-width-base) solid var(--cyan-400);box-shadow:0 4px 12px rgba(0,242,255,.15)}
 .btn-primary:hover{transform:translateY(-2px);background:linear-gradient(135deg,rgba(0,102,204,.6) 0%,rgba(0,242,255,.6) 100%);box-shadow:0 6px 20px rgba(0,242,255,.35);border-color:var(--cyan-300);color:#fff}
@@ -404,6 +405,10 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 @keyframes premiumPulse{0%,100%{border-color:rgba(52,211,153,.5);box-shadow:0 0 8px rgba(52,211,153,.2)}50%{border-color:rgba(245,158,11,.8);box-shadow:0 0 12px rgba(245,158,11,.4)}}
 .badge-prize-combined-premium{background:linear-gradient(135deg,rgba(245,158,11,.18) 0%,rgba(239,68,68,.18) 100%);color:#f59e0b!important;border:1px dashed rgba(245,158,11,.6)!important;box-shadow:0 0 8px rgba(245,158,11,.25),inset 0 0 6px rgba(245,158,11,.1);position:relative;overflow:hidden;animation:prizePremiumPulse 3s infinite ease-in-out}
 @keyframes prizePremiumPulse{0%,100%{border-color:rgba(245,158,11,.5);box-shadow:0 0 8px rgba(245,158,11,.2)}50%{border-color:rgba(239,68,68,.8);box-shadow:0 0 12px rgba(239,68,68,.4)}}
+
+@media(max-width:1100px) and (min-width:769px){
+    .cc-modal-dialog{width:calc(100vw - 32px);max-width:900px;grid-template-columns:minmax(280px,.9fr) minmax(320px,1fr)}
+}
 
 @media(max-width:768px){
     .month-title{font-size:18px;padding:12px}

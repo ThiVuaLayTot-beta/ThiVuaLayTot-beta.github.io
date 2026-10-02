@@ -82,7 +82,7 @@ function cacheDOMElements() {
     DOM.emptyEl = document.getElementById('empty');
     DOM.lastUpdatedEl = document.getElementById('last-updated');
     DOM.viewSwitcherContainer = document.getElementById('view-switcher-container');
-    DOM.scheduleFilers = document.getElementById('schedule-filters');
+    DOM.scheduleFilters = document.getElementById('schedule-filters');
     DOM.calendarWrapper = document.getElementById('calendar-wrapper');
     DOM.listWrapper = document.getElementById('list-wrapper');
     DOM.calendarBody = document.getElementById('calendar-body');
@@ -120,14 +120,18 @@ function getVietnamNow() {
     return vnTime;
 }
 
-function getVietnamDateParts(dateStr) {
-    if (!dateStr) return { year: 1970, month: 0, date: 1, hours: 0, minutes: 0 };
+function parseEventDate(dateStr) {
+    if (typeof dateStr !== 'string' || !dateStr.trim()) return null;
     let formatted = dateStr.trim().replace(' ', 'T');
-    if (!formatted.includes('+') && !formatted.includes('Z')) formatted += '+07:00';
-    
+    if (!/(Z|[+-]\d{2}:?\d{2})$/i.test(formatted)) formatted += '+07:00';
     const date = new Date(formatted);
-    if (isNaN(date.getTime())) return { year: 1970, month: 0, date: 1, hours: 0, minutes: 0 };
-    
+    return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getVietnamDateParts(dateStr) {
+    const date = parseEventDate(dateStr);
+    if (!date) return { year: 1970, month: 0, date: 1, hours: 0, minutes: 0 };
+
     const vnDate = new Date(date.getTime() + CONFIG.VIETNAM_OFFSET_MS);
     return {
         year: vnDate.getUTCFullYear(),
@@ -314,8 +318,8 @@ function saveFiltersToURL() {
     if (DOM.schedulePrizeFilter?.checked) params.set('prize', '1');
     const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]') || [])
         .map(cb => cb.value);
-    if (filters.types.length < allTypes.length && filters.types.length > 0) {
-        params.set('tc', filters.types.join(' '));
+    if (filters.types.length < allTypes.length) {
+        params.set('tc', filters.types.length ? filters.types.join(' ') : 'none');
     }
     const newQuery = params.toString();
     const newURL = window.location.pathname + (newQuery ? '?' + newQuery : '');
@@ -450,12 +454,7 @@ function renderListView() {
 }
 
 function getEventStartTime(tournament) {
-    let formatted = tournament.startTime.trim().replace(' ', 'T');
-    if (!formatted.includes('+') && !formatted.includes('Z')) {
-        formatted += '+07:00';
-    }
-    const dateObj = new Date(formatted);
-    return isNaN(dateObj.getTime()) ? 0 : dateObj.getTime();
+    return parseEventDate(tournament?.startTime)?.getTime() || 0;
 }
 
 function getEventEndTime(tournament) {
@@ -765,7 +764,7 @@ async function loadTournaments() {
             if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
         } else {
             if (DOM.viewSwitcherContainer) DOM.viewSwitcherContainer.style.display = 'inline-flex';
-            if (DOM.scheduleFilers) DOM.scheduleFilers.style.display = 'flex';
+            if (DOM.scheduleFilters) DOM.scheduleFilters.style.display = 'flex';
             STATE.currentView = window.innerWidth <= CONFIG.MOBILE_BREAKPOINT ? 'list' : 'calendar';
             updateViewSwitcherButtons();
             const vnToday = getVietnamNow();
