@@ -227,7 +227,7 @@ tbody tr:nth-child(odd) td:nth-child(even),tbody tr:nth-child(even) td:nth-child
 td.other-month .day-number{opacity:.35;color:var(--neutral-500)}
 td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-weight:var(--fw-bold);font-size:var(--fs-xl);text-shadow:0 0 5px rgba(250,204,21,.5)}
 
-.events-container{display:flex;width:100%;min-height:60px;justify-content:center;align-items:center;align-content:flex-start;flex-wrap:wrap;gap:4px}
+.events-container{display:flex;width:100%;min-height:60px;justify-content:center;align-items:center;align-content:flex-start}
 .event-icon{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;background:transparent;border:0;filter:drop-shadow(0 0 5px var(--cyan-300));transition:all var(--transition-fast) cubic-bezier(.4,0,.2,1);border-radius:var(--border-radius-sm);flex-shrink:0;position:relative}
 .event-icon:hover,.event-icon:focus-visible{filter:drop-shadow(0 0 6px rgba(125,211,255,.9));transform:scale(1.15) translateY(-2px);outline:2px solid var(--cyan-200);outline-offset:3px}
 .event-icon.tentative{filter:drop-shadow(0 0 4px var(--yellow-400))}
@@ -282,13 +282,13 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .badge-schedule{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:50px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .3s cubic-bezier(.4,0,.2,1);user-select:none}
 .badge-schedule i{font-size:12px}
 .badge-giao-luu{background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.45);box-shadow:0 0 10px rgba(16,185,129,.15),inset 0 0 4px rgba(16,185,129,.1)}
-.badge-giao-luu:hover{background:rgba(16,185,129,.18);box-shadow:0 0 14px rgba(16,185,129,.35),inset 0 0 6px rgba(16,185,129,.2);transform:translateY(-1px)}
+.badge-giao-luu:hover{background:rgba(16,185,129,.18);box-shadow:0 0 14px rgba(16,185,129,.35),inset 0 0 6px rgba(16,185,129,.2)}
 .badge-co-thuong{background:rgba(245,158,11,.1);color:#fbbf24;border:1px solid rgba(245,158,11,.45);box-shadow:0 0 12px rgba(245,158,11,.22),inset 0 0 4px rgba(245,158,11,.1);animation:goldShimmer 3s infinite ease-in-out}
-.badge-co-thuong:hover{background:rgba(245,158,11,.18);box-shadow:0 0 18px rgba(245,158,11,.45),inset 0 0 6px rgba(245,158,11,.25);transform:translateY(-1px)}
+.badge-co-thuong:hover{background:rgba(245,158,11,.18);box-shadow:0 0 18px rgba(245,158,11,.45),inset 0 0 6px rgba(245,158,11,.25)}
 .badge-tentative{background:rgba(244,63,94,.08);color:#f43f5e;border:1px solid rgba(244,63,94,.4);box-shadow:0 0 10px rgba(244,63,94,.15),inset 0 0 4px rgba(244,63,94,.1)}
-.badge-tentative:hover{background:rgba(244,63,94,.15);box-shadow:0 0 14px rgba(244,63,94,.35),inset 0 0 6px rgba(244,63,94,.2);transform:translateY(-1px)}
+.badge-tentative:hover{background:rgba(244,63,94,.15);box-shadow:0 0 14px rgba(244,63,94,.35),inset 0 0 6px rgba(244,63,94,.2)}
 .badge-ended{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.35);box-shadow:0 0 8px rgba(148,163,184,.1)}
-.badge-ended:hover{background:rgba(148,163,184,.18);border-color:rgba(148,163,184,.5);transform:translateY(-1px)}
+.badge-ended:hover{background:rgba(148,163,184,.18);border-color:rgba(148,163,184,.5)}
 
 .cc-modal-info-section{display:grid;grid-template-columns:1fr;gap:1rem;padding:var(--space-md) var(--space-xl);width:100%;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(47,185,255,.2)}
 .cc-modal-info-item{display:flex;align-items:flex-start;gap:.8rem;font-size:1rem}
