@@ -41,7 +41,7 @@
 
     const PLAYER_TOP6_STORE = new Map();
 
-    function recordTop6Finish(monthId, player, rank) {
+    function recordTop6Finish(monthId, player, rank, totalMonthTours, finishedCount, monthStatus) {
         const key = player.username.toLowerCase();
         if (!PLAYER_TOP6_STORE.has(key)) {
             PLAYER_TOP6_STORE.set(key, {
@@ -56,6 +56,9 @@
                 rank,
                 totalPoints: player.totalPoints,
                 tourCount: player.breakdown ? player.breakdown.length : 0,
+                totalMonthTours: totalMonthTours || (player.breakdown ? player.breakdown.length : 0),
+                finishedCount: finishedCount ?? 0,
+                monthStatus: monthStatus || 'finished',
                 breakdown: player.breakdown
             });
         }
@@ -451,13 +454,16 @@
         },
 
         async monthRow(monthId, eventType) {
-            const { playerScores, tournaments } = await DataProcessor.getMonthlyAggregation(monthId, eventType);
+            const { playerScores, tournaments, status } = await DataProcessor.getMonthlyAggregation(monthId, eventType);
             const topPlayers = Object.values(playerScores)
                 .sort((a, b) => b.totalPoints - a.totalPoints)
                 .slice(0, CONFIG.TOP_PLAYERS);
 
+            const finishedCount = tournaments.filter(t => t.isFinished).length;
+            const totalCount = tournaments.length;
+
             topPlayers.forEach((p, idx) => {
-                recordTop6Finish(monthId, p, idx + 1);
+                recordTop6Finish(monthId, p, idx + 1, totalCount, finishedCount, status);
             });
 
             const playerDetails = await Promise.all(
@@ -465,19 +471,14 @@
             );
 
             const tournamentsJson = JSON.stringify(tournaments).replace(/'/g, "&apos;");
-            const finishedCount = tournaments.filter(t => t.isFinished).length;
-            const totalCount = tournaments.length;
-            let statsHtml = `${totalCount} giải đấu`;
-            if (finishedCount < totalCount) {
-                statsHtml += `<div style="font-size: 0.82em; color: var(--yellow-400, #f59e0b); margin-top: 3px; font-weight: 500;">(${finishedCount}/${totalCount} đã hoàn thành)</div>`;
-            }
+            const statsHtml = `<span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">${totalCount} giải đấu <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span><div style="font-size: 0.82em; color: var(--yellow-400, #f59e0b); margin-top: 3px; font-weight: 500; white-space: nowrap;">(${finishedCount}/${totalCount} đã hoàn thành)</div>`;
 
             let html = `<tr>
                 <td class="name-tour month-clickable" data-tournaments='${tournamentsJson}' data-month="${monthId}">
-                    Tháng ${monthId} <i class="bx bx-info-circle" style="font-size: 0.8em; opacity: 0.7;"></i>
+                    <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">Tháng ${monthId} <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span>
                 </td>
                 <td class="organization-day month-clickable" data-tournaments='${tournamentsJson}' data-month="${monthId}">
-                    ${statsHtml} <i class="bx bx-info-circle" style="font-size: 0.8em; opacity: 0.7;"></i>
+                    ${statsHtml}
                 </td>
                 <td class="players">${Object.keys(playerScores).length}</td>`;
 
@@ -577,17 +578,25 @@
                             <tr>
                                 <th>Tháng tổ chức</th>
                                 <th style="text-align: center;">Thành tích</th>
-                                <th style="text-align: center;">Số giải tham gia</th>
+                                <th style="text-align: center;">Số giải đã chơi</th>
                                 <th style="text-align: center;">Tổng điểm</th>
                             </tr>
                         </thead>
                         <tbody>`;
 
                 sortedFinishes.forEach(f => {
+                    let monthStatusNote = '';
+                    if (f.finishedCount < f.totalMonthTours || f.monthStatus === 'unfinished') {
+                        monthStatusNote = `<div style="font-size: 0.8em; color: var(--yellow-400, #f59e0b); font-weight: 500; margin-top: 2px;">(Chưa hoàn thành)</div>`;
+                    }
+
                     html += `<tr>
-                        <td style="font-weight: 600; color: var(--neutral-100);">Tháng ${f.monthId}</td>
+                        <td style="font-weight: 600; color: var(--neutral-100);">
+                            Tháng ${f.monthId}
+                            ${monthStatusNote}
+                        </td>
                         <td style="text-align: center; font-weight: 600; font-size: 0.95em;">${getRankBadge(f.rank)}</td>
-                        <td style="text-align: center; color: var(--neutral-300);">${f.tourCount} giải</td>
+                        <td style="text-align: center; color: var(--neutral-300);">${f.tourCount}/${f.totalMonthTours} giải</td>
                         <td style="text-align: center; color: var(--yellow-400); font-weight: bold; font-size: 1.05em;">${f.totalPoints} ĐIỂM</td>
                     </tr>`;
                 });
@@ -603,7 +612,7 @@
         handleMonthClick(monthElement, tournaments) {
             let html = `<div class="calendar-wrapper">
                 <table class="styled-table score-detail-table">
-                    <thead><tr><th>Vòng đấu</th><th>Thời gian bắt đầu</th><th>Thể lệ</th><th style="text-align: center;">Trạng thái</th><th style="text-align: center;">Kỳ thủ</th></tr></thead>
+                    <thead><tr><th>Vòng đấu</th><th>Thời gian bắt đầu</th><th>Thể lệ</th><th style="text-align: center;">Kỳ thủ</th></tr></thead>
                     <tbody>`;
 
             tournaments.forEach(tour => {
@@ -620,10 +629,12 @@
                 const startTimeStr = formatDate(tour.startTime);
                 const statusBadge = formatTourStatus(tour.status, tour.isFinished);
                 html += `<tr>
-                    <td><a href="${tour.url}" target="_blank">${tour.name}</a></td>
+                    <td>
+                        <a href="${tour.url}" target="_blank">${tour.name}</a>
+                        <div style="margin-top: 4px;">${statusBadge}</div>
+                    </td>
                     <td>${startTimeStr}</td>
                     <td>${Renderer.timeFormat(tour.timeControl, tour.timeClass)}<br>${variantHtml}<br>${tour.format}</td>
-                    <td style="text-align: center;">${statusBadge}</td>
                     <td style="text-align: center;">${tour.playersCount}</td>
                 </tr>`;
             });
