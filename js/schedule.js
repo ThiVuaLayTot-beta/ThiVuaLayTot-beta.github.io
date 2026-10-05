@@ -772,7 +772,7 @@ async function loadTournaments() {
         if (DOM.loadingEl) DOM.loadingEl.style.display = 'none';
         if (DOM.errorEl) {
             DOM.errorEl.style.display = 'block';
-            DOM.errorEl.innerHTML = `<div class="error"><i class="bx bx-error-circle"></i> Lỗi: ${error.message}</div>`;
+            DOM.errorEl.innerHTML = `<div class="error"><i class="bx bx-error-circle"></i> Lỗi: ${error.message}<br><span style="font-size:0.9em;margin-top:6px;display:inline-block;">Nếu gặp sự cố, vui lòng báo cáo trong <a href="https://chess.com/clubs/forum/view/lich-su-kien-hang-thang-clb-tvlt?clubId=325849&quote_id=125015758&page=1#comment_box" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline;">diễn đàn (forum)</a> hoặc liên hệ <a href="/leaders#admin3" style="color:inherit;text-decoration:underline;">M-DinhHoangViet</a>.</span></div>`;
         }
     }
 }

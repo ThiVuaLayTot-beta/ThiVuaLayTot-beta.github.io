@@ -200,14 +200,14 @@ title: Lịch sự kiện của tháng
 .schedule-intro li+li{margin-top:4px}
 .schedule-updated{margin:0;font-size:var(--fs-sm);color:var(--neutral-300)}
 .schedule-results-summary{margin:16px 0 0;color:var(--neutral-400);font-size:var(--fs-sm);text-align:center}
-.month-nav-wrapper{display:flex;align-items:center;justify-content:center;gap:15px;margin-bottom:20px;width:100%}
-.month-nav-btn{background:rgba(10,25,47,.65);border:1.5px solid var(--cyan-400);border-radius:var(--border-radius-lg);color:var(--cyan-300);width:44px;height:44px;font-size:24px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 10px rgba(0,242,255,.05);outline:none}
-.month-nav-btn:hover{background:rgba(0,242,255,.1);color:var(--cyan-100);border-color:var(--cyan-300);box-shadow:0 0 15px rgba(0,242,255,.25);transform:translateY(-2px)}
-.month-nav-btn:active,.btn-switcher:active,.btn-primary:active,.btn-secondary:active{transform:translateY(0)}
+.month-nav-wrapper{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;width:100%;padding:10px 16px;background:linear-gradient(180deg,var(--color-bg-secondary) 0%,var(--color-bg-tertiary) 100%);border:var(--border-width-base) solid var(--cyan-400);border-radius:var(--border-radius-lg);box-shadow:0 0 15px var(--cyan-200),0 0 30px rgba(0,242,255,.4);box-sizing:border-box}
+.month-nav-btn{background:rgba(10,25,47,.6);border:1px solid rgba(0,242,255,.4);border-radius:8px;color:var(--cyan-300);width:38px;height:38px;font-size:22px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 2px 8px rgba(0,0,0,.2);outline:none;flex-shrink:0}
+.month-nav-btn:hover{background:rgba(0,242,255,.15);color:var(--cyan-100);border-color:var(--cyan-300);box-shadow:0 0 12px rgba(0,242,255,.3);transform:scale(1.05)}
+.month-nav-btn:active,.btn-switcher:active,.btn-primary:active,.btn-secondary:active{transform:scale(0.98)}
 .month-nav-btn:disabled{cursor:not-allowed;transform:none!important}
 .reset-filters-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:1px solid rgba(53,201,252,.4);border-radius:8px;background:rgba(10,25,47,.6);color:var(--cyan-200);padding:7px 10px;font-size:13px;font-weight:var(--fw-semibold);cursor:pointer;white-space:nowrap;transition:all .2s ease}
 .reset-filters-btn:hover{background:rgba(0,242,255,.12);border-color:var(--cyan-300);color:var(--cyan-100)}
-.month-title{flex:1;text-align:center;font-size:var(--fs-2xl);font-family:cursive;font-weight:var(--fw-bold);color:var(--cyan-400);text-transform:uppercase;text-shadow:0 0 6px var(--cyan-300);padding:var(--space-md);background:linear-gradient(180deg,var(--color-bg-secondary) 0%,var(--color-bg-tertiary) 100%);border:var(--border-width-base) solid var(--cyan-400);border-radius:var(--border-radius-lg);box-shadow:0 0 15px var(--cyan-200),0 0 30px rgba(0,242,255,.4)}
+.month-title{flex:1;text-align:center;font-size:var(--fs-2xl);font-family:cursive;font-weight:var(--fw-bold);color:var(--cyan-400);text-transform:uppercase;text-shadow:0 0 6px var(--cyan-300);padding:0;background:transparent;border:none;box-shadow:none;line-height:1.2}
 
 #calendar-wrapper,.calendar-wrapper{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:12px;border-radius:12px}
 table{width:100%;border-collapse:collapse;background:radial-gradient(circle at center,var(--color-bg-tertiary) 0%,var(--color-bg-primary) 100%);border:var(--border-width-base) solid var(--cyan-400);border-radius:var(--border-radius-lg);box-shadow:0 0 15px var(--cyan-200),0 0 30px rgba(0,242,255,.4),inset 0 0 20px rgba(0,242,255,.1)}
@@ -407,7 +407,9 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 @keyframes prizePremiumPulse{0%,100%{border-color:rgba(245,158,11,.5);box-shadow:0 0 8px rgba(245,158,11,.2)}50%{border-color:rgba(239,68,68,.8);box-shadow:0 0 12px rgba(239,68,68,.4)}}
 
 @media(max-width:768px){
-    .month-title{font-size:18px;padding:12px}
+    .month-nav-wrapper{padding:8px 12px}
+    .month-nav-btn{width:34px;height:34px;font-size:18px}
+    .month-title{font-size:18px;padding:0}
     .calendar-wrapper{padding-bottom:10px}
     table{min-width:100%;font-size:85%}
     thead th{padding:10px 6px;font-size:.75em}
