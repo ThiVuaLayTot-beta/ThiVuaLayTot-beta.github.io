@@ -277,9 +277,9 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .cc-modal-logo-box a{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
 .cc-modal-logo-box img{width:80%;height:80%;object-fit:contain}
 .cc-modal-title-section h2{color:var(--cyan-400);margin:0 0 .3rem;font-size:var(--fs-2xl);text-shadow:0 0 4px var(--cyan-300);line-height:1.2}
-.cc-modal-category{text-transform:uppercase;font-size:.75em;font-weight:var(--fw-bold);color:var(--blue-400);margin-bottom:.5em;letter-spacing:.5px;display:flex;gap:var(--space-xs);flex-wrap:wrap;align-items:center}
+.cc-modal-category{text-transform:uppercase;font-size:.75em;font-weight:var(--fw-bold);color:var(--blue-400);margin-bottom:.5em;letter-spacing:.5px;display:flex;gap:6px;flex-wrap:nowrap;align-items:center;overflow-x:auto}
 
-.badge-schedule{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:50px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .3s cubic-bezier(.4,0,.2,1);user-select:none}
+.badge-schedule{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:50px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .3s cubic-bezier(.4,0,.2,1);user-select:none}
 .badge-schedule i{font-size:12px}
 .badge-giao-luu{background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.45);box-shadow:0 0 10px rgba(16,185,129,.15),inset 0 0 4px rgba(16,185,129,.1)}
 .badge-giao-luu:hover{background:rgba(16,185,129,.18);box-shadow:0 0 14px rgba(16,185,129,.35),inset 0 0 6px rgba(16,185,129,.2);transform:translateY(-1px)}
