@@ -10,7 +10,7 @@ const CONFIG = {
 
 const ORGANIZER_MAP = {
     'M-DinhHoangViet': '<a href="/leaders#admin3" target="_blank">M-DinhHoangViet</a> (CLB <a href="/leaders" target="_blank">Thí Vua Lấy Tốt</a>)',
-    'Mr. TungJohn': '<a href="https://youtube.com/channel/UCvNW1NAWWjblgrP6JQI4MbQ" target="_blank">Mr. TungJohn</a> (CLB <a href="/leaders" target="_blank">Thí Vua Lấy Tốt</a>)',
+    'Mr. TungJohn': '<a href="https://youtube.com/channel/UCvNW1NAWWjblgrP6JQI4MbQ" target="_blank">Mr.TungJohn</a> (CLB <a href="/leaders" target="_blank">Thí Vua Lấy Tốt</a>)',
     'Chess123-2k': '<a href="https://chess.com/member/Chess123-2k" target="_blank">Chess123-2k</a> (CLB <a href="https://link.chess.com/club/0CVQh6" target="_blank">Thí Vua Lấy Tốt</a>)',
     'VN-SenJin': '<a href="/leaders#admin5" target="_blank">VN-SenJin</a> (CLB <a href="/leaders" target="_blank">Thí Vua Lấy Tốt</a>)',
     'FR-CH_TheClanTeamIsMine': '<a href="/leaders#admin2" target="_blank">FR-CH_TheClanTeamIsMine</a> (CLB <a href="/leaders" target="_blank">Thí Vua Lấy Tốt</a>)'
@@ -266,7 +266,7 @@ function updateFilterControls(filters = getFilterState()) {
 function updateResultsSummary() {
     if (!DOM.resultsSummary || STATE.displayYear === undefined) return;
     const count = getCurrentMonthEvents().length;
-    DOM.resultsSummary.textContent = `Hiển thị ${count} sự kiện trong ${CONFIG.MONTH_NAMES[STATE.displayMonth]} ${STATE.displayYear}.`;
+    DOM.resultsSummary.textContent = `Đang hiển thị ${count} sự kiện trong tháng ${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}.`;
 }
 
 function resetFilters() {
@@ -302,8 +302,8 @@ function loadFiltersFromURL() {
     const params = new URLSearchParams(window.location.search);
     if (params.has('search') && DOM.scheduleSearch) DOM.scheduleSearch.value = params.get('search');
     if (params.has('prize') && DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = (params.get('prize') === '1');
-    if (params.has('tc') && DOM.scheduleTypeGroup) {
-        const selectedTypes = params.get('tc').toLowerCase().split(/[\s+]+/);
+    if (params.has('type') && DOM.scheduleTypeGroup) {
+        const selectedTypes = params.get('type').toLowerCase().split(/[\s+]+/);
         DOM.scheduleTypeGroup.querySelectorAll('input[type="checkbox"]').forEach(cb => {
             cb.checked = selectedTypes.includes(cb.value.toLowerCase());
         });
@@ -318,7 +318,7 @@ function saveFiltersToURL() {
     const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]') || [])
         .map(cb => cb.value);
     if (filters.types.length < allTypes.length) {
-        params.set('tc', filters.types.length ? filters.types.join(' ') : 'none');
+        params.set('type', filters.types.length ? filters.types.join(' ') : 'none');
     }
     const newQuery = params.toString();
     const newURL = window.location.pathname + (newQuery ? '?' + newQuery : '');
@@ -660,7 +660,7 @@ function renderActiveView() {
         if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
         return;
     }
-    if (DOM.monthTitle) DOM.monthTitle.textContent = `${CONFIG.MONTH_NAMES[STATE.displayMonth]} ${STATE.displayYear}`;
+    if (DOM.monthTitle) DOM.monthTitle.textContent = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
     updateNavButtonStates();
     updateFilterControls();
     updateResultsSummary();

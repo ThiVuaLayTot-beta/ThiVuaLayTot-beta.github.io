@@ -6,6 +6,7 @@ title: Lịch sự kiện của tháng
 <section class="schedule-intro" aria-label="Hướng dẫn sử dụng lịch">
     <p class="schedule-intro-title"><i class="bx bx-info-circle" aria-hidden="true"></i> Tìm giải nhanh, rồi chọn một sự kiện để xem chi tiết và tham gia.</p>
     <ul>
+        <li>Nhấn vào các icon để biết thêm thông tin về sự kiện đó.</li>
         <li>Lịch được cập nhật thường xuyên; các mục <strong>Dự kiến</strong> có thể thay đổi.</li>
         <li>Dùng ô tìm kiếm, bộ lọc thể loại hoặc nút <strong>Chỉ có thưởng</strong> để thu hẹp kết quả.</li>
     </ul>
@@ -23,7 +24,7 @@ title: Lịch sự kiện của tháng
             <button type="button" class="tour-dropdown-btn compact-btn" id="schedule-category-button" aria-expanded="false" aria-controls="schedule-type-group">
                 <div class="tour-dropdown-btn-content">
                     <i class="bx bx-filter-alt"></i>
-                    <span>Thể loại</span>
+                    <span>Thể loại (9/9)</span>
                 </div>
                 <span class="bx bx-chevron-down tour-dropdown-arrow"></span>
             </button>
@@ -46,7 +47,7 @@ title: Lịch sự kiện của tháng
                 </label>
                 <label class="custom-checkbox-container">
                     <input type="checkbox" value="multi-club-arena" checked>
-                    <span class="checkmark"></span> Multi-Club Arena (Đấu trường đa CLB)
+                    <span class="checkmark"></span> Đấu trường đa CLB (Multi-Club Arena)
                 </label>
                 <label class="custom-checkbox-container">
                     <input type="checkbox" value="club-arena" checked>
@@ -105,13 +106,13 @@ title: Lịch sự kiện của tháng
     <table id="calendar-table">
         <thead>
             <tr>
-                <th scope="col" title="Thứ Hai">T2</th>
-                <th scope="col" title="Thứ Ba">T3</th>
-                <th scope="col" title="Thứ Tư">T4</th>
-                <th scope="col" title="Thứ Năm">T5</th>
-                <th scope="col" title="Thứ Sáu">T6</th>
-                <th scope="col" title="Thứ Bảy">T7</th>
-                <th scope="col" title="Chủ Nhật">CN</th>
+                <th scope="col" title="Thứ Hai">Thứ 2</th>
+                <th scope="col" title="Thứ Ba">Thứ 3</th>
+                <th scope="col" title="Thứ Tư">Thứ 4</th>
+                <th scope="col" title="Thứ Năm">Thứ 5</th>
+                <th scope="col" title="Thứ Sáu">Thứ 6</th>
+                <th scope="col" title="Thứ Bảy">Thứ 7</th>
+                <th scope="col" title="Chủ Nhật">Chủ nhật</th>
             </tr>
         </thead>
         <tbody id="calendar-body">
@@ -185,9 +186,9 @@ title: Lịch sự kiện của tháng
             </div>
         </div>
         <div class="btn-group">
-            <a id="modal-join" class="btn btn-primary" href="#" target="_blank"><span class="bx bx-user-plus"></span> Tham gia</a>
-            <a id="modal-rule" class="btn btn-secondary" href="#" target="_blank"><span class="bx bx-task"></span> Thể lệ</a>
-            <a id="modal-results" class="btn btn-secondary" href="#" target="_blank"><span class="bx bx-trophy"></span> Kết quả</a>
+            <a id="modal-join" href="#" target="_blank"><button class="btn btn-primary" type="button"><span class="bx bx-user-plus"></span> Tham gia</button></a>
+            <a id="modal-rule" href="#" target="_blank"><button class="btn btn-secondary" type="button"><span class="bx bx-task"></span> Thể lệ</button></a>
+            <a id="modal-results" href="#" target="_blank"><button class="btn btn-secondary" type="button"><span class="bx bx-trophy"></span> Kết quả</button></a>
         </div>
     </div>
 </div>
@@ -404,10 +405,6 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 @keyframes premiumPulse{0%,100%{border-color:rgba(52,211,153,.5);box-shadow:0 0 8px rgba(52,211,153,.2)}50%{border-color:rgba(245,158,11,.8);box-shadow:0 0 12px rgba(245,158,11,.4)}}
 .badge-prize-combined-premium{background:linear-gradient(135deg,rgba(245,158,11,.18) 0%,rgba(239,68,68,.18) 100%);color:#f59e0b!important;border:1px dashed rgba(245,158,11,.6)!important;box-shadow:0 0 8px rgba(245,158,11,.25),inset 0 0 6px rgba(245,158,11,.1);position:relative;overflow:hidden;animation:prizePremiumPulse 3s infinite ease-in-out}
 @keyframes prizePremiumPulse{0%,100%{border-color:rgba(245,158,11,.5);box-shadow:0 0 8px rgba(245,158,11,.2)}50%{border-color:rgba(239,68,68,.8);box-shadow:0 0 12px rgba(239,68,68,.4)}}
-
-@media(max-width:1100px) and (min-width:769px){
-    .cc-modal-dialog{width:calc(100vw - 32px);max-width:900px;grid-template-columns:minmax(280px,.9fr) minmax(320px,1fr)}
-}
 
 @media(max-width:768px){
     .month-title{font-size:18px;padding:12px}
