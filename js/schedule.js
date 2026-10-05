@@ -208,18 +208,14 @@ function getGameRulesWithIcon(rulesText) {
 
 function getEventBadgesHTML(isCoThuong, isTentative, isEnded = false) {
     let html = '';
-    if (isTentative) {
-        if (isCoThuong) {
-            html += `<span class="badge-schedule badge-prize-combined-premium"><span class="badge-pulse-dot-prize"></span><i class="bx bxs-award"></i> Có thưởng (Dự kiến)</span>`;
-        } else {
-            html += `<span class="badge-schedule badge-combined-premium"><span class="badge-pulse-dot"></span><i class="bx bx-coffee"></i> Giao lưu (Dự kiến)</span>`;
-        }
+    if (isCoThuong) {
+        html += `<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>`;
     } else {
-        if (isCoThuong) {
-            html += `<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>`;
-        } else {
-            html += `<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>`;
-        }
+        html += `<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>`;
+    }
+
+    if (isTentative) {
+        html += `<span class="badge-schedule badge-tentative"><i class="bx bx-time-five"></i> Dự kiến</span>`;
     }
 
     if (isEnded) {
