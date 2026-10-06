@@ -83,6 +83,8 @@
             return `<span class="user-badges-badge" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.4);"><i class="bx bx-loader-circle bx-spin" style="margin-right: 3px;"></i>Đang diễn ra</span>`;
         } else if (status === 'registration') {
             return `<span class="user-badges-badge" style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.4);"><i class="bx bx-user-plus" style="margin-right: 3px;"></i>Đang đăng ký</span>`;
+        } else if (status === 'scheduled') {
+            return `<span class="user-badges-badge" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border-color: rgba(148, 163, 184, 0.4);"><i class="bx bx-calendar" style="margin-right: 3px;"></i>Sắp diễn ra</span>`;
         } else {
             return `<span class="user-badges-badge" style="background: rgba(234, 179, 8, 0.15); color: #facc15; border-color: rgba(234, 179, 8, 0.4);"><i class="bx bx-time-five" style="margin-right: 3px;"></i>Chưa hoàn thành</span>`;
         }
@@ -247,12 +249,29 @@
         },
 
         getTournamentMetadata(data) {
+            if (!data) {
+                return {
+                    rounds: 0,
+                    variant: 'standard',
+                    setup: null,
+                    timeControl: '3+0',
+                    timeClass: 'blitz',
+                    registeredCount: 0,
+                    startTime: 0,
+                    endTime: 0,
+                    status: 'unknown',
+                    isFinished: false
+                };
+            }
             const rounds = data.settings?.total_rounds || data.rounds || data.total_rounds || 0;
             const variant = data.settings?.rules || data.rules || 'standard';
             const setup = data.settings?.initial_setup || null;
             const finalVariant = (variant === 'standard' || variant === 'chess') && setup ? 'custom' : variant;
             const status = data.status || data.settings?.status || 'unknown';
-            const isFinished = status === 'finished';
+            const finishTime = data.finish_time || data.endTime || data.finishTime || 0;
+            const nowSeconds = Math.floor(Date.now() / 1000);
+            const isFinished = status === 'finished' || (finishTime > 0 && finishTime <= nowSeconds);
+
             return {
                 rounds,
                 variant: finalVariant,
@@ -265,7 +284,7 @@
                     (data.players || []).length
                 ),
                 startTime: data.start_time || data.startTime || 0,
-                endTime: data.finish_time || data.endTime || 0,
+                endTime: finishTime,
                 status,
                 isFinished
             };
@@ -471,7 +490,12 @@
             );
 
             const tournamentsJson = JSON.stringify(tournaments).replace(/'/g, "&apos;");
-            const statsHtml = `<span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">${totalCount} giải đấu <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span><div style="font-size: 0.82em; color: var(--yellow-400, #f59e0b); margin-top: 3px; font-weight: 500; white-space: nowrap;">(${finishedCount}/${totalCount} đã hoàn thành)</div>`;
+            const isAllFinished = totalCount > 0 && finishedCount === totalCount;
+            const statusBadgeStyle = isAllFinished
+                ? 'background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4);'
+                : 'background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);';
+            const statusBadgeIcon = isAllFinished ? 'bx-check-circle' : 'bx-time-five';
+            const statsHtml = `<span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">${totalCount} giải đấu <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span><div style="margin-top: 4px; white-space: nowrap;"><span class="user-badges-badge" style="${statusBadgeStyle} font-size: 0.82em; padding: 2px 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;"><i class="bx ${statusBadgeIcon}"></i>${finishedCount}/${totalCount} đã hoàn thành</span></div>`;
 
             let html = `<tr>
                 <td class="name-tour month-clickable" data-tournaments='${tournamentsJson}' data-month="${monthId}">
