@@ -183,7 +183,7 @@ const parseMarkdownLinks = (() => {
 
         if (cache.has(text)) return cache.get(text);
 
-        const pattern = /\\[([^\\]\\n]+)\\]\\(([^)\\s]+)\\)/g;
+        const pattern = /\[([^\]]+)\]\(([^)]+)\)/g;
         let html = '';
         let lastIndex = 0;
         let match;
@@ -198,8 +198,8 @@ const parseMarkdownLinks = (() => {
 
                 if (['http:', 'https:'].includes(url.protocol)) {
                     linkHTML =
-                        `<a href="${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer">` +
-                        `${escapeHTML(match[1])}</a>`;
+                        \`<a href="\${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer">\` +
+                        \`\${escapeHTML(match[1])}</a>\`;
                 }
             } catch {
                 // Keep malformed URLs as safely escaped text.
