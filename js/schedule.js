@@ -214,18 +214,18 @@ function getGameRulesWithIcon(rulesText) {
 function getEventBadgesHTML(isCoThuong, tournament) {
     let html = '';
     if (isCoThuong) {
-        html += \`<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>\`;
+        html += `<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>`;
     } else {
-        html += \`<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>\`;
+        html += `<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>`;
     }
 
     const status = getEventStatus(tournament);
     if (status === 'Dự kiến') {
-        html += \`<span class="badge-schedule badge-tentative"><i class="bx bx-time-five"></i> Dự kiến</span>\`;
+        html += `<span class="badge-schedule badge-tentative"><i class="bx bx-time-five"></i> Dự kiến</span>`;
     } else if (status === 'Sắp diễn ra') {
-        html += \`<span class="badge-schedule badge-upcoming"><i class="bx bx-calendar-event"></i> Sắp diễn ra</span>\`;
+        html += `<span class="badge-schedule badge-upcoming"><i class="bx bx-calendar-event"></i> Sắp diễn ra</span>`;
     } else if (status === 'Đã kết thúc') {
-        html += \`<span class="badge-schedule badge-ended"><i class="bx bx-check-circle"></i> Đã kết thúc</span>\`;
+        html += `<span class="badge-schedule badge-ended"><i class="bx bx-check-circle"></i> Đã kết thúc</span>`;
     }
 
     return html;
@@ -288,7 +288,7 @@ function getMappedOrganizer(rawOrganizer, organizerLinks = []) {
             try {
                 const url = new URL(rawUrl, window.location.origin);
                 if (!['http:', 'https:'].includes(url.protocol)) return label;
-                return \`<a href="\${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer">\${label}</a>\`;
+                return `<a href="${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
             } catch {
                 return label;
             }
