@@ -121,7 +121,12 @@ function getVietnamNow() {
 
 function parseEventDate(dateStr) {
     if (typeof dateStr !== 'string' || !dateStr.trim()) return null;
-    let formatted = dateStr.trim().replace(' ', 'T');
+    let formatted = dateStr.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(formatted)) {
+        formatted += 'T00:00:00';
+    } else {
+        formatted = formatted.replace(' ', 'T');
+    }
     if (!/(Z|[+-]\d{2}:?\d{2})$/i.test(formatted)) formatted += '+07:00';
     const date = new Date(formatted);
     return Number.isNaN(date.getTime()) ? null : date;
@@ -206,20 +211,21 @@ function getGameRulesWithIcon(rulesText) {
     return rulesText + icons;
 }
 
-function getEventBadgesHTML(isCoThuong, isTentative, isEnded = false) {
+function getEventBadgesHTML(isCoThuong, tournament) {
     let html = '';
     if (isCoThuong) {
-        html += `<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>`;
+        html += \`<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>\`;
     } else {
-        html += `<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>`;
+        html += \`<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>\`;
     }
 
-    if (isTentative) {
-        html += `<span class="badge-schedule badge-tentative"><i class="bx bx-time-five"></i> Dự kiến</span>`;
-    }
-
-    if (isEnded) {
-        html += `<span class="badge-schedule badge-ended"><i class="bx bx-check-circle"></i> Đã bắt đầu</span>`;
+    const status = getEventStatus(tournament);
+    if (status === 'Dự kiến') {
+        html += \`<span class="badge-schedule badge-tentative"><i class="bx bx-time-five"></i> Dự kiến</span>\`;
+    } else if (status === 'Sắp diễn ra') {
+        html += \`<span class="badge-schedule badge-upcoming"><i class="bx bx-calendar-event"></i> Sắp diễn ra</span>\`;
+    } else if (status === 'Đã kết thúc') {
+        html += \`<span class="badge-schedule badge-ended"><i class="bx bx-check-circle"></i> Đã kết thúc</span>\`;
     }
 
     return html;
@@ -234,16 +240,61 @@ function isPrizeEvent(tournament) {
     return value !== '' && !['giao lưu', 'không', 'không có', 'false', '0'].includes(value);
 }
 
+function getExplicitEventStatus(tournament) {
+    const value = String(tournament?.status || '').trim().toLowerCase();
+    if (['đã kết thúc', 'ended', 'finished', 'completed'].includes(value)) return 'Đã kết thúc';
+    if (['sắp diễn ra', 'upcoming', 'scheduled'].includes(value)) return 'Sắp diễn ra';
+    if (['dự kiến', 'tentative', 'proposed'].includes(value)) return 'Dự kiến';
+    return '';
+}
+
+function getEventStatus(tournament) {
+    const explicitStatus = getExplicitEventStatus(tournament);
+    if (explicitStatus) return explicitStatus;
+
+    const tentative = tournament?.isTentative;
+    if (tentative === true || tentative === 'true' || tentative === 'Dự kiến' || tentative === 'Tentative') {
+        return 'Dự kiến';
+    }
+
+    return getEventEndTime(tournament) < Date.now() ? 'Đã kết thúc' : 'Sắp diễn ra';
+}
+
 function isTentativeEvent(tournament) {
-    const value = tournament?.isTentative;
-    return value === true || value === 'true' || value === 'Dự kiến' || value === 'Tentative';
+    return getEventStatus(tournament) === 'Dự kiến';
 }
 
 function isEndedEvent(tournament) {
-    return getEventEndTime(tournament) < Date.now();
+    return getEventStatus(tournament) === 'Đã kết thúc';
 }
 
-function getMappedOrganizer(rawOrganizer) {
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[character]);
+}
+
+function getMappedOrganizer(rawOrganizer, organizerLinks = []) {
+    if (Array.isArray(organizerLinks) && organizerLinks.length) {
+        return organizerLinks.map(item => {
+            const label = escapeHTML(item?.text || '');
+            const rawUrl = String(item?.url || '').trim();
+            if (!rawUrl) return label;
+
+            try {
+                const url = new URL(rawUrl, window.location.origin);
+                if (!['http:', 'https:'].includes(url.protocol)) return label;
+                return \`<a href="\${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer">\${label}</a>\`;
+            } catch {
+                return label;
+            }
+        }).join('');
+    }
+
     return ORGANIZER_MAP[rawOrganizer] || parseMarkdownLinks(rawOrganizer) || 'Quản trị viên';
 }
 
@@ -398,6 +449,7 @@ function renderCalendar() {
                     icon.setAttribute('aria-label', `Xem chi tiết ${tournament.eventName || 'sự kiện'} lúc ${padZero(parts.hours)} giờ ${padZero(parts.minutes)}`);
                     if (isEndedEvent(tournament)) icon.classList.add('ended');
                     if (isTentativeEvent(tournament)) icon.classList.add('tentative');
+                    if (getEventStatus(tournament) === 'Sắp diễn ra') icon.classList.add('upcoming');
                     if (isPrizeEvent(tournament)) icon.classList.add('has-prize');
                     const img = document.createElement('img');
                     img.src = tournament.logo || 'https://chess.com/bundles/web/images/image-default.445cb543.svg';
@@ -458,7 +510,8 @@ function getEventStartTime(tournament) {
 }
 
 function getEventEndTime(tournament) {
-    return getEventStartTime(tournament) + CONFIG.EVENT_DURATION_MS;
+    const duration = tournament?.hasStartTime === false ? 24 * 60 * 60 * 1000 : CONFIG.EVENT_DURATION_MS;
+    return getEventStartTime(tournament) + duration;
 }
 
 function renderEventCard(tournament, container) {
@@ -468,13 +521,16 @@ function renderEventCard(tournament, container) {
     const isTentative = isTentativeEvent(tournament);
     const isEnded = isEndedEvent(tournament);
     if (isEnded) card.classList.add('is-ended');
-    const categoryHTML = getEventBadgesHTML(isCoThuong, isTentative, isEnded);
+    const categoryHTML = getEventBadgesHTML(isCoThuong, tournament);
     const tParts = getVietnamDateParts(tournament.startTime);
     const dayVn = getDayOfWeekVn(tournament.startTime);
     const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
-    let formattedTime = `${dayPrefix}${dayVn}, ${padZero(tParts.date)} thg ${padZero(tParts.month + 1)}, ${tParts.year} lúc ${padZero(tParts.hours)}h${padZero(tParts.minutes)}`;
+    const dateLabel = `${dayPrefix}${dayVn}, ${padZero(tParts.date)} thg ${padZero(tParts.month + 1)}, ${tParts.year}`;
+    let formattedTime = tournament.hasStartTime
+        ? `${dateLabel} lúc ${padZero(tParts.hours)}h${padZero(tParts.minutes)}`
+        : dateLabel;
     if (isTentative) formattedTime = `Dự kiến: ${formattedTime}`;
-    const mappedOrganizer = getMappedOrganizer(tournament.organizer || '');
+    const mappedOrganizer = getMappedOrganizer(tournament.organizer || '', tournament.organizerLinks);
     card.innerHTML = `
         <div class="event-card-header">
             <div class="event-card-logo">
@@ -562,13 +618,16 @@ function openModal(tournament) {
         DOM.modalName.innerHTML = `<a href="#" onclick="event.preventDefault(); alert('Hiện chưa có link giải, hãy hỏi các quản trị viên hoặc người tổ chức giải này để tìm hiểu thêm!');">${tournament.eventName || 'Chi tiết giải đấu'}</a>`;
     }
 
-    DOM.modalCategory.innerHTML = getEventBadgesHTML(isCoThuong, isTentative, isEnded);
-    DOM.modalOrganizer.innerHTML = getMappedOrganizer(tournament.organizer || '');
+    DOM.modalCategory.innerHTML = getEventBadgesHTML(isCoThuong, tournament);
+    DOM.modalOrganizer.innerHTML = getMappedOrganizer(tournament.organizer || '', tournament.organizerLinks);
 
     const tParts = getVietnamDateParts(tournament.startTime);
     const dayVn = getDayOfWeekVn(tournament.startTime);
     const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
-    let formattedTime = `${dayPrefix}${dayVn}, ngày ${padZero(tParts.date)} tháng ${padZero(tParts.month + 1)} năm ${tParts.year} lúc ${padZero(tParts.hours)}h${padZero(tParts.minutes)}`;
+    const dateLabel = `${dayPrefix}${dayVn}, ngày ${padZero(tParts.date)} tháng ${padZero(tParts.month + 1)} năm ${tParts.year}`;
+    let formattedTime = tournament.hasStartTime
+        ? `${dateLabel} lúc ${padZero(tParts.hours)}h${padZero(tParts.minutes)}`
+        : dateLabel;
 
     let gameRulesText = tournament.gameRules || 'Chưa có thông tin';
     let eventRulesText = tournament.eventRules || 'Chưa có thông tin';
@@ -752,14 +811,25 @@ function normalizeEventDate(value) {
     return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:${pad(second)}+07:00`;
 }
 
+function hasEventTime(value) {
+    if (value && typeof value === 'object') {
+        return hasEventTime(value.start || value.date?.start || value.date || value.start_time);
+    }
+    return typeof value === 'string' && /(?:T|\s)\d{1,2}:\d{2}/i.test(value.trim());
+}
+
 function normalizeTournament(record) {
     if (!record || typeof record !== 'object') return null;
 
+    const rawStartTime = record.startTime;
     return {
         ...record,
         eventName: String(record.eventName || '').trim(),
-        startTime: normalizeEventDate(record.startTime),
+        hasStartTime: typeof record.hasStartTime === 'boolean' ? record.hasStartTime : hasEventTime(rawStartTime),
+        startTime: normalizeEventDate(rawStartTime),
         eventType: String(record.eventType || '').trim().toLowerCase().replace(/\s+/g, '-'),
+        status: String(record.status || '').trim(),
+        organizerLinks: Array.isArray(record.organizerLinks) ? record.organizerLinks : [],
         isTentative: record.isTentative === true || record.isTentative === 'true' ||
             record.isTentative === 'Dự kiến' || record.isTentative === 'Tentative',
         prize: record.prize ?? ''
