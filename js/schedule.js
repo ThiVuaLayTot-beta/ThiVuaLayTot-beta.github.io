@@ -718,14 +718,6 @@ function filterSchedule() {
     renderActiveView();
 }
 
-function getFirstValue(record, keys) {
-    for (const key of keys) {
-        const value = record?.[key];
-        if (value !== undefined && value !== null && value !== '') return value;
-    }
-    return undefined;
-}
-
 function normalizeEventDate(value) {
     if (value && typeof value === 'object') {
         value = value.start || value.date?.start || value.date || value.start_time;
