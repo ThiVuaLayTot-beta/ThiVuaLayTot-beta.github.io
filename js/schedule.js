@@ -775,7 +775,10 @@ async function loadTournaments() {
             }
         }
 
-        const rawEvents = Array.isArray(data) ? data : (data.events || data.tournaments || data.data?.events || data.data?.tournaments || data.data || []);\n        if (!Array.isArray(rawEvents)) throw new Error('Cấu trúc dữ liệu API không chứa danh sách sự kiện hợp lệ.');\n\n        const lastUpdatedStr = String(data.lastUpdated || rawEvents[0]?.timestamp || '');
+        const rawEvents = Array.isArray(data) ? data : (data.events || data.tournaments || data.data?.events || data.data?.tournaments || data.data || []);
+        if (!Array.isArray(rawEvents)) throw new Error('Cấu trúc dữ liệu API không chứa danh sách sự kiện hợp lệ.');
+
+        const lastUpdatedStr = String(data.lastUpdated || rawEvents[0]?.timestamp || '');
         let formatted = lastUpdatedStr.trim().replace(' ', 'T');
         if (formatted && !formatted.includes('+') && !formatted.includes('Z')) {
             formatted += '+07:00';
