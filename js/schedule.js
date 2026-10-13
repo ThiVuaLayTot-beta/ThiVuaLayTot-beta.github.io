@@ -590,6 +590,10 @@ function renderEventCard(tournament, container) {
         openModal(tournament);
     };
     
+    card.querySelectorAll('.event-card-detail-item a').forEach(link => {
+        link.addEventListener('click', event => event.stopPropagation());
+    });
+
     card.onclick = () => openModal(tournament);
     
     container.appendChild(card);
