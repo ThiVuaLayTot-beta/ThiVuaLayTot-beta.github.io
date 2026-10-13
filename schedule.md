@@ -289,6 +289,8 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .badge-tentative:hover{background:rgba(244,63,94,.15);box-shadow:0 0 14px rgba(244,63,94,.35),inset 0 0 6px rgba(244,63,94,.2)}
 .badge-ended{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.35);box-shadow:0 0 8px rgba(148,163,184,.1)}
 .badge-ended:hover{background:rgba(148,163,184,.18);border-color:rgba(148,163,184,.5)}
+.badge-upcoming{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.4);box-shadow:0 0 8px rgba(59,130,246,.12)}
+.badge-upcoming:hover{background:rgba(59,130,246,.18);border-color:rgba(96,165,250,.65);box-shadow:0 0 12px rgba(59,130,246,.25)}
 
 .cc-modal-info-section{display:grid;grid-template-columns:1fr;gap:1rem;padding:var(--space-md) var(--space-xl);width:100%;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(47,185,255,.2)}
 .cc-modal-info-item{display:flex;align-items:flex-start;gap:.8rem;font-size:1rem}
