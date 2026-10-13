@@ -226,8 +226,12 @@ function getEventBadgesHTML(isCoThuong, isTentative, isEnded = false) {
 }
 
 function isPrizeEvent(tournament) {
-    const prize = (tournament.prize || '').toLowerCase().trim();
-    return prize !== '' && prize !== 'giao lưu' && prize !== 'không' && prize !== 'không có';
+    const prize = tournament?.prize;
+    if (typeof prize === 'boolean') return prize;
+    if (typeof prize === 'number') return prize > 0;
+
+    const value = String(prize || '').toLowerCase().trim();
+    return value !== '' && !['giao lưu', 'không', 'không có', 'false', '0'].includes(value);
 }
 
 function isTentativeEvent(tournament) {
@@ -730,29 +734,43 @@ function normalizeEventDate(value) {
         const date = new Date(value);
         return Number.isNaN(date.getTime()) ? '' : date.toISOString();
     }
-    return typeof value === 'string' ? value.trim() : '';
+    if (typeof value !== 'string') return '';
+
+    const raw = value.trim();
+    const notionDate = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+    if (!notionDate) return raw;
+
+    const [, monthText, dayText, yearText, hourText = '0', minuteText = '0', secondText = '0'] = notionDate;
+    const month = Number(monthText);
+    const day = Number(dayText);
+    const year = Number(yearText);
+    const hour = Number(hourText);
+    const minute = Number(minuteText);
+    const second = Number(secondText);
+    const check = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+
+    if (
+        month < 1 || month > 12 || day < 1 || day > 31 ||
+        hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59 ||
+        check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 ||
+        check.getUTCDate() !== day
+    ) return '';
+
+    const pad = number => String(number).padStart(2, '0');
+    return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:${pad(second)}+07:00`;
 }
 
 function normalizeTournament(record) {
     if (!record || typeof record !== 'object') return null;
 
-    const startTime = normalizeEventDate(getFirstValue(record, [
-        'startTime', 'start_time', 'startDate', 'startDateTime',
-        'Ngày tổ chức', 'Ngày tổ chức (văn bản cũ)', 'ngayToChuc', 'date'
-    ]));
-
     return {
         ...record,
-        eventName: getFirstValue(record, ['eventName', 'name', 'title', 'Tên sự kiện', 'Tên giải']) || '',
-        startTime,
-        eventType: String(getFirstValue(record, ['eventType', 'type', 'loaiSuKien', 'Loại sự kiện', 'Sự kiện']) || '').trim().toLowerCase(),
-        isTentative: getFirstValue(record, ['isTentative', 'tentative', 'Dự kiến']) ?? false,
-        prize: getFirstValue(record, ['prize', 'prizes', 'Giải thưởng']) || '',
-        organizer: getFirstValue(record, ['organizer', 'owner', 'Người tổ chức', 'Tổ chức']) || '',
-        logo: getFirstValue(record, ['logo', 'image', 'Logo']) || '',
-        joinLink: getFirstValue(record, ['joinLink', 'url', 'link', 'Link tham gia']) || '',
-        eventRules: getFirstValue(record, ['eventRules', 'rules', 'Thể lệ']) || '',
-        gameRules: getFirstValue(record, ['gameRules', 'variant', 'Ván đấu']) || ''
+        eventName: String(record.eventName || '').trim(),
+        startTime: normalizeEventDate(record.startTime),
+        eventType: String(record.eventType || '').trim().toLowerCase().replace(/\s+/g, '-'),
+        isTentative: record.isTentative === true || record.isTentative === 'true' ||
+            record.isTentative === 'Dự kiến' || record.isTentative === 'Tentative',
+        prize: record.prize ?? ''
     };
 }
 
@@ -775,9 +793,14 @@ async function loadTournaments() {
             }
         }
 
-        const rawEvents = Array.isArray(data) ? data : (data.events || data.tournaments || data.data?.events || data.data?.tournaments || data.data || []);
-        if (!Array.isArray(rawEvents)) throw new Error('Cấu trúc dữ liệu API không chứa danh sách sự kiện hợp lệ.');
+        if (data?.status === 'error') {
+            throw new Error(data.message || 'Google Apps Script trả về lỗi khi lấy dữ liệu Notion.');
+        }
+        if (!data || !Array.isArray(data.events)) {
+            throw new Error('JSON API không đúng cấu trúc: cần có thuộc tính "events" là một mảng.');
+        }
 
+        const rawEvents = data.events;
         const lastUpdatedStr = String(data.lastUpdated || rawEvents[0]?.timestamp || '');
         let formatted = lastUpdatedStr.trim().replace(' ', 'T');
         if (formatted && !formatted.includes('+') && !formatted.includes('Z')) {
@@ -793,7 +816,12 @@ async function loadTournaments() {
             DOM.lastUpdatedEl.innerText = updateDate.toLocaleString('vi-VN', options);
         }
 
-        STATE.tournaments = rawEvents.map(normalizeTournament).filter(tournament => tournament && parseEventDate(tournament.startTime));
+        const normalizedEvents = rawEvents.map(normalizeTournament).filter(Boolean);
+        STATE.tournaments = normalizedEvents.filter(tournament => parseEventDate(tournament.startTime));
+
+        if (rawEvents.length > 0 && STATE.tournaments.length === 0) {
+            throw new Error(`API trả về ${rawEvents.length} sự kiện nhưng không có trường "startTime" hợp lệ. Hãy kiểm tra định dạng ngày trong JSON Apps Script.`);
+        }
 
         if (DOM.loadingEl) DOM.loadingEl.style.display = 'none';
 
