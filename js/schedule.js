@@ -173,13 +173,46 @@ function padZero(n) {
 
 const parseMarkdownLinks = (() => {
     const cache = new Map();
-    return (text) => {
-        if (!text || text === 'Chưa có thông tin') return text;
+
+    return (input) => {
+        const text = String(input ?? '');
+
+        if (!text || text === 'Chưa có thông tin') {
+            return escapeHTML(text);
+        }
+
         if (cache.has(text)) return cache.get(text);
-        
-        const result = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>');
-        cache.set(text, result);
-        return result;
+
+        const pattern = /\\[([^\\]\\n]+)\\]\\(([^)\\s]+)\\)/g;
+        let html = '';
+        let lastIndex = 0;
+        let match;
+
+        while ((match = pattern.exec(text)) !== null) {
+            html += escapeHTML(text.slice(lastIndex, match.index));
+
+            let linkHTML = escapeHTML(match[0]);
+
+            try {
+                const url = new URL(match[2], window.location.origin);
+
+                if (['http:', 'https:'].includes(url.protocol)) {
+                    linkHTML =
+                        `<a href="${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer">` +
+                        `${escapeHTML(match[1])}</a>`;
+                }
+            } catch {
+                // Keep malformed URLs as safely escaped text.
+            }
+
+            html += linkHTML;
+            lastIndex = pattern.lastIndex;
+        }
+
+        html += escapeHTML(text.slice(lastIndex));
+        cache.set(text, html);
+
+        return html;
     };
 })();
 
