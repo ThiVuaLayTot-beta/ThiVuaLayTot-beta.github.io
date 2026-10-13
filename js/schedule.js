@@ -714,6 +714,48 @@ function filterSchedule() {
     renderActiveView();
 }
 
+function getFirstValue(record, keys) {
+    for (const key of keys) {
+        const value = record?.[key];
+        if (value !== undefined && value !== null && value !== '') return value;
+    }
+    return undefined;
+}
+
+function normalizeEventDate(value) {
+    if (value && typeof value === 'object') {
+        value = value.start || value.date?.start || value.date || value.start_time;
+    }
+    if (typeof value === 'number') {
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+    }
+    return typeof value === 'string' ? value.trim() : '';
+}
+
+function normalizeTournament(record) {
+    if (!record || typeof record !== 'object') return null;
+
+    const startTime = normalizeEventDate(getFirstValue(record, [
+        'startTime', 'start_time', 'startDate', 'startDateTime',
+        'Ngày tổ chức', 'Ngày tổ chức (văn bản cũ)', 'ngayToChuc', 'date'
+    ]));
+
+    return {
+        ...record,
+        eventName: getFirstValue(record, ['eventName', 'name', 'title', 'Tên sự kiện', 'Tên giải']) || '',
+        startTime,
+        eventType: String(getFirstValue(record, ['eventType', 'type', 'loaiSuKien', 'Loại sự kiện', 'Sự kiện']) || '').trim().toLowerCase(),
+        isTentative: getFirstValue(record, ['isTentative', 'tentative', 'Dự kiến']) ?? false,
+        prize: getFirstValue(record, ['prize', 'prizes', 'Giải thưởng']) || '',
+        organizer: getFirstValue(record, ['organizer', 'owner', 'Người tổ chức', 'Tổ chức']) || '',
+        logo: getFirstValue(record, ['logo', 'image', 'Logo']) || '',
+        joinLink: getFirstValue(record, ['joinLink', 'url', 'link', 'Link tham gia']) || '',
+        eventRules: getFirstValue(record, ['eventRules', 'rules', 'Thể lệ']) || '',
+        gameRules: getFirstValue(record, ['gameRules', 'variant', 'Ván đấu']) || ''
+    };
+}
+
 async function loadTournaments() {
     try {
         const response = await fetch(CONFIG.API_URL);
@@ -733,7 +775,7 @@ async function loadTournaments() {
             }
         }
 
-        const lastUpdatedStr = data.lastUpdated || (data.events?.[0]?.timestamp) || '';
+        const rawEvents = Array.isArray(data) ? data : (data.events || data.tournaments || data.data?.events || data.data?.tournaments || data.data || []);\n        if (!Array.isArray(rawEvents)) throw new Error('Cấu trúc dữ liệu API không chứa danh sách sự kiện hợp lệ.');\n\n        const lastUpdatedStr = String(data.lastUpdated || rawEvents[0]?.timestamp || '');
         let formatted = lastUpdatedStr.trim().replace(' ', 'T');
         if (formatted && !formatted.includes('+') && !formatted.includes('Z')) {
             formatted += '+07:00';
@@ -748,7 +790,7 @@ async function loadTournaments() {
             DOM.lastUpdatedEl.innerText = updateDate.toLocaleString('vi-VN', options);
         }
 
-        STATE.tournaments = data.events || data.tournaments || [];
+        STATE.tournaments = rawEvents.map(normalizeTournament).filter(tournament => tournament && parseEventDate(tournament.startTime));
 
         if (DOM.loadingEl) DOM.loadingEl.style.display = 'none';
 
