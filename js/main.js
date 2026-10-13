@@ -124,8 +124,50 @@ window.addEventListener("load", function() {
 });
 
 /**
+ * Active Nav Link & Scroll Header Effect
+ */
+function updateActiveNavLink() {
+    const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
+    const navLinks = document.querySelectorAll("#tvltTopnav .nav-link, #tvltTopnav .dropdown-menu a");
+    const dropdownSections = document.querySelectorAll("#tvltTopnav .section.dropdown");
+
+    navLinks.forEach(link => link.classList.remove("nav-link--active"));
+    dropdownSections.forEach(section => section.classList.remove("dropdown--active"));
+
+    let bestMatch = null;
+    let maxMatchLen = -1;
+
+    navLinks.forEach(link => {
+        const href = link.getAttribute("href");
+        if (!href || href === "#") return;
+        const normalizedHref = href.replace(/\/$/, "") || "/";
+
+        if (normalizedHref === "/" && currentPath === "/") {
+            bestMatch = link;
+            maxMatchLen = 1;
+        } else if (normalizedHref !== "/" && currentPath.startsWith(normalizedHref)) {
+            if (normalizedHref.length > maxMatchLen) {
+                maxMatchLen = normalizedHref.length;
+                bestMatch = link;
+            }
+        }
+    });
+
+    if (bestMatch) {
+        bestMatch.classList.add("nav-link--active");
+        const parentDropdown = bestMatch.closest(".section.dropdown");
+        if (parentDropdown) {
+            parentDropdown.classList.add("dropdown--active");
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", updateActiveNavLink);
+
+/**
  * Scroll Events and Performance Optimization
  */
+const pageHeader = document.querySelector(".page-header");
 const backToTopBtn = document.getElementById("back-to-top");
 const timeline = document.querySelector('.timeline');
 const timelineItems = document.querySelectorAll('[data-timeline-item]');
@@ -164,6 +206,10 @@ window.addEventListener("scroll", () => {
  */
 function handleScrollEffects() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+    if (pageHeader) {
+        pageHeader.classList.toggle("is-scrolled", scrollTop > 20);
+    }
 
     if (backToTopBtn) backToTopBtn.style.display = scrollTop > 100 ? "flex" : "none";
 
