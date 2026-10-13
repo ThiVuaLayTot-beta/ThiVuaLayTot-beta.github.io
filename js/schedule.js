@@ -122,17 +122,32 @@ function getVietnamNow() {
 function parseEventDate(dateStr) {
     if (typeof dateStr !== 'string' || !dateStr.trim()) return null;
     let formatted = dateStr.trim();
+
     if (/^\d{4}-\d{2}-\d{2}$/.test(formatted)) {
-        formatted += 'T00:00:00';
+        formatted += 'T00:00:00+07:00';
     } else {
         formatted = formatted.replace(' ', 'T');
+        if (!/(Z|[+-]\d{2}:?\d{2})$/i.test(formatted)) formatted += '+07:00';
     }
-    if (!/(Z|[+-]\d{2}:?\d{2})$/i.test(formatted)) formatted += '+07:00';
+
     const date = new Date(formatted);
     return Number.isNaN(date.getTime()) ? null : date;
 }
 
 function getVietnamDateParts(dateStr) {
+    if (typeof dateStr === 'string') {
+        const dateOnly = dateStr.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (dateOnly) {
+            const year = Number(dateOnly[1]);
+            const month = Number(dateOnly[2]) - 1;
+            const day = Number(dateOnly[3]);
+            const check = new Date(Date.UTC(year, month, day));
+            if (check.getUTCFullYear() === year && check.getUTCMonth() === month && check.getUTCDate() === day) {
+                return { year, month, date: day, hours: 0, minutes: 0 };
+            }
+        }
+    }
+
     const date = parseEventDate(dateStr);
     if (!date) return { year: 1970, month: 0, date: 1, hours: 0, minutes: 0 };
 
@@ -797,12 +812,13 @@ function normalizeEventDate(value) {
     const notionDate = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
     if (!notionDate) return raw;
 
-    const [, monthText, dayText, yearText, hourText = '0', minuteText = '0', secondText = '0'] = notionDate;
+    const [, monthText, dayText, yearText, hourText, minuteText, secondText = '0'] = notionDate;
     const month = Number(monthText);
     const day = Number(dayText);
     const year = Number(yearText);
-    const hour = Number(hourText);
-    const minute = Number(minuteText);
+    const hasTime = hourText !== undefined && minuteText !== undefined;
+    const hour = Number(hourText || 0);
+    const minute = Number(minuteText || 0);
     const second = Number(secondText);
     const check = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
 
@@ -814,7 +830,9 @@ function normalizeEventDate(value) {
     ) return '';
 
     const pad = number => String(number).padStart(2, '0');
-    return `${year}-${pad(month)}-${pad(day)}T${pad(hour)}:${pad(minute)}:${pad(second)}+07:00`;
+    const datePart = `${year}-${pad(month)}-${pad(day)}`;
+    if (!hasTime) return datePart;
+    return `${datePart}T${pad(hour)}:${pad(minute)}:${pad(second)}+07:00`;
 }
 
 function hasEventTime(value) {
