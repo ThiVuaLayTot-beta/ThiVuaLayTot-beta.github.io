@@ -1,5 +1,5 @@
 const CONFIG = {
-    API_URL: 'https://script.google.com/macros/s/AKfycbzQSXlw8AFu70j5-HFos3U21G2QNo190N6aXXxidrflAOfmObC_CH-DF9QuNY4DJY_HCw/exec',
+    API_URL: 'https://script.google.com/macros/s/AKfycbzBFtevfcYM7MLEgpB2R5hn4_sS3RovSy_rBiuljJMRgOJ7KEl50lffXH46aEOd-uAX/exec',
     VIETNAM_OFFSET_MS: 7 * 3600 * 1000,
     EVENT_DURATION_MS: 2 * 60 * 60 * 1000,
     MOBILE_BREAKPOINT: 768,
@@ -231,7 +231,8 @@ function isPrizeEvent(tournament) {
 }
 
 function isTentativeEvent(tournament) {
-    return tournament.isTentative === 'Dự kiến' || tournament.isTentative === 'Tentative';
+    const value = tournament?.isTentative;
+    return value === true || value === 'true' || value === 'Dự kiến' || value === 'Tentative';
 }
 
 function isEndedEvent(tournament) {
