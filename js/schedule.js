@@ -446,7 +446,11 @@ function renderCalendar() {
                     icon.type = 'button';
                     icon.className = 'event-icon';
                     const parts = getVietnamDateParts(tournament.startTime);
-                    icon.setAttribute('aria-label', `Xem chi tiết ${tournament.eventName || 'sự kiện'} lúc ${padZero(parts.hours)} giờ ${padZero(parts.minutes)}`);
+                    const eventName = tournament.eventName || 'sự kiện';
+                    const accessibilityTime = tournament.hasStartTime
+                        ? ` lúc ${padZero(parts.hours)} giờ ${padZero(parts.minutes)}`
+                        : '';
+                    icon.setAttribute('aria-label', `Xem chi tiết ${eventName}${accessibilityTime}`);
                     if (isEndedEvent(tournament)) icon.classList.add('ended');
                     if (isTentativeEvent(tournament)) icon.classList.add('tentative');
                     if (getEventStatus(tournament) === 'Sắp diễn ra') icon.classList.add('upcoming');
@@ -454,7 +458,9 @@ function renderCalendar() {
                     const img = document.createElement('img');
                     img.src = tournament.logo || 'https://chess.com/bundles/web/images/image-default.445cb543.svg';
                     img.alt = '';
-                    icon.title = `${padZero(parts.hours)}:${padZero(parts.minutes)} — ${tournament.eventName || 'Sự kiện'}`;
+                    icon.title = tournament.hasStartTime
+                        ? `${padZero(parts.hours)}:${padZero(parts.minutes)} — ${eventName}`
+                        : eventName;
                     icon.addEventListener('click', () => openModal(tournament));
                     icon.appendChild(img);
                     eventsDiv.appendChild(icon);
