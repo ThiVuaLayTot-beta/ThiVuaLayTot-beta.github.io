@@ -230,6 +230,8 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .events-container{display:flex;width:100%;min-height:60px;justify-content:center;align-items:center;align-content:flex-start}
 .event-icon{cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;padding:0;background:transparent;border:0;filter:drop-shadow(0 0 5px var(--cyan-300));transition:all var(--transition-fast) cubic-bezier(.4,0,.2,1);border-radius:var(--border-radius-sm);flex-shrink:0;position:relative}
 .event-icon:hover,.event-icon:focus-visible{filter:drop-shadow(0 0 6px rgba(125,211,255,.9));transform:scale(1.15) translateY(-2px);outline:2px solid var(--cyan-200);outline-offset:3px}
+.event-icon.ended{filter:grayscale(.55) drop-shadow(0 0 3px rgba(148,163,184,.35));opacity:.72}
+.event-icon.upcoming{filter:drop-shadow(0 0 5px rgba(96,165,250,.55))}
 .event-icon.tentative{filter:drop-shadow(0 0 4px var(--yellow-400))}
 .event-icon.tentative:hover{filter:drop-shadow(0 0 7px var(--yellow-300))}
 .event-icon.has-prize::after{content:"🏆";position:absolute;top:-2px;right:-2px;font-size:14px;line-height:1;filter:drop-shadow(0 0 3px rgba(251,191,36,.8));animation:bouncePrize 2s infinite ease-in-out}
