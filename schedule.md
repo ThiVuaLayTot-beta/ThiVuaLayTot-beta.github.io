@@ -284,18 +284,18 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 
 .badge-schedule{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:50px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;flex-shrink:0;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:all .3s cubic-bezier(.4,0,.2,1);user-select:none}
 .badge-schedule i{font-size:12px}
-.badge-giao-luu{background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.45);box-shadow:0 0 10px rgba(16,185,129,.15),inset 0 0 4px rgba(16,185,129,.1)}
-.badge-giao-luu:hover{background:rgba(16,185,129,.18);box-shadow:0 0 14px rgba(16,185,129,.35),inset 0 0 6px rgba(16,185,129,.2)}
-.badge-co-thuong{background:rgba(245,158,11,.1);color:#fbbf24;border:1px solid rgba(245,158,11,.45);box-shadow:0 0 12px rgba(245,158,11,.22),inset 0 0 4px rgba(245,158,11,.1);animation:goldShimmer 3s infinite ease-in-out}
-.badge-co-thuong:hover{background:rgba(245,158,11,.18);box-shadow:0 0 18px rgba(245,158,11,.45),inset 0 0 6px rgba(245,158,11,.25)}
-.badge-tentative{background:rgba(244,63,94,.08);color:#f43f5e;border:1px solid rgba(244,63,94,.4);box-shadow:0 0 10px rgba(244,63,94,.15),inset 0 0 4px rgba(244,63,94,.1)}
-.badge-tentative:hover{background:rgba(244,63,94,.15);box-shadow:0 0 14px rgba(244,63,94,.35),inset 0 0 6px rgba(244,63,94,.2)}
-.badge-ended{background:rgba(148,163,184,.1);color:#94a3b8;border:1px solid rgba(148,163,184,.35);box-shadow:0 0 8px rgba(148,163,184,.1)}
-.badge-ended:hover{background:rgba(148,163,184,.18);border-color:rgba(148,163,184,.5)}
-.badge-upcoming{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.4);box-shadow:0 0 8px rgba(59,130,246,.12)}
-.badge-upcoming:hover{background:rgba(59,130,246,.18);border-color:rgba(96,165,250,.65);box-shadow:0 0 12px rgba(59,130,246,.25)}
-.badge-ongoing{background:rgba(167,139,250,.1);color:#c4b5fd;border:1px solid rgba(167,139,250,.42);box-shadow:0 0 9px rgba(167,139,250,.16)}
-.badge-ongoing:hover{background:rgba(167,139,250,.18);border-color:rgba(196,181,253,.65);box-shadow:0 0 13px rgba(167,139,250,.28)}
+.badge-giao-luu{background:rgba(45,212,191,.1);color:#5eead4;border:1px solid rgba(45,212,191,.38);box-shadow:0 0 7px rgba(45,212,191,.08)}
+.badge-giao-luu:hover{background:rgba(45,212,191,.17);border-color:rgba(94,234,212,.62);box-shadow:0 0 11px rgba(45,212,191,.2)}
+.badge-co-thuong{background:rgba(250,204,21,.12);color:#facc15;border:1px solid rgba(250,204,21,.48);box-shadow:0 0 8px rgba(250,204,21,.13)}
+.badge-co-thuong:hover{background:rgba(250,204,21,.2);border-color:rgba(250,204,21,.7);box-shadow:0 0 13px rgba(250,204,21,.25)}
+.badge-tentative{background:rgba(251,146,60,.1);color:#fdba74;border:1px solid rgba(251,146,60,.4);box-shadow:0 0 7px rgba(251,146,60,.1)}
+.badge-tentative:hover{background:rgba(251,146,60,.17);border-color:rgba(253,186,116,.65);box-shadow:0 0 11px rgba(251,146,60,.2)}
+.badge-ended{background:rgba(148,163,184,.09);color:#94a3b8;border:1px solid rgba(148,163,184,.3);box-shadow:0 0 5px rgba(148,163,184,.06)}
+.badge-ended:hover{background:rgba(148,163,184,.15);border-color:rgba(148,163,184,.45)}
+.badge-upcoming{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.38);box-shadow:0 0 7px rgba(59,130,246,.1)}
+.badge-upcoming:hover{background:rgba(59,130,246,.17);border-color:rgba(96,165,250,.6);box-shadow:0 0 11px rgba(59,130,246,.22)}
+.badge-ongoing{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(74,222,128,.42);box-shadow:0 0 8px rgba(34,197,94,.14)}
+.badge-ongoing:hover{background:rgba(34,197,94,.18);border-color:rgba(74,222,128,.65);box-shadow:0 0 12px rgba(34,197,94,.25)}
 
 .cc-modal-info-section{display:grid;grid-template-columns:1fr;gap:1rem;padding:var(--space-md) var(--space-xl);width:100%;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(47,185,255,.2)}
 .cc-modal-info-item{display:flex;align-items:flex-start;gap:.8rem;font-size:1rem}
