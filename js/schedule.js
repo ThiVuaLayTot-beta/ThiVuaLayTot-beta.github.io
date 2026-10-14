@@ -310,7 +310,7 @@ function getExplicitEventStatus(tournament) {
 function getEventStatus(tournament) {
     const explicitStatus = getExplicitEventStatus(tournament);
 
-    // Keep manually finalized/planned states and an explicit ongoing state.
+    // Trust explicit lifecycle states from Notion before falling back to dates.
     if (['Đã kết thúc', 'Dự kiến', 'Đang diễn ra'].includes(explicitStatus)) {
         return explicitStatus;
     }
@@ -320,14 +320,15 @@ function getEventStatus(tournament) {
         return 'Dự kiến';
     }
 
+    // A past start date alone does not prove that an event has ended.
+    // Treat it as ongoing until its configured fallback duration has elapsed.
     const now = Date.now();
     const start = getEventStartTime(tournament);
     const end = getEventEndTime(tournament);
 
-    // Use the start time to resolve stale "upcoming" statuses.
-    if (start <= now && end > now) return 'Đang diễn ra';
-    if (start <= now) return 'Đã kết thúc';
-    return explicitStatus || 'Sắp diễn ra';
+    if (start > now) return explicitStatus || 'Sắp diễn ra';
+    if (end > now) return 'Đang diễn ra';
+    return 'Đã kết thúc';
 }
 
 function isTentativeEvent(tournament) {
