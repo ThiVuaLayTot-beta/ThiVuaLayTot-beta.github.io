@@ -466,5 +466,8 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
     .events-list-grid{grid-template-columns:1fr;gap:15px}
     .btn{gap:1px;font-size:12px;}
 }
+@keyframes scheduleEntrance{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.schedule-entrance{animation:scheduleEntrance .38s ease-out both}
+@media(prefers-reduced-motion:reduce){.schedule-entrance{animation:none}}
 </style>
 <script src="/js/schedule.js"></script>
