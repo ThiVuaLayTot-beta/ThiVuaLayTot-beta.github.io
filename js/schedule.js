@@ -624,12 +624,12 @@ function getListViewEvents(year, month, filters) {
     };
 
     return events.sort((a, b) => {
-        const prizeDifference = Number(isPrizeEvent(b)) - Number(isPrizeEvent(a));
-        if (prizeDifference !== 0) return prizeDifference;
-
         const statusDifference = (statusPriority[getEventStatus(a)] ?? 99) -
             (statusPriority[getEventStatus(b)] ?? 99);
         if (statusDifference !== 0) return statusDifference;
+
+        const prizeDifference = Number(isPrizeEvent(b)) - Number(isPrizeEvent(a));
+        if (prizeDifference !== 0) return prizeDifference;
 
         return getEventStartTime(a) - getEventStartTime(b);
     });
