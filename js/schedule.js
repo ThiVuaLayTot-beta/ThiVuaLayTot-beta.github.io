@@ -260,9 +260,29 @@ function getGameRulesWithIcon(rulesText) {
     return rulesText + icons;
 }
 
-function getEventBadgesHTML(isCoThuong, tournament) {
+function getPrizeCategory(tournament) {
+    const prize = tournament?.prize;
+    if (typeof prize === 'boolean') return prize ? 'Có thưởng' : 'Giao lưu';
+    if (typeof prize === 'number') return prize > 0 ? 'Có thưởng' : 'Giao lưu';
+
+    const value = String(prize || '').toLowerCase().trim().replace(/\s*\+\s*/g, '+');
+    if (['đặc biệt+có thưởng', 'đặc biệt có thưởng', 'special+prize'].includes(value)) return 'Đặc biệt+Có thưởng';
+    if (['đặc biệt', 'special'].includes(value)) return 'Đặc biệt';
+    if (['giao lưu', 'không', 'không có', 'false', '0', ''].includes(value)) return 'Giao lưu';
+    if (['có thưởng', 'co thuong', 'prize', 'true', '1'].includes(value)) return 'Có thưởng';
+
+    return 'Có thưởng';
+}
+
+function getEventBadgesHTML(tournament) {
     let html = '';
-    if (isCoThuong) {
+    const category = getPrizeCategory(tournament);
+
+    if (category === 'Đặc biệt+Có thưởng') {
+        html += `<span class="badge-schedule badge-prize-combined-premium"><i class="bx bxs-star"></i> Đặc biệt+Có thưởng</span>`;
+    } else if (category === 'Đặc biệt') {
+        html += `<span class="badge-schedule badge-special"><i class="bx bxs-star"></i> Đặc biệt</span>`;
+    } else if (category === 'Có thưởng') {
         html += `<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>`;
     } else {
         html += `<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>`;
@@ -283,12 +303,8 @@ function getEventBadgesHTML(isCoThuong, tournament) {
 }
 
 function isPrizeEvent(tournament) {
-    const prize = tournament?.prize;
-    if (typeof prize === 'boolean') return prize;
-    if (typeof prize === 'number') return prize > 0;
-
-    const value = String(prize || '').toLowerCase().trim();
-    return value !== '' && !['giao lưu', 'không', 'không có', 'false', '0'].includes(value);
+    const category = getPrizeCategory(tournament);
+    return category === 'Có thưởng' || category === 'Đặc biệt+Có thưởng';
 }
 
 function getExplicitEventStatus(tournament) {
@@ -635,7 +651,7 @@ function renderEventCard(tournament, container) {
     const isTentative = isTentativeEvent(tournament);
     const isEnded = isEndedEvent(tournament);
     if (isEnded) card.classList.add('is-ended');
-    const categoryHTML = getEventBadgesHTML(isCoThuong, tournament);
+    const categoryHTML = getEventBadgesHTML(tournament);
     const tParts = getVietnamDateParts(tournament.startTime);
     const dayVn = getDayOfWeekVn(tournament.startTime);
     const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
@@ -736,7 +752,7 @@ function openModal(tournament) {
         DOM.modalName.innerHTML = `<a href="#" onclick="event.preventDefault(); alert('Hiện chưa có link giải, hãy hỏi các quản trị viên hoặc người tổ chức giải này để tìm hiểu thêm!');">${tournament.eventName || 'Chi tiết giải đấu'}</a>`;
     }
 
-    DOM.modalCategory.innerHTML = getEventBadgesHTML(isCoThuong, tournament);
+    DOM.modalCategory.innerHTML = getEventBadgesHTML(tournament);
     DOM.modalOrganizer.innerHTML = getMappedOrganizer(tournament.organizer || '', tournament.organizerLinks);
 
     const tParts = getVietnamDateParts(tournament.startTime);
