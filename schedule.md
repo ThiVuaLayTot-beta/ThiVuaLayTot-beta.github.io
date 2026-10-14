@@ -232,6 +232,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .event-icon:hover,.event-icon:focus-visible{filter:drop-shadow(0 0 6px rgba(125,211,255,.9));transform:scale(1.15) translateY(-2px);outline:2px solid var(--cyan-200);outline-offset:3px}
 .event-icon.ended{filter:grayscale(.55) drop-shadow(0 0 3px rgba(148,163,184,.35));opacity:.72}
 .event-icon.upcoming{filter:drop-shadow(0 0 5px rgba(96,165,250,.55))}
+.event-icon.ongoing{filter:drop-shadow(0 0 5px rgba(167,139,250,.65))}
 .event-icon.tentative{filter:drop-shadow(0 0 4px var(--yellow-400))}
 .event-icon.tentative:hover{filter:drop-shadow(0 0 7px var(--yellow-300))}
 .event-icon.has-prize::after{content:"🏆";position:absolute;top:-2px;right:-2px;font-size:14px;line-height:1;filter:drop-shadow(0 0 3px rgba(251,191,36,.8));animation:bouncePrize 2s infinite ease-in-out}
@@ -293,6 +294,8 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .badge-ended:hover{background:rgba(148,163,184,.18);border-color:rgba(148,163,184,.5)}
 .badge-upcoming{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.4);box-shadow:0 0 8px rgba(59,130,246,.12)}
 .badge-upcoming:hover{background:rgba(59,130,246,.18);border-color:rgba(96,165,250,.65);box-shadow:0 0 12px rgba(59,130,246,.25)}
+.badge-ongoing{background:rgba(167,139,250,.1);color:#c4b5fd;border:1px solid rgba(167,139,250,.42);box-shadow:0 0 9px rgba(167,139,250,.16)}
+.badge-ongoing:hover{background:rgba(167,139,250,.18);border-color:rgba(196,181,253,.65);box-shadow:0 0 13px rgba(167,139,250,.28)}
 
 .cc-modal-info-section{display:grid;grid-template-columns:1fr;gap:1rem;padding:var(--space-md) var(--space-xl);width:100%;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(47,185,255,.2)}
 .cc-modal-info-item{display:flex;align-items:flex-start;gap:.8rem;font-size:1rem}
