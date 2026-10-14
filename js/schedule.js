@@ -279,7 +279,7 @@ function getEventBadgesHTML(tournament) {
     const category = getPrizeCategory(tournament);
 
     if (category === 'Đặc biệt+Có thưởng') {
-        html += `<span class="badge-schedule badge-prize-combined-premium"><i class="bx bxs-star"></i> Đặc biệt+Có thưởng</span>`;
+        html += `<span class="badge-schedule badge-special-prize"><i class="bx bxs-star"></i> Đặc biệt+Có thưởng</span>`;
     } else if (category === 'Đặc biệt') {
         html += `<span class="badge-schedule badge-special"><i class="bx bxs-star"></i> Đặc biệt</span>`;
     } else if (category === 'Có thưởng') {
