@@ -906,7 +906,7 @@ function ensureEventTypeFilters(events) {
     const typeParam = params.get('type');
     const selectedFromURL = typeParam === null
         ? null
-        : new Set(typeParam.toLowerCase().split(/[\\s+]+/));
+        : new Set(typeParam.toLowerCase().split(/[\s+]+/));
     const allExistingTypesSelected = existingCheckboxes.length > 0 &&
         existingCheckboxes.every(checkbox => checkbox.checked);
 
