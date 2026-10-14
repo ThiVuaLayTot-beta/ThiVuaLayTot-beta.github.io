@@ -309,7 +309,11 @@ function getExplicitEventStatus(tournament) {
 
 function getEventStatus(tournament) {
     const explicitStatus = getExplicitEventStatus(tournament);
-    if (explicitStatus) return explicitStatus;
+
+    // Keep manually finalized/planned states and an explicit ongoing state.
+    if (['Đã kết thúc', 'Dự kiến', 'Đang diễn ra'].includes(explicitStatus)) {
+        return explicitStatus;
+    }
 
     const tentative = tournament?.isTentative;
     if (tentative === true || tentative === 'true' || tentative === 'Dự kiến' || tentative === 'Tentative') {
@@ -320,8 +324,10 @@ function getEventStatus(tournament) {
     const start = getEventStartTime(tournament);
     const end = getEventEndTime(tournament);
 
+    // Use the start time to resolve stale "upcoming" statuses.
     if (start <= now && end > now) return 'Đang diễn ra';
-    return end <= now ? 'Đã kết thúc' : 'Sắp diễn ra';
+    if (start <= now) return 'Đã kết thúc';
+    return explicitStatus || 'Sắp diễn ra';
 }
 
 function isTentativeEvent(tournament) {
@@ -381,6 +387,22 @@ function updateFilterControls(filters = getFilterState()) {
 
 function updateResultsSummary() {
     if (!DOM.resultsSummary || STATE.displayYear === undefined) return;
+
+    if (STATE.currentView === 'list') {
+        const events = getListViewEvents(STATE.displayYear, STATE.displayMonth, getFilterState());
+        const earlierOngoingCount = events.filter(tournament => {
+            const parts = getVietnamDateParts(tournament.startTime);
+            return (parts.year !== STATE.displayYear || parts.month !== STATE.displayMonth) &&
+                getEventStatus(tournament) === 'Đang diễn ra';
+        }).length;
+        const monthLabel = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
+        const extraLabel = earlierOngoingCount
+            ? `, bao gồm ${earlierOngoingCount} giải đang diễn ra từ tháng trước`
+            : '';
+        DOM.resultsSummary.textContent = `Đang hiển thị ${events.length} sự kiện${extraLabel} (tháng ${monthLabel}).`;
+        return;
+    }
+
     const count = getCurrentMonthEvents().length;
     DOM.resultsSummary.textContent = `Đang hiển thị ${count} sự kiện trong tháng ${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}.`;
 }
@@ -552,17 +574,10 @@ function getSortedEvents() {
 function renderListView() {
     if (!DOM.listContainer) return;
     DOM.listContainer.innerHTML = '';
-    const year = STATE.displayYear;
-    const month = STATE.displayMonth;
-    const filters = getFilterState();
-    const currentMonthEvents = getSortedEvents()
-        .filter(t => {
-            const tParts = getVietnamDateParts(t.startTime);
-            return tParts.year === year && tParts.month === month;
-        })
-        .filter(t => matchesFilters(t, filters));
 
-    if (currentMonthEvents.length === 0) {
+    const events = getListViewEvents(STATE.displayYear, STATE.displayMonth, getFilterState());
+
+    if (events.length === 0) {
         DOM.listContainer.innerHTML = `
             <div class="empty-list-message" style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--neutral-500);">
                 <i class="bx bx-calendar-x" style="font-size: 3rem; color: var(--cyan-400); margin-bottom: 15px; display: block;"></i>
@@ -571,9 +586,36 @@ function renderListView() {
         return;
     }
 
-    currentMonthEvents.sort((a, b) => getEventStartTime(a) - getEventStartTime(b));
+    events.forEach(tournament => renderEventCard(tournament, DOM.listContainer));
+}
 
-    currentMonthEvents.forEach(t => renderEventCard(t, DOM.listContainer));
+function getListViewEvents(year, month, filters) {
+    const events = STATE.tournaments
+        .filter(tournament => {
+            const parts = getVietnamDateParts(tournament.startTime);
+            const belongsToMonth = parts.year === year && parts.month === month;
+            const isOngoing = getEventStatus(tournament) === 'Đang diễn ra';
+            return belongsToMonth || isOngoing;
+        })
+        .filter(tournament => matchesFilters(tournament, filters));
+
+    const statusPriority = {
+        'Đang diễn ra': 0,
+        'Sắp diễn ra': 1,
+        'Dự kiến': 2,
+        'Đã kết thúc': 3
+    };
+
+    return events.sort((a, b) => {
+        const prizeDifference = Number(isPrizeEvent(b)) - Number(isPrizeEvent(a));
+        if (prizeDifference !== 0) return prizeDifference;
+
+        const statusDifference = (statusPriority[getEventStatus(a)] ?? 99) -
+            (statusPriority[getEventStatus(b)] ?? 99);
+        if (statusDifference !== 0) return statusDifference;
+
+        return getEventStartTime(a) - getEventStartTime(b);
+    });
 }
 
 function getEventStartTime(tournament) {
