@@ -624,14 +624,31 @@ function getListViewEvents(year, month, filters) {
     };
 
     return events.sort((a, b) => {
-        const statusDifference = (statusPriority[getEventStatus(a)] ?? 99) -
-            (statusPriority[getEventStatus(b)] ?? 99);
+        const statusA = getEventStatus(a);
+        const statusB = getEventStatus(b);
+        const statusDifference = (statusPriority[statusA] ?? 99) -
+            (statusPriority[statusB] ?? 99);
         if (statusDifference !== 0) return statusDifference;
 
-        const prizeDifference = Number(isPrizeEvent(b)) - Number(isPrizeEvent(a));
-        if (prizeDifference !== 0) return prizeDifference;
+        const startA = getEventStartTime(a);
+        const startB = getEventStartTime(b);
 
-        return getEventStartTime(a) - getEventStartTime(b);
+        if (statusA === 'Đã kết thúc') {
+            // Keep the most recently finished events easiest to find.
+            const recencyDifference = startB - startA;
+            if (recencyDifference !== 0) return recencyDifference;
+        } else if (statusA === 'Đang diễn ra') {
+            // Surface ongoing events that are closest to finishing first.
+            const endingDifference = getEventEndTime(a) - getEventEndTime(b);
+            if (endingDifference !== 0) return endingDifference;
+        } else {
+            // Confirmed upcoming and tentative events follow chronological order.
+            const startDifference = startA - startB;
+            if (startDifference !== 0) return startDifference;
+        }
+
+        // Prize category only breaks ties after status and timing are comparable.
+        return Number(isPrizeEvent(b)) - Number(isPrizeEvent(a));
     });
 }
 
