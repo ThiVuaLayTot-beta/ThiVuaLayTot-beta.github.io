@@ -397,7 +397,7 @@ function updateResultsSummary() {
         }).length;
         const monthLabel = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
         const extraLabel = earlierOngoingCount
-            ? `, bao gồm ${earlierOngoingCount} giải đang diễn ra từ tháng trước`
+            ? `, bao gồm ${earlierOngoingCount} giải đang diễn ra ngoài tháng đang xem`
             : '';
         DOM.resultsSummary.textContent = `Đang hiển thị ${events.length} sự kiện${extraLabel} (tháng ${monthLabel}).`;
         return;
