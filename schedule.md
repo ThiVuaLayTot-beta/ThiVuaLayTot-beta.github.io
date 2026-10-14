@@ -12,7 +12,7 @@ title: Lịch sự kiện của tháng
     </ul>
     <p class="schedule-updated"><i class="bx bx-refresh" aria-hidden="true"></i> Lần cập nhật gần nhất: <span id="last-updated">Đang tải…</span>. Nếu có vấn đề, hãy bình luận trong <a href="https://chess.com/clubs/forum/view/lich-su-kien-hang-thang-clb-tvlt?clubId=325849&quote_id=125015758&page=1#comment_box" target="_blank" rel="noopener">forum</a> hoặc liên hệ <a href="/leaders#admin3">M-DinhHoangViet</a>.</p>
 </section>
-<div id="schedule-filters" class="schedule-control-bar" style="display: none;">
+<div id="schedule-filters" class="schedule-control-bar" style="display: inline-flex;">
     <!-- Left: Search input -->
     <div class="control-item search-wrapper">
         <span class="bx bx-search search-icon"></span>
@@ -386,7 +386,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .btn-switcher:hover{background:rgba(0,242,255,.1);color:var(--cyan-100);border-color:var(--cyan-300);box-shadow:0 0 15px rgba(0,242,255,.25);transform:translateY(-2px)}
 .btn-switcher.active{background:linear-gradient(135deg,rgba(0,102,204,.55) 0%,rgba(0,242,255,.55) 100%);color:#fff;border-color:var(--cyan-300);box-shadow:0 0 20px rgba(0,242,255,.4),inset 0 0 10px rgba(255,255,255,.1)}
 
-.events-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;margin-top:25px;animation:fadeIn .4s ease-out}
+.events-list-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:20px;margin-top:25px;animation:fadeIn .4s ease-out}
 .event-list-card{background:radial-gradient(circle at top left,var(--color-bg-tertiary) 0%,var(--color-bg-primary) 100%);border:1.5px solid rgba(53,201,252,.3);border-radius:var(--border-radius-xl);padding:20px;display:flex;flex-direction:column;justify-content:space-between;gap:15px;transition:all .3s cubic-bezier(.4,0,.2,1);cursor:pointer;box-shadow:0 6px 15px rgba(0,0,0,.2),inset 0 0 10px rgba(0,242,255,.02);position:relative;overflow:hidden}
 .event-list-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,transparent,rgba(0,242,255,.5),transparent);transform:scaleX(0);transition:transform .4s ease}
 .event-list-card:hover{transform:translateY(-5px);border-color:var(--cyan-400);box-shadow:0 12px 30px rgba(0,242,255,.2),inset 0 0 15px rgba(0,242,255,.05)}
