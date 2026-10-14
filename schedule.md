@@ -288,6 +288,10 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .badge-giao-luu:hover{background:rgba(45,212,191,.17);border-color:rgba(94,234,212,.62);box-shadow:0 0 11px rgba(45,212,191,.2)}
 .badge-co-thuong{background:rgba(250,204,21,.12);color:#facc15;border:1px solid rgba(250,204,21,.48);box-shadow:0 0 8px rgba(250,204,21,.13)}
 .badge-co-thuong:hover{background:rgba(250,204,21,.2);border-color:rgba(250,204,21,.7);box-shadow:0 0 13px rgba(250,204,21,.25)}
+.badge-special{background:rgba(168,85,247,.11);color:#d8b4fe;border:1px solid rgba(192,132,252,.4);box-shadow:0 0 7px rgba(168,85,247,.08)}
+.badge-special:hover{background:rgba(168,85,247,.17);border-color:rgba(216,180,254,.62);box-shadow:0 0 11px rgba(168,85,247,.18)}
+.badge-special-prize{background:rgba(168,85,247,.12);color:#facc15;border:1px solid rgba(250,204,21,.48);box-shadow:0 0 8px rgba(168,85,247,.1)}
+.badge-special-prize:hover{background:rgba(168,85,247,.18);border-color:rgba(250,204,21,.7);box-shadow:0 0 11px rgba(168,85,247,.2)}
 .badge-tentative{background:rgba(251,146,60,.1);color:#fdba74;border:1px solid rgba(251,146,60,.4);box-shadow:0 0 7px rgba(251,146,60,.1)}
 .badge-tentative:hover{background:rgba(251,146,60,.17);border-color:rgba(253,186,116,.65);box-shadow:0 0 11px rgba(251,146,60,.2)}
 .badge-ended{background:rgba(148,163,184,.09);color:#94a3b8;border:1px solid rgba(148,163,184,.3);box-shadow:0 0 5px rgba(148,163,184,.06)}
