@@ -273,6 +273,8 @@ function getEventBadgesHTML(isCoThuong, tournament) {
         html += `<span class="badge-schedule badge-tentative"><i class="bx bx-time-five"></i> Dự kiến</span>`;
     } else if (status === 'Sắp diễn ra') {
         html += `<span class="badge-schedule badge-upcoming"><i class="bx bx-calendar-event"></i> Sắp diễn ra</span>`;
+    } else if (status === 'Đang diễn ra') {
+        html += `<span class="badge-schedule badge-ongoing"><i class="bx bx-play-circle"></i> Đang diễn ra</span>`;
     } else if (status === 'Đã kết thúc') {
         html += `<span class="badge-schedule badge-ended"><i class="bx bx-check-circle"></i> Đã kết thúc</span>`;
     }
@@ -290,10 +292,18 @@ function isPrizeEvent(tournament) {
 }
 
 function getExplicitEventStatus(tournament) {
-    const value = String(tournament?.status || '').trim().toLowerCase();
+    const value = String(tournament?.status || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[_-]+/g, ' ');
+
     if (['đã kết thúc', 'ended', 'finished', 'completed'].includes(value)) return 'Đã kết thúc';
     if (['sắp diễn ra', 'upcoming', 'scheduled'].includes(value)) return 'Sắp diễn ra';
     if (['dự kiến', 'tentative', 'proposed'].includes(value)) return 'Dự kiến';
+    if (['đang diễn ra', 'in progress', 'ongoing', 'live', 'running', 'active'].includes(value)) {
+        return 'Đang diễn ra';
+    }
+
     return '';
 }
 
@@ -306,7 +316,12 @@ function getEventStatus(tournament) {
         return 'Dự kiến';
     }
 
-    return getEventEndTime(tournament) < Date.now() ? 'Đã kết thúc' : 'Sắp diễn ra';
+    const now = Date.now();
+    const start = getEventStartTime(tournament);
+    const end = getEventEndTime(tournament);
+
+    if (start <= now && end > now) return 'Đang diễn ra';
+    return end <= now ? 'Đã kết thúc' : 'Sắp diễn ra';
 }
 
 function isTentativeEvent(tournament) {
@@ -503,6 +518,7 @@ function renderCalendar() {
                     if (isEndedEvent(tournament)) icon.classList.add('ended');
                     if (isTentativeEvent(tournament)) icon.classList.add('tentative');
                     if (getEventStatus(tournament) === 'Sắp diễn ra') icon.classList.add('upcoming');
+                    if (getEventStatus(tournament) === 'Đang diễn ra') icon.classList.add('ongoing');
                     if (isPrizeEvent(tournament)) icon.classList.add('has-prize');
                     const img = document.createElement('img');
                     img.src = tournament.logo || 'https://chess.com/bundles/web/images/image-default.445cb543.svg';
@@ -880,6 +896,44 @@ function hasEventTime(value) {
     return typeof value === 'string' && /(?:T|\s)\d{1,2}:\d{2}/i.test(value.trim());
 }
 
+function ensureEventTypeFilters(events) {
+    const group = DOM.scheduleTypeGroup;
+    if (!group) return;
+
+    const existingCheckboxes = Array.from(group.querySelectorAll('input[type="checkbox"]'));
+    const existingTypes = new Set(existingCheckboxes.map(checkbox => checkbox.value.toLowerCase()));
+    const params = new URLSearchParams(window.location.search);
+    const typeParam = params.get('type');
+    const selectedFromURL = typeParam === null
+        ? null
+        : new Set(typeParam.toLowerCase().split(/[\\s+]+/));
+    const allExistingTypesSelected = existingCheckboxes.length > 0 &&
+        existingCheckboxes.every(checkbox => checkbox.checked);
+
+    const unknownTypes = Array.from(new Set(
+        events.map(event => event.eventType).filter(type => type && !existingTypes.has(type))
+    )).sort();
+
+    unknownTypes.forEach(type => {
+        const label = document.createElement('label');
+        label.className = 'custom-checkbox-container';
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = type;
+        checkbox.checked = selectedFromURL
+            ? selectedFromURL.has(type)
+            : allExistingTypesSelected;
+
+        const mark = document.createElement('span');
+        mark.className = 'checkmark';
+
+        const labelText = type === 'other' ? ' Khác (chưa phân loại)' : ` Khác — ${type}`;
+        label.append(checkbox, mark, document.createTextNode(labelText));
+        group.appendChild(label);
+    });
+}
+
 function normalizeTournament(record) {
     if (!record || typeof record !== 'object') return null;
 
@@ -889,7 +943,7 @@ function normalizeTournament(record) {
         eventName: String(record.eventName || '').trim(),
         hasStartTime: typeof record.hasStartTime === 'boolean' ? record.hasStartTime : hasEventTime(rawStartTime),
         startTime: normalizeEventDate(rawStartTime),
-        eventType: String(record.eventType || '').trim().toLowerCase().replace(/\s+/g, '-'),
+        eventType: String(record.eventType || '').trim().toLowerCase().replace(/\s+/g, '-') || 'other',
         status: String(record.status || '').trim(),
         organizerLinks: Array.isArray(record.organizerLinks) ? record.organizerLinks : [],
         isTentative: record.isTentative === true || record.isTentative === 'true' ||
@@ -942,6 +996,7 @@ async function loadTournaments() {
 
         const normalizedEvents = rawEvents.map(normalizeTournament).filter(Boolean);
         STATE.tournaments = normalizedEvents.filter(tournament => parseEventDate(tournament.startTime));
+        ensureEventTypeFilters(STATE.tournaments);
 
         if (rawEvents.length > 0 && STATE.tournaments.length === 0) {
             throw new Error(`API trả về ${rawEvents.length} sự kiện nhưng không có trường "startTime" hợp lệ. Hãy kiểm tra định dạng ngày trong JSON Apps Script.`);
