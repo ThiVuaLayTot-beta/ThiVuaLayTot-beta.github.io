@@ -1091,6 +1091,10 @@ async function loadTournaments() {
             STATE.displayYear = vnToday.getUTCFullYear();
             STATE.displayMonth = vnToday.getUTCMonth();
             renderActiveView();
+            const activeWrapper = STATE.currentView === 'calendar'
+                ? DOM.calendarWrapper
+                : DOM.listWrapper;
+            activeWrapper?.classList.add('schedule-entrance');
         }
     } catch (error) {
         console.error('Error:', error);
