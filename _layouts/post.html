@@ -13,8 +13,13 @@
     <div id="section-page">
         <div class="container">
             <div id="post">
+                <ul class="breadcrumb">
+                    <li><a href="/"><span class="bx bx-home-alt-2"></span>Trang chủ</a></li>
+                    <li><a href="/blog">Bài viết</a></li>
+                    <li>{{ page.title }}</li>
+                </ul>
                 <div class="information" style="text-align: center">
-                    <img src="/images/{{ page.id }}.png" alt="{{ page.title }}" class="post-banner">
+                    <img src="/images/{{ page.id }}.png" alt="{{ page.title }}" class="post-banner" loading="lazy">
                     <h1 class="page-title">{{ page.title }}</h1>
                     <i class="short_text" style="display: block; margin-bottom: var(--space-md);">{{ page.description }}</i>
                 <p align="center" style="text-align: center"><a href="/{{ page.category }}" class="post-tag"><span class="bx bx-purchase-tag-alt"></span> {{ page.tags }}</a> - <i style="color: var(--color-text-muted)">bởi <span style="color: var(--green-500)">{{ page.author }}</span></i></p>
