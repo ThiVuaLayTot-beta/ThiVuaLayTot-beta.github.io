@@ -286,7 +286,7 @@ window.addEventListener("scroll", () => {
 function handleScrollEffects() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-    if (backToTopBtn) backToTopBtn.style.display = scrollTop > 100 ? "flex" : "none";
+    if (backToTopBtn) if(scrollTop > 100) { backToTopBtn.classList.add("show"); } else { backToTopBtn.classList.remove("show"); }
 
     if (timeline) {
         const rect = timeline.getBoundingClientRect();
@@ -312,3 +312,143 @@ if (backToTopBtn) {
         document.documentElement.scrollTop = 0;
     });
 }
+
+/**
+ * Scroll Progress Bar
+ */
+function updateScrollProgressBar() {
+    const progressBar = document.getElementById("scroll-progress-bar");
+    if (!progressBar) return;
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollHeight <= 0) {
+        progressBar.style.width = "0%";
+        return;
+    }
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const progress = (scrollTop / scrollHeight) * 100;
+    progressBar.style.width = progress + "%";
+}
+
+window.addEventListener("scroll", () => {
+    updateScrollProgressBar();
+}, { passive: true });
+
+
+/**
+ * Global Search Feature
+ */
+function initializeGlobalSearch() {
+    const searchModalHtml = `
+        <div id="global-search-modal" class="search-modal-overlay">
+            <div class="search-modal-dialog">
+                <div class="search-modal-header">
+                    <span class="bx bx-search search-icon"></span>
+                    <input type="text" id="global-search-input" placeholder="Tìm kiếm bài viết, giải đấu..." autocomplete="off">
+                    <button id="close-search-modal" class="close-search-btn"><span class="bx bx-x"></span></button>
+                </div>
+                <div id="global-search-results" class="search-modal-results">
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', searchModalHtml);
+
+    const searchIconHtml = `
+        <button id="open-search-btn" class="nav-search-btn" aria-label="Tìm kiếm" title="Tìm kiếm">
+            <span class="bx bx-search"></span>
+        </button>
+    `;
+
+    const navContent = document.querySelector('.topnav_content');
+    if (navContent) {
+        navContent.insertAdjacentHTML('beforeend', searchIconHtml);
+    }
+
+    const openSearchBtn = document.getElementById('open-search-btn');
+    const closeSearchBtn = document.getElementById('close-search-modal');
+    const searchModal = document.getElementById('global-search-modal');
+    const searchInput = document.getElementById('global-search-input');
+    const searchResults = document.getElementById('global-search-results');
+
+    if (!openSearchBtn || !searchModal) return;
+
+    let searchData = [];
+    let isDataLoaded = false;
+
+    async function loadSearchData() {
+        if (isDataLoaded) return;
+        try {
+            // We can create a simple search index from posts or use atom.xml if available.
+            // For now, we'll try to fetch atom.xml
+            const response = await fetch('/atom.xml');
+            const text = await response.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(text, 'text/xml');
+            const entries = xml.querySelectorAll('entry');
+
+            searchData = Array.from(entries).map(entry => ({
+                title: entry.querySelector('title').textContent,
+                link: entry.querySelector('link').getAttribute('href'),
+                summary: entry.querySelector('summary')?.textContent || ''
+            }));
+            isDataLoaded = true;
+        } catch (error) {
+            console.error('Error loading search data:', error);
+            searchResults.innerHTML = '<p class="search-error">Không thể tải dữ liệu tìm kiếm.</p>';
+        }
+    }
+
+    function renderResults(query) {
+        if (!query) {
+            searchResults.innerHTML = '';
+            return;
+        }
+
+        const lowerQuery = query.toLowerCase();
+        const results = searchData.filter(item =>
+            item.title.toLowerCase().includes(lowerQuery) ||
+            item.summary.toLowerCase().includes(lowerQuery)
+        );
+
+        if (results.length === 0) {
+            searchResults.innerHTML = '<p class="search-no-results">Không tìm thấy kết quả nào.</p>';
+            return;
+        }
+
+        const resultsHtml = results.map(item => `
+            <a href="${item.link}" class="search-result-item">
+                <h4>${item.title}</h4>
+                <p>${item.summary.substring(0, 100)}...</p>
+            </a>
+        `).join('');
+
+        searchResults.innerHTML = resultsHtml;
+    }
+
+    openSearchBtn.addEventListener('click', () => {
+        searchModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        searchInput.focus();
+        loadSearchData();
+    });
+
+    closeSearchBtn.addEventListener('click', () => {
+        searchModal.classList.remove('active');
+        document.body.style.overflow = '';
+        searchInput.value = '';
+        searchResults.innerHTML = '';
+    });
+
+    searchModal.addEventListener('click', (e) => {
+        if (e.target === searchModal) {
+            closeSearchBtn.click();
+        }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+        renderResults(e.target.value.trim());
+    });
+}
+
+window.addEventListener('load', initializeGlobalSearch);
