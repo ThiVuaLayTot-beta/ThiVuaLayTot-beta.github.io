@@ -392,16 +392,25 @@ function initializeGlobalSearch() {
                 link: entry.querySelector('link').getAttribute('href'),
                 summary: entry.querySelector('summary')?.textContent || ''
             }));
+
+            // Add static pages
+            searchData.push(
+                { title: 'Lịch sự kiện', link: '/schedule', summary: 'Xem lịch sự kiện và giải đấu cờ vua sắp tới.' },
+                { title: 'Đội ngũ quản trị', link: '/leaders', summary: 'Thông tin về đội ngũ quản trị và ban điều hành câu lạc bộ.' },
+                { title: 'Các giải đấu & sự kiện', link: '/events', summary: 'Danh sách các giải đấu và sự kiện.' },
+                { title: 'Thư viện video', link: '/video', summary: 'Video cờ vua và giải đấu.' },
+                { title: 'Liên hệ', link: '/contact', summary: 'Liên hệ với câu lạc bộ.' }
+            );
             isDataLoaded = true;
         } catch (error) {
             console.error('Error loading search data:', error);
-            searchResults.innerHTML = '<p class="search-error">Không thể tải dữ liệu tìm kiếm.</p>';
+            searchResults.textContent = 'Không thể tải dữ liệu tìm kiếm.';
         }
     }
 
     function renderResults(query) {
         if (!query) {
-            searchResults.innerHTML = '';
+            searchResults.textContent = '';
             return;
         }
 
@@ -412,18 +421,27 @@ function initializeGlobalSearch() {
         );
 
         if (results.length === 0) {
-            searchResults.innerHTML = '<p class="search-no-results">Không tìm thấy kết quả nào.</p>';
+            searchResults.textContent = 'Không tìm thấy kết quả nào.';
             return;
         }
 
-        const resultsHtml = results.map(item => `
-            <a href="${item.link}" class="search-result-item">
-                <h4>${item.title}</h4>
-                <p>${item.summary.substring(0, 100)}...</p>
-            </a>
-        `).join('');
+        searchResults.textContent = '';
+        results.forEach(item => {
+            const resultItem = document.createElement('a');
+            resultItem.className = 'search-result-item';
+            resultItem.href = item.link;
 
-        searchResults.innerHTML = resultsHtml;
+            const title = document.createElement('h4');
+            title.textContent = item.title;
+
+            const summary = document.createElement('p');
+            summary.textContent = item.summary.substring(0, 100) + '...';
+
+            resultItem.appendChild(title);
+            resultItem.appendChild(summary);
+
+            searchResults.appendChild(resultItem);
+        });
     }
 
     openSearchBtn.addEventListener('click', () => {
@@ -437,7 +455,7 @@ function initializeGlobalSearch() {
         searchModal.classList.remove('active');
         document.body.style.overflow = '';
         searchInput.value = '';
-        searchResults.innerHTML = '';
+        searchResults.textContent = '';
     });
 
     searchModal.addEventListener('click', (e) => {

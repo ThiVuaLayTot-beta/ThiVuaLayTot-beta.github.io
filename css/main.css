@@ -1465,6 +1465,25 @@ footer .bottom-details .bottom_text {
     margin-left: 10px;
 }
 
+@media (max-width: 620px) {
+    .nav-search-btn {
+        margin: 5px 0 0 0;
+        width: 100%;
+        border-radius: 9px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(255, 255, 255, 0.025);
+        padding: 10px;
+    }
+
+    .nav-search-btn::after {
+        content: 'Tìm kiếm';
+        font-family: inherit;
+        font-size: 0.83rem;
+        font-weight: 600;
+        margin-left: 7px;
+    }
+}
+
 .nav-search-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;

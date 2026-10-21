@@ -22,6 +22,9 @@
                 <p class="page-decription">{{ page.description }} <a href="https://thivualaytot.github.io/atom.xml"><span class="bx bx-rss" title="Atom RSS"></span></a></p>
             </header>
 
+            <div class="category-filter-container">
+                <input type="text" id="post-filter-input" placeholder="Lọc bài viết theo tiêu đề hoặc mô tả..." class="control-input search-input" style="width: 100%; margin-bottom: 20px;">
+            </div>
             <nav class="nav-tabs" aria-label="Danh mục bài viết">
                 <a href="/blog" {% if page.category == "blog" %}class="active" aria-current="page"{% endif %}>
                     <span class="bx bx-edit-alt" style="color:var(--legacy-green)"></span>
@@ -76,6 +79,7 @@
 
     {% include footer.html %}
     <script src="/js/main.js"></script>
+    <script src="/js/category-filter.js"></script>
 </body>
 
 </html>
