@@ -470,3 +470,45 @@ function initializeGlobalSearch() {
 }
 
 window.addEventListener('load', initializeGlobalSearch);
+
+/**
+ * Theme Toggle Functionality
+ */
+const themeToggleBtn = document.getElementById('theme-toggle');
+const themeIconLight = document.getElementById('theme-icon-light');
+const themeIconDark = document.getElementById('theme-icon-dark');
+
+function setTheme(theme) {
+    if (theme === 'light') {
+        document.body.classList.add('light-theme');
+        if (themeIconLight && themeIconDark) {
+            themeIconLight.style.display = 'block';
+            themeIconDark.style.display = 'none';
+        }
+        localStorage.setItem('tvlt-theme', 'light');
+    } else {
+        document.body.classList.remove('light-theme');
+        if (themeIconLight && themeIconDark) {
+            themeIconLight.style.display = 'none';
+            themeIconDark.style.display = 'block';
+        }
+        localStorage.setItem('tvlt-theme', 'dark');
+    }
+}
+
+// Initialize theme from localStorage or OS preference
+const savedTheme = localStorage.getItem('tvlt-theme');
+if (savedTheme) {
+    setTheme(savedTheme);
+} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+    setTheme('light');
+} else {
+    setTheme('dark');
+}
+
+if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+        const isLight = document.body.classList.contains('light-theme');
+        setTheme(isLight ? 'dark' : 'light');
+    });
+}

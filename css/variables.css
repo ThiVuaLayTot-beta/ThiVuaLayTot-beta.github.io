@@ -254,3 +254,29 @@
   --breakpoint-xl: 1280px;
   --breakpoint-2xl: 1536px;
 }
+
+/* LIGHT THEME OVERRIDES */
+body.light-theme {
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6b7280;
+  --color-text-disabled: #9ca3af;
+
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f1f5f9;
+  --color-bg-hover: rgba(56, 189, 248, 0.15);
+
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-border-light: rgba(0, 0, 0, 0.05);
+  --color-border-dark: rgba(0, 0, 0, 0.2);
+
+  --gradient-dark-bg: linear-gradient(
+    135deg,
+    #f8fafc 0%,
+    #ffffff 50%,
+    #f1f5f9 100%
+  );
+
+  --bg-pattern-chess: radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.05) 1px, transparent 0);
+}
