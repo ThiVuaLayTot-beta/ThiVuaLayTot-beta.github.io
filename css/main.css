@@ -1605,35 +1605,6 @@ footer .bottom-details .bottom_text {
     color: var(--color-text-secondary);
 }
 
-/* THEME TOGGLE BUTTON */
-.theme-toggle {
-    background: transparent;
-    border: none;
-    color: var(--color-text-primary);
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem;
-    border-radius: 50%;
-    transition: var(--transition-fast);
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-}
-
-.theme-toggle:hover {
-    background: var(--color-bg-hover);
-    color: var(--color-accent);
-}
-
-@media screen and (max-width: 768px) {
-    .theme-toggle {
-        margin-left: auto;
-        margin-right: 1rem;
-    }
-}
-
 /* SKELETON LOADING */
 .skeleton {
     background: linear-gradient(
