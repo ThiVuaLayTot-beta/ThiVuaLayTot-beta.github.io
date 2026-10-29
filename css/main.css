@@ -10,23 +10,7 @@
 
 body {
   font-family: var(--primary-font);
-  background:
-    radial-gradient(
-      circle 22rem at 10% 16%,
-      rgba(0, 174, 255, 0.09),
-      transparent 72%
-    ),
-    radial-gradient(
-      circle 18rem at 90% 78%,
-      rgba(153, 61, 255, 0.085),
-      transparent 70%
-    ),
-    linear-gradient(
-      145deg,
-      #02040a 0%,
-      #050914 48%,
-      #070511 100%
-    );
+  background: var(--void);
   background-attachment: fixed;
   color: var(--color-text-primary);
   font-size: var(--fs-base);
@@ -254,23 +238,27 @@ hr {
 /* Site navigation */
 .page-header {
   position: fixed;
-  inset: 0 0 auto;
+  inset: 12px 12px auto;
   z-index: 1000;
   display: grid;
   grid-template-columns: minmax(200px, 1fr) auto minmax(160px, 1fr);
   align-items: center;
-  width: 100%;
-  min-height: 72px;
+  width: calc(100% - 24px);
+  min-height: 64px;
   box-sizing: border-box;
-  margin: 0;
-  padding: 10px clamp(16px, 3vw, 42px);
-  border: 0;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.28);
-  border-radius: 0;
-  background: rgba(5, 8, 22, 0.97);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  margin: 0 auto;
+  padding: 8px 24px;
+  border: 1px solid transparent;
+  border-radius: 32px;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.page-header.is-scrolled {
+  background: rgba(1, 1, 1, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
 }
 
 .page-header > * {
@@ -506,24 +494,22 @@ hr {
   gap: 8px;
   min-height: 42px;
   padding: 0 15px;
-  border: 1px solid rgba(129, 140, 248, 0.45);
-  border-radius: 9px;
-  background: #4338ca;
-  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px; /* Pill */
+  background: var(--glow);
+  color: var(--void);
   font-size: 0.82rem;
   font-weight: 700;
   text-decoration: none !important;
   white-space: nowrap;
-  transition:
-    background-color 160ms ease,
-    border-color 160ms ease;
+  transition: all 160ms ease;
 }
 
 .nav-cta:hover {
-  border-color: #818cf8;
-  background: #4f46e5;
-  color: #fff;
+  background: #ffffff;
+  color: var(--void);
   text-decoration: none;
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.2);
 }
 
 .nav-cta .bx {
@@ -536,10 +522,10 @@ hr {
   justify-content: center;
   width: 44px;
   height: 44px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.035);
-  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ink);
   cursor: pointer;
 }
 
@@ -595,9 +581,9 @@ hr {
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 8px;
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
-    background: #080e1e;
+    background: var(--panel);
     box-shadow: 0 18px 42px rgba(0, 0, 0, 0.45);
     opacity: 0;
     visibility: hidden;
@@ -771,7 +757,6 @@ html {
 
 .btn {
   position: relative;
-  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -781,17 +766,53 @@ html {
   font-weight: var(--fw-bold);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: none;
-  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px; /* Pill shape */
   cursor: pointer;
   user-select: none;
   transition: all var(--transition-base);
-  background-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-text-primary);
-  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(8px);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 9999px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.4), rgba(255,255,255,0));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.5;
+  transition: opacity 0.3s;
 }
 
 .btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn:hover::before {
+  opacity: 1;
+}
+
+.btn-primary {
+  background: var(--glow);
+  color: var(--void);
+}
+
+.btn-primary:hover {
+  background: #ffffff;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary::before {
+  display: none;
+}
+
+.old-btn:hover {
   background-color: var(--color-primary-dark);
   box-shadow:
     var(--shadow-lg),

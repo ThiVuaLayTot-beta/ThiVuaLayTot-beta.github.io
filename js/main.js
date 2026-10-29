@@ -286,6 +286,15 @@ window.addEventListener("scroll", () => {
 function handleScrollEffects() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
+    const pageHeader = document.querySelector('.page-header');
+    if (pageHeader) {
+        if (scrollTop > 20) {
+            pageHeader.classList.add("is-scrolled");
+        } else {
+            pageHeader.classList.remove("is-scrolled");
+        }
+    }
+
     if (backToTopBtn) if(scrollTop > 100) { backToTopBtn.classList.add("show"); } else { backToTopBtn.classList.remove("show"); }
 
     if (timeline) {
