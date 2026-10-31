@@ -1,8 +1,8 @@
 /**
  * Main site navigation
  */
-const menuBtn = document.getElementById("menu");
-const mobileNav = document.getElementById("tvltTopnav");
+const menuBtn = document.getElementById("mobile-menu-btn");
+const mobileNav = document.getElementById("mobile-nav-menu");
 const dropdowns = document.querySelectorAll(".section.dropdown");
 const isMobileNav = () => window.matchMedia("(max-width: 1024px)").matches;
 let dropdownCloseTimer = null;
@@ -36,7 +36,7 @@ function closeMobileNav({ restoreFocus = false } = {}) {
     document.body.classList.remove("nav-open");
     closeDropdowns();
 
-    const menuIcon = document.getElementById("menuIcon");
+    const menuIcon = document.getElementById("mobile-menu-icon");
     if (menuIcon) {
         menuIcon.classList.remove("bx-x");
         menuIcon.classList.add("bx-menu");
@@ -54,7 +54,7 @@ function openMobileNav() {
     document.documentElement.classList.add("nav-open");
     document.body.classList.add("nav-open");
 
-    const menuIcon = document.getElementById("menuIcon");
+    const menuIcon = document.getElementById("mobile-menu-icon");
     if (menuIcon) {
         menuIcon.classList.remove("bx-menu");
         menuIcon.classList.add("bx-x");
@@ -286,15 +286,6 @@ window.addEventListener("scroll", () => {
 function handleScrollEffects() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-    const pageHeader = document.querySelector('.page-header');
-    if (pageHeader) {
-        if (scrollTop > 20) {
-            pageHeader.classList.add("is-scrolled");
-        } else {
-            pageHeader.classList.remove("is-scrolled");
-        }
-    }
-
     if (backToTopBtn) if(scrollTop > 100) { backToTopBtn.classList.add("show"); } else { backToTopBtn.classList.remove("show"); }
 
     if (timeline) {
@@ -363,16 +354,6 @@ function initializeGlobalSearch() {
 
     document.body.insertAdjacentHTML('beforeend', searchModalHtml);
 
-    const searchIconHtml = `
-        <button id="open-search-btn" class="nav-search-btn" aria-label="Tìm kiếm" title="Tìm kiếm">
-            <span class="bx bx-search"></span>
-        </button>
-    `;
-
-    const navContent = document.querySelector('.topnav_content');
-    if (navContent) {
-        navContent.insertAdjacentHTML('beforeend', searchIconHtml);
-    }
 
     const openSearchBtn = document.getElementById('open-search-btn');
     const closeSearchBtn = document.getElementById('close-search-modal');
@@ -401,16 +382,29 @@ function initializeGlobalSearch() {
                 link: entry.querySelector('link').getAttribute('href'),
                 summary: entry.querySelector('summary')?.textContent || ''
             }));
-
-            // Add static pages
-            searchData.push(
-                { title: 'Lịch sự kiện', link: '/schedule', summary: 'Xem lịch sự kiện và giải đấu cờ vua sắp tới.' },
-                { title: 'Đội ngũ quản trị', link: '/leaders', summary: 'Thông tin về đội ngũ quản trị và ban điều hành câu lạc bộ.' },
-                { title: 'Các giải đấu & sự kiện', link: '/events', summary: 'Danh sách các giải đấu và sự kiện.' },
-                { title: 'Thư viện video', link: '/video', summary: 'Video cờ vua và giải đấu.' },
-                { title: 'Liên hệ', link: '/contact', summary: 'Liên hệ với câu lạc bộ.' }
-            );
             isDataLoaded = true;
+            // Add static pages
+            searchData.push({
+                title: "Lịch sự kiện",
+                link: "/schedule",
+                summary: "Xem lịch các giải đấu và sự kiện sắp tới của CLB Thí Vua Lấy Tốt."
+            });
+            searchData.push({
+                title: "Đội ngũ quản trị",
+                link: "/leaders",
+                summary: "Thông tin về ban quản trị và các điều hành viên của câu lạc bộ."
+            });
+            searchData.push({
+                title: "Trang chủ",
+                link: "/",
+                summary: "Trang chủ CLB Thí Vua Lấy Tốt."
+            });
+            searchData.push({
+                title: "Liên hệ",
+                link: "/contact",
+                summary: "Liên hệ và đóng góp cho CLB Thí Vua Lấy Tốt."
+            });
+
         } catch (error) {
             console.error('Error loading search data:', error);
             searchResults.textContent = 'Không thể tải dữ liệu tìm kiếm.';

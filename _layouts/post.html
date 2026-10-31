@@ -33,48 +33,9 @@
                 </div>
                 <div class="post-contents">{{ content }}</div></div>
             <hr>
-
-            <div id="related-posts" class="related-posts">
-                <h3 style="margin-bottom: 1rem;"><span class="bx bx-bookmark-alt"></span> Bài viết liên quan</h3>
-                <div class="related-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-                    {% assign maxRelated = 3 %}
-                    {% assign minCommonTags =  1 %}
-                    {% assign maxRelatedCounter = 0 %}
-
-                    {% for post in site.posts %}
-                        {% assign sameTagCount = 0 %}
-                        {% assign commonTags = '' %}
-
-                        {% for category in post.categories %}
-                            {% if post.url != page.url %}
-                                {% if page.categories contains category %}
-                                    {% assign sameTagCount = sameTagCount | plus: 1 %}
-                                    {% capture tagmarkup %} <span class="label label-default">{{ category }}</span> {% endcapture %}
-                                    {% assign commonTags = commonTags | append: tagmarkup %}
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-
-                        {% if sameTagCount >= minCommonTags %}
-                            <div class="related-post-card" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border); border-radius: var(--border-radius-md); padding: 1rem; transition: var(--transition-fast);">
-                                <h4 style="margin: 0 0 0.5rem 0; font-size: 1.1rem;"><a href="{{ post.url }}" style="color: var(--color-primary); text-decoration: none;">{{ post.title }}</a></h4>
-                                <p style="font-size: 0.9rem; color: var(--color-text-muted); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ post.description }}</p>
-                            </div>
-                            {% assign maxRelatedCounter = maxRelatedCounter | plus: 1 %}
-                            {% if maxRelatedCounter >= maxRelated %}
-                                {% break %}
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if maxRelatedCounter == 0 %}
-                        <p style="color: var(--color-text-muted); font-style: italic;">Chưa có bài viết liên quan nào.</p>
-                    {% endif %}
-                </div>
-            </div>
-
             <div id="other">
-                <div class="main"><a href="/blog"><span class="btn">Xem tất cả bài viết</span></a></div>
+                <h3>Một số bài đăng khác</h3>
+                <div class="main"><a href="/blog"><span class="btn">Đọc thêm một số bài đăng khác</span></a></div>
             </div>
             <br>
             <button id="back-to-top" title="Quay lại đầu trang"><span class="bx bxs-to-top"></span></button>

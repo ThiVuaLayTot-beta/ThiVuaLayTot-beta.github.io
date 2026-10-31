@@ -2,15 +2,8 @@
    CSS Variables for Colors, Typography, Spacing */
 
 :root {
-  /* NUSA DESIGN TOKENS */
-  --void: #010101; /* Deep background */
-  --panel: #070707; /* Component background */
-  --ink: #ffffff; /* Primary text */
-  --mist: #a0a0a0; /* Secondary text */
-  --glow: #e8e8e8; /* Default glow/accent color */
-
   /* TYPOGRAPHY */
-  --primary-font: "Bricolage Grotesque", Montserrat, ui-sans-serif, system-ui, sans-serif,
+  --primary-font: Montserrat, ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
   --tab-font: "Open Sans Condensed", sans-serif;
   --mono-font: "Courier New", monospace;
@@ -144,17 +137,17 @@
   --yellow-900: #713f12;
 
   /* SEMANTIC COLORS */
-  --color-primary: var(--glow);
-  --color-primary-dark: #b0b0b0;
-  --color-primary-light: #ffffff;
+  --color-primary: var(--blue-500);
+  --color-primary-dark: var(--blue-700);
+  --color-primary-light: #409EFF;
 
-  --color-accent: var(--glow); /* Brighter Cyan */
-  --color-accent-dark: #a0a0a0;
-  --color-accent-light: #ffffff;
+  --color-accent: #38bdf8; /* Brighter Cyan */
+  --color-accent-dark: #0ea5e9;
+  --color-accent-light: #7dd3fc;
 
-  --color-secondary: #333333;
-  --color-secondary-dark: #111111;
-  --color-secondary-light: #555555;
+  --color-secondary: #a855f7;
+  --color-secondary-dark: #7e22ce;
+  --color-secondary-light: #d8b4fe;
 
   --color-success: var(--green-500);
   --color-success-dark: var(--green-700);
@@ -178,20 +171,20 @@
   --primary-sucess: var(--color-success); /* Legacy typo fallback */
   --primary-warning: var(--color-warning);
 
-  --color-text-primary: var(--ink);
-  --color-text-secondary: var(--mist);
-  --color-text-muted: #666666;
-  --color-text-disabled: #444444;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: var(--neutral-200);
+  --color-text-muted: var(--neutral-400);
+  --color-text-disabled: var(--neutral-600);
 
-  --color-bg-primary: var(--void);
+  --color-bg-primary: #050811;
   --bg-pattern-chess: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
-  --color-bg-secondary: var(--panel);
-  --color-bg-tertiary: #111111;
-  --color-bg-hover: #1a1a1a;
+  --color-bg-secondary: #0a0f1e;
+  --color-bg-tertiary: #111a2e;
+  --color-bg-hover: rgba(56, 189, 248, 0.08);
 
-  --color-border: #1a1a1a;
-  --color-border-light: #111111;
-  --color-border-dark: #222222;
+  --color-border: rgba(56, 189, 248, 0.15);
+  --color-border-light: rgba(56, 189, 248, 0.08);
+  --color-border-dark: rgba(56, 189, 248, 0.25);
 
   /* GRADIENTS */
   --gradient-primary: linear-gradient(135deg, var(--blue-600) 0%, var(--blue-500) 100%);
