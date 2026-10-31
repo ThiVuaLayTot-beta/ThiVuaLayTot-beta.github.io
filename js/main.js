@@ -1,8 +1,8 @@
 /**
  * Main site navigation
  */
-const menuBtn = document.getElementById("menu");
-const mobileNav = document.getElementById("tvltTopnav");
+const menuBtn = document.getElementById("mobile-menu-btn");
+const mobileNav = document.getElementById("mobile-nav-menu");
 const dropdowns = document.querySelectorAll(".section.dropdown");
 const isMobileNav = () => window.matchMedia("(max-width: 1024px)").matches;
 let dropdownCloseTimer = null;
@@ -36,7 +36,7 @@ function closeMobileNav({ restoreFocus = false } = {}) {
     document.body.classList.remove("nav-open");
     closeDropdowns();
 
-    const menuIcon = document.getElementById("menuIcon");
+    const menuIcon = document.getElementById("mobile-menu-icon");
     if (menuIcon) {
         menuIcon.classList.remove("bx-x");
         menuIcon.classList.add("bx-menu");
@@ -54,7 +54,7 @@ function openMobileNav() {
     document.documentElement.classList.add("nav-open");
     document.body.classList.add("nav-open");
 
-    const menuIcon = document.getElementById("menuIcon");
+    const menuIcon = document.getElementById("mobile-menu-icon");
     if (menuIcon) {
         menuIcon.classList.remove("bx-menu");
         menuIcon.classList.add("bx-x");
@@ -286,7 +286,7 @@ window.addEventListener("scroll", () => {
 function handleScrollEffects() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-    if (backToTopBtn) backToTopBtn.style.display = scrollTop > 100 ? "flex" : "none";
+    if (backToTopBtn) if(scrollTop > 100) { backToTopBtn.classList.add("show"); } else { backToTopBtn.classList.remove("show"); }
 
     if (timeline) {
         const rect = timeline.getBoundingClientRect();
@@ -312,3 +312,164 @@ if (backToTopBtn) {
         document.documentElement.scrollTop = 0;
     });
 }
+
+/**
+ * Scroll Progress Bar
+ */
+function updateScrollProgressBar() {
+    const progressBar = document.getElementById("scroll-progress-bar");
+    if (!progressBar) return;
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (scrollHeight <= 0) {
+        progressBar.style.width = "0%";
+        return;
+    }
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const progress = (scrollTop / scrollHeight) * 100;
+    progressBar.style.width = progress + "%";
+}
+
+window.addEventListener("scroll", () => {
+    updateScrollProgressBar();
+}, { passive: true });
+
+
+/**
+ * Global Search Feature
+ */
+function initializeGlobalSearch() {
+    const searchModalHtml = `
+        <div id="global-search-modal" class="search-modal-overlay">
+            <div class="search-modal-dialog">
+                <div class="search-modal-header">
+                    <span class="bx bx-search search-icon"></span>
+                    <input type="text" id="global-search-input" placeholder="Tìm kiếm bài viết, giải đấu..." autocomplete="off">
+                    <button id="close-search-modal" class="close-search-btn"><span class="bx bx-x"></span></button>
+                </div>
+                <div id="global-search-results" class="search-modal-results">
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', searchModalHtml);
+
+
+    const openSearchBtn = document.getElementById('open-search-btn');
+    const closeSearchBtn = document.getElementById('close-search-modal');
+    const searchModal = document.getElementById('global-search-modal');
+    const searchInput = document.getElementById('global-search-input');
+    const searchResults = document.getElementById('global-search-results');
+
+    if (!openSearchBtn || !searchModal) return;
+
+    let searchData = [];
+    let isDataLoaded = false;
+
+    async function loadSearchData() {
+        if (isDataLoaded) return;
+        try {
+            // We can create a simple search index from posts or use atom.xml if available.
+            // For now, we'll try to fetch atom.xml
+            const response = await fetch('/atom.xml');
+            const text = await response.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(text, 'text/xml');
+            const entries = xml.querySelectorAll('entry');
+
+            searchData = Array.from(entries).map(entry => ({
+                title: entry.querySelector('title').textContent,
+                link: entry.querySelector('link').getAttribute('href'),
+                summary: entry.querySelector('summary')?.textContent || ''
+            }));
+            isDataLoaded = true;
+            // Add static pages
+            searchData.push({
+                title: "Lịch sự kiện",
+                link: "/schedule",
+                summary: "Xem lịch các giải đấu và sự kiện sắp tới của CLB Thí Vua Lấy Tốt."
+            });
+            searchData.push({
+                title: "Đội ngũ quản trị",
+                link: "/leaders",
+                summary: "Thông tin về ban quản trị và các điều hành viên của câu lạc bộ."
+            });
+            searchData.push({
+                title: "Trang chủ",
+                link: "/",
+                summary: "Trang chủ CLB Thí Vua Lấy Tốt."
+            });
+            searchData.push({
+                title: "Liên hệ",
+                link: "/contact",
+                summary: "Liên hệ và đóng góp cho CLB Thí Vua Lấy Tốt."
+            });
+
+        } catch (error) {
+            console.error('Error loading search data:', error);
+            searchResults.textContent = 'Không thể tải dữ liệu tìm kiếm.';
+        }
+    }
+
+    function renderResults(query) {
+        if (!query) {
+            searchResults.textContent = '';
+            return;
+        }
+
+        const lowerQuery = query.toLowerCase();
+        const results = searchData.filter(item =>
+            item.title.toLowerCase().includes(lowerQuery) ||
+            item.summary.toLowerCase().includes(lowerQuery)
+        );
+
+        if (results.length === 0) {
+            searchResults.textContent = 'Không tìm thấy kết quả nào.';
+            return;
+        }
+
+        searchResults.textContent = '';
+        results.forEach(item => {
+            const resultItem = document.createElement('a');
+            resultItem.className = 'search-result-item';
+            resultItem.href = item.link;
+
+            const title = document.createElement('h4');
+            title.textContent = item.title;
+
+            const summary = document.createElement('p');
+            summary.textContent = item.summary.substring(0, 100) + '...';
+
+            resultItem.appendChild(title);
+            resultItem.appendChild(summary);
+
+            searchResults.appendChild(resultItem);
+        });
+    }
+
+    openSearchBtn.addEventListener('click', () => {
+        searchModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        searchInput.focus();
+        loadSearchData();
+    });
+
+    closeSearchBtn.addEventListener('click', () => {
+        searchModal.classList.remove('active');
+        document.body.style.overflow = '';
+        searchInput.value = '';
+        searchResults.textContent = '';
+    });
+
+    searchModal.addEventListener('click', (e) => {
+        if (e.target === searchModal) {
+            closeSearchBtn.click();
+        }
+    });
+
+    searchInput.addEventListener('input', (e) => {
+        renderResults(e.target.value.trim());
+    });
+}
+
+window.addEventListener('load', initializeGlobalSearch);

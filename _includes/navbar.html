@@ -1,3 +1,6 @@
+<div class="scroll-progress-container">
+    <div class="scroll-progress-bar" id="scroll-progress-bar"></div>
+</div>
 <nav class="page-header" aria-label="Điều hướng chính">
     <a class="tvlt-brand" href="/" target="_top" aria-label="Thí Vua Lấy Tốt - Trang chủ">
         <img src="/images/tvltlogo.png" alt="" width="44" height="44" class="logo">
@@ -7,13 +10,13 @@
         </span>
     </a>
 
-    <div class="topnav">
-        <div class="nav_content">
-            <button id="menu" type="button" aria-label="Mở menu điều hướng" aria-expanded="false" aria-controls="tvltTopnav">
-                <span class="bx bx-menu" id="menuIcon" aria-hidden="true"></span>
+    <div class="nav-container">
+        <div class="nav-wrapper">
+            <button id="mobile-menu-btn" class="mobile-menu-btn" type="button" aria-label="Mở menu điều hướng" aria-expanded="false" aria-controls="mobile-nav-menu">
+                <span class="bx bx-menu" id="mobile-menu-icon" aria-hidden="true"></span>
             </button>
 
-            <div class="topnav_content" id="tvltTopnav">
+            <div class="nav-menu" id="mobile-nav-menu">
                 <a class="nav-link" href="/" target="_top">
                     <span class="bx bx-home-alt-2" aria-hidden="true"></span>Trang chủ
                 </a>
@@ -44,6 +47,10 @@
                         <a href="/blog" target="_top"><span class="bx bx-edit-alt" aria-hidden="true"></span>Bài viết</a>
                     </div>
                 </div>
+
+                <button id="open-search-btn" class="nav-search-btn search-trigger" aria-label="Tìm kiếm">
+                    <span class="bx bx-search" aria-hidden="true"></span>
+                </button>
 
                 <div class="section dropdown dropdown--end">
                     <button type="button" class="dropdown-trigger" aria-haspopup="true" aria-expanded="false" aria-controls="nav-community-menu">

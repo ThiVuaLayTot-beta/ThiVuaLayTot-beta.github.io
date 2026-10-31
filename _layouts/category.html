@@ -12,11 +12,19 @@
 
     <div id="section-page">
         <div class="container">
+            <ul class="breadcrumb">
+                <li><a href="/"><span class="bx bx-home-alt-2"></span>Trang chủ</a></li>
+                <li><a href="/blog">Danh mục</a></li>
+                <li>{{ page.title }}</li>
+            </ul>
             <header>
                 <h1 class="page-title">{{ page.title }}</h1>
                 <p class="page-decription">{{ page.description }} <a href="https://thivualaytot.github.io/atom.xml"><span class="bx bx-rss" title="Atom RSS"></span></a></p>
             </header>
 
+            <div class="category-filter-container">
+                <input type="text" id="post-filter-input" placeholder="Lọc bài viết theo tiêu đề hoặc mô tả..." class="control-input search-input" style="width: 100%; margin-bottom: 20px;">
+            </div>
             <nav class="nav-tabs" aria-label="Danh mục bài viết">
                 <a href="/blog" {% if page.category == "blog" %}class="active" aria-current="page"{% endif %}>
                     <span class="bx bx-edit-alt" style="color:var(--legacy-green)"></span>
@@ -45,7 +53,7 @@
 
                 {% for post in category_posts %}
                 <article class="category-card">
-                    <a href="{{ post.url }}" title="{{ post.title }}"><img src="/images/{{ post.id }}.png" class="category-card__image"></a>
+                    <a href="{{ post.url }}" title="{{ post.title }}"><img src="/images/{{ post.id }}.png" class="category-card__image" loading="lazy"></a>
                     <div class="category-card__content">
                         <div class="post_in4">
                             <div class="category-card__detail">
@@ -71,6 +79,7 @@
 
     {% include footer.html %}
     <script src="/js/main.js"></script>
+    <script src="/js/category-filter.js"></script>
 </body>
 
 </html>
