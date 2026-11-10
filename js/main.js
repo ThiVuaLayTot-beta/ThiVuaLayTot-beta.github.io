@@ -1,4 +1,4 @@
-/**
+/** 
  * Main site navigation
  */
 const menuBtn = document.getElementById("mobile-menu-btn");
