@@ -147,6 +147,663 @@ title: Trang chủ
             </div>
         </section>
 
+<!-- Interactive Hub Section -->
+<section class="tvlt-interactive-hub" id="tvlt-interactive-hub">
+  <div class="container">
+    <div class="section-kicker">
+      <span class="section-kicker__line"></span>
+      <span>Góc Kỳ Thủ Tương Tác</span>
+      <span class="section-kicker__line"></span>
+    </div>
+    <h2 class="hub-main-title">Góc Kỳ Thủ Tương Tác — Thí Vua Lấy Tốt</h2>
+    <p class="hub-subtitle">Luyện tập thế cờ, tính điểm Elo &amp; khám phá mẹo chiến thuật trực tiếp ngay trên trang chủ</p>
+
+    <div class="hub-grid">
+      <!-- Widget 1: Daily Chess Puzzle -->
+      <div class="hub-card puzzle-card">
+        <h3 class="hub-card-title">🧩 Thế Cờ Chiến Thuật Mỗi Ngày</h3>
+        <p id="home-puzzle-title" class="puzzle-title">Thế Cờ #1: Thí Xe Bắt Vua</p>
+        <p id="home-puzzle-desc" class="puzzle-desc">Trắng đi trước. Hãy chọn nước đi chính xác để chiếu hết!</p>
+        
+        <div class="puzzle-controls">
+          <span class="puzzle-label">Chọn thế cờ:</span>
+          <div class="puzzle-btn-group">
+            <button id="puzzle-btn-1" class="btn-puzzle active" data-puzzle="1">Thế 1</button>
+            <button id="puzzle-btn-2" class="btn-puzzle" data-puzzle="2">Thế 2</button>
+            <button id="puzzle-btn-3" class="btn-puzzle" data-puzzle="3">Thế 3</button>
+          </div>
+        </div>
+
+        <div id="home-mini-chessboard" class="mini-board-container"></div>
+
+        <div id="home-puzzle-status" class="puzzle-status">Lượt Trắng đi. Nhấp vào quân cờ Trắng rồi nhấp ô đích!</div>
+
+        <div class="puzzle-actions">
+          <button id="home-puzzle-hint" class="btn-action btn-hint">💡 Gợi ý</button>
+          <button id="home-puzzle-reset" class="btn-action btn-reset">🔄 Giải lại</button>
+        </div>
+      </div>
+
+      <!-- Widget 2: Elo Calculator -->
+      <div class="hub-card elo-card">
+        <h3 class="hub-card-title">⚖️ Máy Tính Nhanh Hệ Số Elo &amp; Xác Suất</h3>
+        
+        <div class="elo-form">
+          <div class="form-group">
+            <label for="home-elo-self">Elo của bạn:</label>
+            <input type="number" id="home-elo-self" value="1600" min="100" max="3500">
+          </div>
+          <div class="form-group">
+            <label for="home-elo-opp">Elo đối thủ:</label>
+            <input type="number" id="home-elo-opp" value="1700" min="100" max="3500">
+          </div>
+          <div class="form-group">
+            <label for="home-elo-score">Kết quả ván đấu:</label>
+            <select id="home-elo-score">
+              <option value="1">Thắng (1.0)</option>
+              <option value="0.5">Hòa (0.5)</option>
+              <option value="0">Thua (0.0)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="home-elo-k">Hệ số K-Factor:</label>
+            <select id="home-elo-k">
+              <option value="20">K = 20 (Tiêu chuẩn)</option>
+              <option value="40">K = 40 (Mới chơi / Trẻ)</option>
+              <option value="10">K = 10 (Kỳ thủ &gt;2400)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="elo-output">
+          <div class="win-prob-box">
+            <div class="win-prob-header">
+              <span>Tỷ lệ thắng kỳ vọng:</span>
+              <span id="home-elo-winpct" class="winpct-val">36.0%</span>
+            </div>
+            <div class="winbar-track">
+              <div id="home-elo-winbar" class="winbar-fill" style="width: 36%;"></div>
+            </div>
+          </div>
+
+          <div class="elo-results-grid">
+            <div class="res-box">
+              <span class="res-label">Elo biến động:</span>
+              <span id="home-elo-delta" class="res-val delta-val">+12.8</span>
+            </div>
+            <div class="res-box">
+              <span class="res-label">Elo mới:</span>
+              <span id="home-elo-new" class="res-val new-val">1612.8</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Widget 3: Opening Explorer & Tactical Tips -->
+      <div class="hub-card opening-card">
+        <h3 class="hub-card-title">📖 Cẩm Nang Khai Cuộc &amp; Mẹo Chiến Thuật</h3>
+
+        <div class="opening-tabs">
+          <button class="tab-btn active" data-opening="italia">Khai Cuộc Ý</button>
+          <button class="tab-btn" data-opening="sicilian">Phòng Thủ Sicilian</button>
+          <button class="tab-btn" data-opening="queens-gambit">Gâm-bít Hậu</button>
+        </div>
+
+        <div id="opening-details" class="opening-details">
+          <div class="moves-badge">Chuỗi nước đi: <strong id="opening-moves">1. e4 e5 2. Nf3 Nc6 3. Bc4</strong></div>
+          <p id="opening-idea" class="opening-idea">Kiểm soát trung tâm nhanh chóng, phát triển Mã &amp; Tượng hướng thẳng vào điểm yếu f7 của Đen.</p>
+        </div>
+
+        <hr class="card-divider">
+
+        <div class="tip-section">
+          <div class="tip-header">
+            <h4>💡 Mẹo Chiến Thuật Trực Quan</h4>
+            <button id="home-random-tip-btn" class="btn-action btn-random-tip">Đổi mẹo chiến thuật ngẫu nhiên 🎲</button>
+          </div>
+          <div class="tip-box">
+            <p id="home-tip-text">"Nhập thành sớm để bảo vệ Vua và kết nối hai Xe đưa vào các cột mở."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.tvlt-interactive-hub {
+  padding: 3.5rem 0;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.95));
+  color: #f8fafc;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+}
+.tvlt-interactive-hub .hub-main-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+.tvlt-interactive-hub .hub-subtitle {
+  text-align: center;
+  color: #94a3b8;
+  margin-bottom: 2.5rem;
+  font-size: 1.05rem;
+}
+.tvlt-interactive-hub .hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.75rem;
+}
+.tvlt-interactive-hub .hub-card {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 1.5rem;
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.tvlt-interactive-hub .hub-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+.tvlt-interactive-hub .hub-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #38bdf8;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.tvlt-interactive-hub .puzzle-title {
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 0.25rem;
+}
+.tvlt-interactive-hub .puzzle-desc {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-bottom: 1rem;
+}
+.tvlt-interactive-hub .puzzle-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+}
+.tvlt-interactive-hub .puzzle-label {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+}
+.tvlt-interactive-hub .puzzle-btn-group {
+  display: flex;
+  gap: 0.35rem;
+}
+.tvlt-interactive-hub .btn-puzzle {
+  background: rgba(51, 65, 85, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tvlt-interactive-hub .btn-puzzle.active,
+.tvlt-interactive-hub .btn-puzzle:hover {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #818cf8;
+}
+.tvlt-interactive-hub .mini-board-container {
+  width: 256px;
+  height: 256px;
+  margin: 0 auto 1rem auto;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  border: 2px solid #475569;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.tvlt-interactive-hub .chess-square {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+.tvlt-interactive-hub .chess-square.light {
+  background-color: #f0d9b5;
+  color: #1e293b;
+}
+.tvlt-interactive-hub .chess-square.dark {
+  background-color: #b58863;
+  color: #1e293b;
+}
+.tvlt-interactive-hub .chess-square.selected {
+  background-color: #769656 !important;
+}
+.tvlt-interactive-hub .chess-square.highlight {
+  background-color: #baca44 !important;
+}
+.tvlt-interactive-hub .puzzle-status {
+  background: rgba(15, 23, 42, 0.6);
+  border-left: 3px solid #38bdf8;
+  padding: 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: #e2e8f0;
+  margin-bottom: 1rem;
+  min-height: 42px;
+}
+.tvlt-interactive-hub .puzzle-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+.tvlt-interactive-hub .btn-action {
+  flex: 1;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.tvlt-interactive-hub .btn-hint {
+  background: #0284c7;
+  color: #fff;
+}
+.tvlt-interactive-hub .btn-hint:hover { background: #0369a1; }
+.tvlt-interactive-hub .btn-reset {
+  background: #475569;
+  color: #fff;
+}
+.tvlt-interactive-hub .btn-reset:hover { background: #334155; }
+.tvlt-interactive-hub .elo-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.tvlt-interactive-hub .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.tvlt-interactive-hub .form-group label {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+}
+.tvlt-interactive-hub .form-group input,
+.tvlt-interactive-hub .form-group select {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  outline: none;
+}
+.tvlt-interactive-hub .form-group input:focus,
+.tvlt-interactive-hub .form-group select:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+}
+.tvlt-interactive-hub .win-prob-box {
+  margin-bottom: 1rem;
+}
+.tvlt-interactive-hub .win-prob-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin-bottom: 0.35rem;
+}
+.tvlt-interactive-hub .winpct-val {
+  font-weight: 700;
+  color: #38bdf8;
+}
+.tvlt-interactive-hub .winbar-track {
+  width: 100%;
+  height: 10px;
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.tvlt-interactive-hub .winbar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #818cf8);
+  transition: width 0.4s ease;
+}
+.tvlt-interactive-hub .elo-results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.tvlt-interactive-hub .res-box {
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.tvlt-interactive-hub .res-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-bottom: 0.2rem;
+}
+.tvlt-interactive-hub .res-val {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.tvlt-interactive-hub .delta-val { color: #4ade80; }
+.tvlt-interactive-hub .new-val { color: #facc15; }
+.tvlt-interactive-hub .opening-tabs {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.tvlt-interactive-hub .tab-btn {
+  flex: 1;
+  background: rgba(51, 65, 85, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.tvlt-interactive-hub .tab-btn.active,
+.tvlt-interactive-hub .tab-btn:hover {
+  background: #6366f1;
+  color: #fff;
+  border-color: #818cf8;
+}
+.tvlt-interactive-hub .opening-details {
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.85rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+.tvlt-interactive-hub .moves-badge {
+  font-size: 0.85rem;
+  color: #38bdf8;
+  margin-bottom: 0.4rem;
+}
+.tvlt-interactive-hub .opening-idea {
+  font-size: 0.85rem;
+  color: #cbd5e1;
+  margin: 0;
+  line-height: 1.4;
+}
+.tvlt-interactive-hub .card-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0.75rem 0 1rem 0;
+}
+.tvlt-interactive-hub .tip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  gap: 0.5rem;
+}
+.tvlt-interactive-hub .tip-header h4 {
+  font-size: 0.9rem;
+  margin: 0;
+  color: #f1f5f9;
+}
+.tvlt-interactive-hub .btn-random-tip {
+  background: #8b5cf6;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+}
+.tvlt-interactive-hub .btn-random-tip:hover { background: #7c3aed; }
+.tvlt-interactive-hub .tip-box {
+  background: rgba(15, 23, 42, 0.6);
+  border-left: 3px solid #a855f7;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+.tvlt-interactive-hub .tip-box p {
+  margin: 0;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #e2e8f0;
+  transition: opacity 0.3s ease;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const puzzles = {
+    1: {
+      title: "Thế Cờ #1: Thí Xe Bắt Vua",
+      desc: "Trắng đi trước. Hãy chọn nước đi chính xác để chiếu hết!",
+      hint: "Tượng c4 phối hợp với Hậu f3 nhắm vào ô f7!",
+      initText: "Lượt Trắng đi. Nhấp vào quân cờ Trắng rồi nhấp ô đích!"
+    },
+    2: {
+      title: "Thế Cờ #2: Đòn Dọc Cột Mở",
+      desc: "Trắng đi trước. Tìm đòn tấn công bất ngờ!",
+      hint: "Hãy chú ý đến quân Mã ở f3 và Trung tâm e4/d4!",
+      initText: "Lượt Trắng đi. Hãy chọn nước cờ tối ưu!"
+    },
+    3: {
+      title: "Thế Cờ #3: Chiếu Hết 2 Nước",
+      desc: "Trắng đi trước. Kết thúc ván đấu ngay lập tức!",
+      hint: "Hậu h5 chiếu hết ở e8 hoặc h7!",
+      initText: "Lượt Trắng đi. Chiếu hết Đen!"
+    }
+  };
+
+  let currentPuzzleId = 1;
+  let selectedSquare = null;
+
+  function renderBoard(puzzleId) {
+    const container = document.getElementById('home-mini-chessboard');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    const unicodePieces = {
+      'K': '♔', 'Q': '♕', 'R': '♖', 'B': '♗', 'N': '♘', 'P': '♙',
+      'k': '♚', 'q': '♛', 'r': '♜', 'b': '♝', 'n': '♞', 'p': '♟'
+    };
+
+    const boardSetup = [
+      ['r','n','b','q','k','b','n','r'],
+      ['p','p','p','p','','p','p','p'],
+      ['','','','','','','',''],
+      ['','','B','','p','','',''],
+      ['','','','','P','','','Q'],
+      ['','','','','','N','',''],
+      ['P','P','P','P','','P','P','P'],
+      ['R','N','B','','K','','','R']
+    ];
+
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const sq = document.createElement('div');
+        const isLight = (r + c) % 2 === 0;
+        sq.className = `chess-square ${isLight ? 'light' : 'dark'}`;
+        sq.dataset.row = r;
+        sq.dataset.col = c;
+        const piece = boardSetup[r][c];
+        if (piece) {
+          sq.textContent = unicodePieces[piece] || piece;
+        }
+
+        sq.addEventListener('click', function() {
+          handleSquareClick(r, c, sq);
+        });
+
+        container.appendChild(sq);
+      }
+    }
+  }
+
+  function handleSquareClick(r, c, sqElement) {
+    const statusEl = document.getElementById('home-puzzle-status');
+    if (!selectedSquare) {
+      if (sqElement.textContent.trim() !== '') {
+        selectedSquare = { r, c, el: sqElement };
+        document.querySelectorAll('.chess-square').forEach(s => s.classList.remove('selected'));
+        sqElement.classList.add('selected');
+        if (statusEl) statusEl.textContent = `Đã chọn quân tại ô (${String.fromCharCode(97+c)}${8-r}). Chọn ô đến!`;
+      }
+    } else {
+      selectedSquare.el.classList.remove('selected');
+      sqElement.textContent = selectedSquare.el.textContent;
+      selectedSquare.el.textContent = '';
+      selectedSquare = null;
+      sqElement.classList.add('highlight');
+      if (statusEl) {
+        statusEl.innerHTML = '<span style="color: #4ade80; font-weight: bold;">🎉 Chính xác! Bạn đã giải thành công thế cờ này!</span>';
+      }
+    }
+  }
+
+  function loadPuzzle(id) {
+    currentPuzzleId = id;
+    selectedSquare = null;
+    const p = puzzles[id];
+    if (document.getElementById('home-puzzle-title')) document.getElementById('home-puzzle-title').textContent = p.title;
+    if (document.getElementById('home-puzzle-desc')) document.getElementById('home-puzzle-desc').textContent = p.desc;
+    if (document.getElementById('home-puzzle-status')) document.getElementById('home-puzzle-status').textContent = p.initText;
+    
+    document.querySelectorAll('.btn-puzzle').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.puzzle == id);
+    });
+    renderBoard(id);
+  }
+
+  ['1', '2', '3'].forEach(id => {
+    const btn = document.getElementById(`puzzle-btn-${id}`);
+    if (btn) btn.addEventListener('click', () => loadPuzzle(id));
+  });
+
+  const hintBtn = document.getElementById('home-puzzle-hint');
+  if (hintBtn) {
+    hintBtn.addEventListener('click', () => {
+      const statusEl = document.getElementById('home-puzzle-status');
+      if (statusEl) statusEl.textContent = `💡 Gợi ý: ${puzzles[currentPuzzleId].hint}`;
+    });
+  }
+
+  const resetBtn = document.getElementById('home-puzzle-reset');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => loadPuzzle(currentPuzzleId));
+  }
+
+  function calculateElo() {
+    const selfElo = parseFloat(document.getElementById('home-elo-self')?.value) || 1600;
+    const oppElo = parseFloat(document.getElementById('home-elo-opp')?.value) || 1700;
+    const score = parseFloat(document.getElementById('home-elo-score')?.value) || 1;
+    const kFactor = parseFloat(document.getElementById('home-elo-k')?.value) || 20;
+
+    const expected = 1 / (1 + Math.pow(10, (oppElo - selfElo) / 400));
+    const winPct = (expected * 100).toFixed(1);
+    
+    const delta = kFactor * (score - expected);
+    const newElo = selfElo + delta;
+
+    const winpctEl = document.getElementById('home-elo-winpct');
+    const winbarEl = document.getElementById('home-elo-winbar');
+    const deltaEl = document.getElementById('home-elo-delta');
+    const newEloEl = document.getElementById('home-elo-new');
+
+    if (winpctEl) winpctEl.textContent = `${winPct}%`;
+    if (winbarEl) winbarEl.style.width = `${winPct}%`;
+    if (deltaEl) {
+      deltaEl.textContent = (delta >= 0 ? `+${delta.toFixed(1)}` : delta.toFixed(1));
+    }
+    if (newEloEl) newEloEl.textContent = newElo.toFixed(1);
+  }
+
+  ['home-elo-self', 'home-elo-opp', 'home-elo-score', 'home-elo-k'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calculateElo);
+      el.addEventListener('change', calculateElo);
+    }
+  });
+
+  const openingsData = {
+    'italia': {
+      moves: "1. e4 e5 2. Nf3 Nc6 3. Bc4",
+      idea: "Kiểm soát trung tâm nhanh chóng, phát triển Mã & Tượng hướng thẳng vào điểm yếu f7 của Đen."
+    },
+    'sicilian': {
+      moves: "1. e4 c5",
+      idea: "Phản công bất đối xứng mạnh mẽ từ cánh Hậu, tranh chấp quyền kiểm soát trung tâm sôi nổi."
+    },
+    'queens-gambit': {
+      moves: "1. d4 d5 2. c4",
+      idea: "Thí Tốt cánh Hậu để giành sự chủ động hoàn toàn ở trung tâm mặt cờ."
+    }
+  };
+
+  document.querySelectorAll('.tvlt-interactive-hub .tab-btn').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.tvlt-interactive-hub .tab-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const key = this.dataset.opening;
+      if (openingsData[key]) {
+        document.getElementById('opening-moves').textContent = openingsData[key].moves;
+        document.getElementById('opening-idea').textContent = openingsData[key].idea;
+      }
+    });
+  });
+
+  const tipsList = [
+    '"Nhập thành sớm để bảo vệ Vua và kết nối hai Xe đưa vào các cột mở."',
+    '"Trước khi tấn công, hãy đảm bảo Vua của bạn đã an toàn và các quân cờ đã phát triển tốt."',
+    '"Kiểm soát các ô trung tâm (e4, d4, e5, d5) là chìa khóa kiểm soát toàn bộ ván đấu."',
+    '"Luôn kiểm tra các nước dọa chiếu, bắt quân và dọa chiếu hết của đối thủ."',
+    '"Tận dụng tối đa các cột mở cho Xe và đường chéo thoáng cho Tượng làm chủ không gian."',
+    '"Mã mạnh ở trung tâm ("Mã bạch mã"), Tượng mạnh ở đường chéo dài."'
+  ];
+
+  const randomTipBtn = document.getElementById('home-random-tip-btn');
+  if (randomTipBtn) {
+    randomTipBtn.addEventListener('click', function() {
+      const tipTextEl = document.getElementById('home-tip-text');
+      if (!tipTextEl) return;
+      tipTextEl.style.opacity = '0';
+      setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * tipsList.length);
+        tipTextEl.textContent = tipsList[randomIndex];
+        tipTextEl.style.opacity = '1';
+      }, 200);
+    });
+  }
+
+  renderBoard(1);
+  calculateElo();
+});
+</script>
+
         <section class="split-section" id="tungjohn" aria-labelledby="about-title">
             <div class="container split-section__grid">
                 <div class="panel panel--accent">
