@@ -470,6 +470,77 @@ function initializeGlobalSearch() {
     searchInput.addEventListener('input', (e) => {
         renderResults(e.target.value.trim());
     });
+
+function removeVietnameseTones(str) {
+  if (!str) return "";
+  return str
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .toLowerCase()
+    .trim();
+}
+
+if (typeof searchInput !== 'undefined' && searchInput) {
+  searchInput.addEventListener('input', (e) => renderResults(e.target.value));
+}
+
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    const openBtn = document.getElementById('search-open-btn') || document.querySelector('.search-toggle');
+    const closeBtn = document.getElementById('search-close-btn') || document.querySelector('.search-close');
+    const modal = document.getElementById('search-modal') || document.querySelector('.search-modal');
+    if (modal && (modal.classList.contains('active') || modal.style.display === 'block')) {
+      if (closeBtn) closeBtn.click();
+    } else if (openBtn) {
+      openBtn.click();
+    }
+  } else if (e.key === 'Escape') {
+    const closeBtn = document.getElementById('search-close-btn') || document.querySelector('.search-close');
+    if (closeBtn) closeBtn.click();
+  }
+});
+
+function updateScrollProgressBar() {
+  const progressBar = document.getElementById("scroll-progress-bar");
+  if (!progressBar) return;
+  const height = document.documentElement.scrollHeight - window.innerHeight;
+  const winScroll = window.scrollY || document.documentElement.scrollTop;
+  const scrolled = height > 0 ? (winScroll / height) * 100 : 0;
+  progressBar.style.width = scrolled + "%";
+}
+
+function initializeReadingUtilities() {
+  const article = document.querySelector('.post-content, article, .content');
+  if (article) {
+    const text = article.textContent || '';
+    const words = text.trim().split(/\s+/).filter(Boolean).length;
+    const readingTime = Math.ceil(words / 200);
+    const timeBadge = document.querySelector('.reading-time');
+    if (timeBadge) {
+      timeBadge.textContent = `${readingTime} phút đọc`;
+    }
+  }
+  const backToTopBtn = document.getElementById('back-to-top');
+  if (backToTopBtn) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        backToTopBtn.style.display = 'block';
+      } else {
+        backToTopBtn.style.display = 'none';
+      }
+    });
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initializeReadingUtilities();
+});
 }
 
 window.addEventListener('load', initializeGlobalSearch);
