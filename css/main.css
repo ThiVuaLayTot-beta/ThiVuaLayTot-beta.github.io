@@ -1514,7 +1514,7 @@ footer .bottom-details .bottom_text {
 
 .search-modal-dialog {
     background: #0f172a;
-    width: 90%;
+    width: 92vw;
     max-width: 600px;
     border-radius: 12px;
     border: 1px solid rgba(56, 189, 248, 0.3);
