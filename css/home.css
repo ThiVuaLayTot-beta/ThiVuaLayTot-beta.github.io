@@ -1536,6 +1536,161 @@ a[href*="youtube"]:hover, .community-card[href*="youtube"]:hover { transform: sc
                                                                                                                                                                                                                                                                                                                                                                                                                                       .partners-grid {
                                                                                                                                                                                                                                                                                                                                                                                                                                           grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
                                                                                                                                                                                                                                                                                                                                                                                                                                               gap: 10px !important;
+/* --- Tactical Mini Chessboard & Mobile Fixes --- */
+.tactical-board-header {
+  padding: 10px 12px;
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  z-index: 5;
+  position: relative;
+}
+.tactical-board-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tactical-board-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fbbf24;
+}
+.tactical-board-status {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+.tactical-board-actions {
+  display: flex;
+  gap: 6px;
+}
+.btn-tactical {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-tactical:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+.tactical-chessboard-wrapper {
+  padding: 8px;
+  background: #0f172a;
+}
+.tactical-chessboard {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  user-select: none;
+}
+.chess-sq {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+}
+.chess-sq.light { background: #f0d9b5; color: #111; }
+.chess-sq.dark { background: #b58863; color: #111; }
+.chess-sq.selected { outline: 3px solid #3b82f6; z-index: 2; background: #7b61ff !important; color: #fff !important; }
+.chess-sq.correct-move { background: #22c55e !important; }
+.chess-sq.wrong-move { background: #ef4444 !important; }
+
+@media (max-width: 768px) {
+  .hero-v2__actions {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+  .hero-v2__actions > *:first-child,
+  .hero-v2__actions a:first-child {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+  }
+  .hero-v2__actions .btn,
+  .hero-v2__actions a {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    font-size: 0.85rem !important;
+    padding: 10px 12px !important;
+    box-sizing: border-box !important;
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  .hero-v2__mini-stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px !important;
+    padding: 10px 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  .hero-v2__mini-stats .mini-stat {
+    padding: 8px 4px !important;
+    text-align: center !important;
+  }
+  .hero-v2__mini-stats .mini-stat strong {
+    font-size: 1.15rem !important;
+    display: block !important;
+  }
+  .hero-v2__mini-stats .mini-stat span {
+    font-size: 0.7rem !important;
+    display: block !important;
+    line-height: 1.2 !important;
+  }
+
+  .social-row,
+  .social-row--hero {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+  }
+  .social-row a,
+  .social-row--hero a {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+  }
+  .social-row a img,
+  .social-row--hero a img {
+    width: 22px !important;
+    height: 22px !important;
+    object-fit: contain !important;
+  }
+  .social-row a span,
+  .social-row--hero a span {
+    font-size: 1.3rem !important;
+  }
+}
                                                                                                                                                                                                                                                                                                                                                                                                                                                 }
                                                                                                                                                                                                                                                                                                                                                                                                                                                 }
 
