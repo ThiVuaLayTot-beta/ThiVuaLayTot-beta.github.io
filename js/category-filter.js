@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const query = removeVietnameseTones(e.target.value);
     let visibleCount = 0;
     cards.forEach((card) => {
-      const title = removeVietnameseTones(card.querySelector(".categor-ycard_title, .category--card__title")?.textContent || "");
+      const title = removeVietnameseTones(card.querySelector(".category-card_title, .category-card__title")?.textContent || "");
       const desc = removeVietnameseTones(card.querySelector(".category-card__description")?.textContent || "");
       if (!query || title.includes(query) || desc.includes(query)) {
         card.style.display = "";
