@@ -4,116 +4,72 @@ title: Trang chủ
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <title>Trang chủ - Thí Vua Lấy Tốt</title>
-    {% include head.html %}
-    <link href="/css/home.css" rel="stylesheet">
+  <title>Trang chủ - Thí Vua Lấy Tốt</title>
+  {% include head.html %}
+  <link href="/css/home.css" rel="stylesheet">
 </head>
 <body data-spy="scroll" data-target=".navbar" data-offset="51">
-    {% include navbar.html %}
+  {% include navbar.html %}
 
-    <main class="home-page">
-        <section class="hero-v2" id="home">
-            <div class="hero-v2__bg"></div>
-            <div class="hero-v2__noise"></div>
-            <div class="container hero-v2__grid">
-                <div class="hero-v2__content">
-                    <div class="eyebrow">
-                        <span class="eyebrow__dot"></span>
-                        Chào mừng bạn đã ghé thăm
-                    </div>
-                    <h1><span class="hero-v2__title-gradient">Thí Vua Lấy Tốt</span> <span>Website</span></h1>
-                    <p class="hero-v2__lead">Cộng đồng cờ vua sôi động do TungJohn sáng lập. Nơi hội tụ niềm đam mê, nâng tầm trình độ và kết nối các kỳ thủ Việt Nam qua những giải đấu hấp dẫn.</p>
+  <main class="home-page">
+          <section class="hero-v2" id="home">
+      <div class="hero-v2__bg"></div>
+      <div class="hero-v2__noise"></div>
 
-                    <div class="hero-v2__actions">
-                        <a class="btn btn-primary-v2" href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noreferrer">
-                            <i class="bx bxs-chess"></i> Tham gia CLB
-                        </a>
-                        <a class="btn btn-ghost-v2" href="/events/tournaments/">
-                            <i class="bx bx-trophy"></i> Xem giải đấu
-                        </a>
-                        <a class="btn btn-ghost-v2" href="/schedule">
-                            <i class="bx bx-calendar-event"></i> Xem lịch đấu
-                        </a>
-                    </div>
+      <div class="hero-v2__center">
+        <div class="eyebrow"><span class="eyebrow__dot"></span> TUNGJOHN PLAYING CHESS • CỘNG ĐỒNG CỜ VUA VIỆT NAM</div>
+        <h1 id="hero-title"><span class="hero-v2__brand">Thí Vua Lấy Tốt</span><span class="hero-v2__subtitle">Đấu Trường & Cộng Đồng Cờ Vua Trực Tuyến</span></h1>
+        <p class="hero-v2__lead">Cộng đồng cờ vua sôi động do TungJohn sáng lập — nơi hội tụ niềm đam mê, nâng tầm chiến thuật và kết nối các kỳ thủ Việt Nam qua những giải đấu hấp dẫn.</p>
+        <div class="hero-v2__actions">
+          <a class="btn btn-primary-v2" href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noreferrer"><i class="bx bxs-chess"></i> Tham gia CLB</a>
+          <a class="btn btn-ghost-v2" href="/events/tournaments/"><i class="bx bx-trophy"></i> Xem giải đấu</a>
+          <a class="btn btn-ghost-v2" href="/schedule/"><i class="bx bx-calendar-event"></i> Xem lịch đấu</a>
+        </div>
+      </div>
 
-                    <div class="hero-v2__mini-stats">
-                        <div class="mini-stat">
-                            <strong>150K+</strong>
-                            <span>người theo dõi Youtube</span>
-                        </div>
-                        <div class="mini-stat">
-                            <strong>21K+</strong>
-                            <span>thành viên Chess.com</span>
-                        </div>
-                        <div class="mini-stat">
-                            <strong>100+</strong>
-                            <span>sự kiện có thưởng đã tổ chức</span>
-                        </div>
-                    </div>
+      <div class="hero-bento-dock">
+        <div class="bento-card bento-card--stats">
+          <div class="bento-stat">
+            <strong>150K+</strong>
+            <span>người theo dõi YouTube</span>
+          </div>
+          <div class="bento-stat">
+            <strong>21K+</strong>
+            <span>thành viên Chess.com</span>
+          </div>
+          <div class="bento-stat">
+            <strong>100+</strong>
+            <span>sự kiện có thưởng đã tổ chức</span>
+          </div>
+        </div>
 
-                    <div class="social-row social-row--hero">
-                        <a href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noreferrer" title="Chess.com club">
-                            <img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" alt="Chess.com">
-                        </a>
-                        <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank" rel="noreferrer" title="Lichess team">
-                            <img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt="Lichess">
-                        </a>
-                        <a href="https://facebook.com/groups/586909589413729" target="_blank" rel="noreferrer" title="Facebook group">
-                            <span class="bx bxl-facebook-square" style="color:#1877f2"></span>
-                        </a>
-                        <a href="https://discord.gg/bggkufa4nE" target="_blank" rel="noreferrer" title="Discord server">
-                            <span class="bx bxl-discord" style="color:#5865f2"></span>
-                        </a>
-                        <a href="https://zalo.me/g/zhrwtn779" target="_blank" rel="noreferrer" title="Zalo community">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo">
-                        </a>
-                        <a href="https://facebook.com/groups/586909589413729" target="_blank" rel="noreferrer" title="Messenger chats">
-                            <span class="bx bxl-messenger" style="color:#1877f2"></span>
-                        </a>
-                    </div>
-                </div>
+        <div class="bento-card bento-card--arena">
+          <div class="bento-badge">CLB CHÍNH THỨC • CHESS.COM & LICHESS</div>
+          <h3>Giải Đấu Hàng Tuần — Giao Lưu & Có Thưởng</h3>
+          <p>Tham gia các giải cờ chớp, cờ nhanh hàng tuần cùng cộng đồng. Thi đấu giao lưu, cọ xát kỹ năng và nhận giải thưởng hấp dẫn.</p>
+          <div class="bento-actions">
+            <a href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noreferrer" class="bento-link">Chess.com Club <i class="bx bx-right-arrow-alt"></i></a>
+            <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank" rel="noreferrer" class="bento-link">Lichess Team <i class="bx bx-right-arrow-alt"></i></a>
+          </div>
+        </div>
 
-                <div class="hero-v2__visual" aria-label="Mô phỏng bàn cờ">
-                    <div class="board-shell">
-                        <div class="board-shell__glow"></div>
-                        <div class="board-grid">
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                        </div>
-                        <div class="board-piece board-piece--king">♔</div>
-                        <div cla<div class="tactical-board-header"><div class="tactical-board-info"><div class="tactical-board-title" id="tactical-title">Bàn cờ thế chiến thuật</div><div class="tactical-board-status" id="tactical-status">Trắng đi trước - Tìm nước biến thắng</div></div><div class="tactical-board-actions"><button type="button" class="btn-tactical" id="btn-tactical-hint">💡 Gợi ý</button><button type="button" class="btn-tactical" id="btn-tactical-next">🔄 Đổi thế cờ</button></div></div><div class="tactical-chessboard-wrapper"><div class="tactical-chessboard" id="tactical-board"></div></div><script>(function(){const puzzles=[{title:"Đòn Thí Hậu Chiếu Hết",status:"Trắng đi trước - Thí Hậu chiếu hết",board:[["r","","","","k","","","r"],["p","p","p","","","p","p","p"],["","","","","","","",""],["","","","","","","",""],["","","","","Q","","",""],["","","","","","","",""],["P","P","P","","","P","P","P"],["R","","","","K","","","R"]],solution:{from:[4,4],to:[0,4]},hint:"Gợi ý: Dùng Hậu tấn công hàng 8!"},{title:"Đòn Thí Xe Mở Cột H",status:"Trắng đi trước - Mở đường tấn công Vua",board:[["r","","","","k","","","r"],["p","p","p","","","p","p","p"],["","","","","","","",""],["","","","","","","",""],["","","","","","","","R"],["","","","","","","",""],["P","P","P","","","P","P","P"],["R","","","","K","","",""]],solution:{from:[4,7],to:[0,7]},hint:"Gợi ý: Phế Xe chiếu Vua góc h8!"},{title:"Đòn Bắt Đôi Mã Cờ Chớp",status:"Trắng đi trước - Mã nhảy bắt đôi",board:[["r","","b","q","k","b","","r"],["p","p","p","","p","p","p","p"],["","","n","","","","",""],["","","","","","","",""],["","","","N","","","",""],["","","","","","","",""],["P","P","P","P","","P","P","P"],["R","N","B","Q","K","B","","R"]],solution:{from:[4,3],to:[2,2]},hint:"Gợi ý: Mã nhảy ô c6 bắt đôi Hậu và Xe!"}];let currentIdx=0;let selectedSq=null;const boardEl=document.getElementById("tactical-board");const titleEl=document.getElementById("tactical-title");const statusEl=document.getElementById("tactical-status");const hintBtn=document.getElementById("btn-tactical-hint");const nextBtn=document.getElementById("btn-tactical-next");function renderBoard(){if(!boardEl)return;const puzzle=puzzles[currentIdx];if(titleEl)titleEl.textContent=puzzle.title;if(statusEl)statusEl.textContent=puzzle.status;selectedSq=null;boardEl.innerHTML="";for(let r=0;r<8;r++){for(let c=0;c<8;c++){const sq=document.createElement("div");const isLight=(r+c)%2===0;sq.className="chess-sq "+(isLight?"light":"dark");sq.dataset.row=r;sq.dataset.col=c;const piece=puzzle.board[r][c];if(piece){sq.textContent=getPieceSymbol(piece);}sq.addEventListener("click",()=>handleSquareClick(r,c,sq));boardEl.appendChild(sq);}}}function getPieceSymbol(code){const symbols={K:"♔",Q:"♕",R:"♖",B:"♗",N:"♘",P:"♙",k:"♚",q:"♛",r:"♜",b:"♝",n:"♞",p:"♟"};return symbols[code]||code;}function handleSquareClick(r,c,el){const puzzle=puzzles[currentIdx];if(!selectedSq){if(puzzle.board[r][c]!==""){selectedSq={r,c,el};clearHighlights();el.classList.add("selected");}}else{if(selectedSq.r===r&&selectedSq.c===c){clearHighlights();selectedSq=null;return;}const sol=puzzle.solution;if(selectedSq.r===sol.from[0]&&selectedSq.c===sol.from[1]&&r===sol.to[0]&&c===sol.to[1]){el.classList.add("correct-move");selectedSq.el.classList.remove("selected");selectedSq.el.classList.add("correct-move");if(statusEl)statusEl.textContent="🎉 Chính xác! Bạn đã giải thành công thế cờ!";puzzle.board[r][c]=puzzle.board[selectedSq.r][selectedSq.c];puzzle.board[selectedSq.r][selectedSq.c]="";setTimeout(renderBoard,1500);}else{el.classList.add("wrong-move");setTimeout(()=>el.classList.remove("wrong-move"),800);if(statusEl)statusEl.textContent="❌ Nước đi chưa đúng, hãy thử lại!";}selectedSq=null;}}function clearHighlights(){const sqs=boardEl.querySelectorAll(".chess-sq");sqs.forEach(s=>s.classList.remove("selected","correct-move","wrong-move"));}if(hintBtn){hintBtn.addEventListener("click",()=>{const puzzle=puzzles[currentIdx];if(statusEl)statusEl.textContent=puzzle.hint;});}if(nextBtn){nextBtn.addEventListener("click",()=>{currentIdx=(currentIdx+1)%puzzles.length;renderBoard();});}renderBoard();})();</script>ss="board-piece board-piece--queen">♕</div>
-                        <div class="board-piece board-piece--knight">♘</div>
-                        <div class="board-piece board-piece--rook">♖</div>
-
-                        <div class="board-card board-card--top">
-                            <strong>CLB chính thức</strong>
-                            <span>trên Chess.com từ 2025</span>
-                        </div>
-                        <div class="board-card board-card--bottom">
-                            <strong>Nhiều giải đấu</strong>
-                            <span>Giao lưu & Có thưởng</span>
-                        </div>
-                    </div>
-
-                    <div class="board-summary">
-                        <div>
-                            <span class="summary-label">Người sáng lập</span>
-                            <strong>TungJohn Playing Chess</strong>
-                        </div>
-                        <div>
-                            <span class="summary-label">Cộng đồng</span>
-                            <strong>Chơi · Học · Kết nối</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div class="bento-card bento-card--connect">
+          <div class="bento-founder">
+            <strong>NGƯỜI SÁNG LẬP: TungJohn Playing Chess</strong>
+            <span>Chơi • Học • Kết nối</span>
+          </div>
+                <div class="social-row social-row--hero">
+            <a href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noreferrer" title="Chess.com Club"><img src="https://images.chesscomfiles&#46;com/uploads/v1/user/33.862d5ff1.160x160o.578dc76395b8.png" alt="Chess.com"></a>
+            <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank" rel="noreferrer" title="Lichess Team"><img src="https://lichess1&#46;org/assets/_____2/flair/img/activity.lichess.webp" alt="Lichess"></a>
+            <a href="https://facebook.com/groups/586909589413729" target="_blank" rel="noreferrer" title="Facebook Group"><span class="bx bxl-facebook-square" style="color:#1877f2"></span></a>
+            <a href="https://discord.gg/bggkufa4nE" target="_blank" rel="noreferrer" title="Discord server"><span class="bx bxl-discord" style="color:#5865f2"></span></a>
+            <a href="https://zalo.me/g/zhrwtn779" target="_blank" rel="noreferrer" title="Zalo community"><img src="https://upload&#46;wikimedia&#46;org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo"></a>
+            <a href="https://facebook.com/groups/586909589413729" target="_blank" rel="noreferrer" title="Messenger"><span class="bx bxl-messenger" style="color:#1877f2"></span></a>
+          </div>
+        </div>
+      </div>
+          </section>
+      
 
         <section class="metric-strip" aria-labelledby="metric-title">
             <div class="container">
