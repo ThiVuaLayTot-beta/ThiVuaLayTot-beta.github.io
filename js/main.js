@@ -369,19 +369,21 @@ function initializeGlobalSearch() {
     async function loadSearchData() {
         if (isDataLoaded) return;
         try {
-            // We can create a simple search index from posts or use atom.xml if available.
-            // For now, we'll try to fetch atom.xml
-            const response = await fetch('/atom.xml');
-            const text = await response.text();
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(text, 'text/xml');
-            const entries = xml.querySelectorAll('entry');
+            const response = await fetch('/search.json');
+            if (!response.ok) {
+                throw new Error(`Không thể tải chỉ mục tìm kiếm: HTTP ${response.status}`);
+            }
 
-            searchData = Array.from(entries).map(entry => ({
-                title: entry.querySelector('title').textContent,
-                link: entry.querySelector('link').getAttribute('href'),
-                summary: entry.querySelector('summary')?.textContent || ''
-            }));
+            const entries = await response.json();
+            if (!Array.isArray(entries)) {
+                throw new Error('Chỉ mục tìm kiếm không đúng định dạng.');
+            }
+
+            searchData = entries.map(entry => ({
+                title: String(entry.title || ''),
+                link: String(entry.url || entry.link || '/'),
+                summary: String(entry.summary || entry.content || '')
+            })).filter(entry => entry.title && entry.link);
             isDataLoaded = true;
             // Add static pages
             searchData.push({
