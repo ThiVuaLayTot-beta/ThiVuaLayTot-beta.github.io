@@ -1458,7 +1458,118 @@ a[href*="youtube"]:hover, .community-card[href*="youtube"]:hover { transform: sc
                                                                                                                                                                                                                                           display: flex !important;
                                                                                                                                                                                                                                               flex-direction: column !important;
                                                                                                                                                                                                                                                   align-items: center !important;
-                                                                                                                                                                                                                                                      justify-content: center !important;
+             
+
+/* Ice Blue & Slate Hero v2 Styles */
+.hero-v2 {
+  background: radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.14) 0%, transparent 70%), linear-gradient(180deg, #060911 0%, #0B111E 100%), linear-gradient(rgba(148, 163, 184, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.06) 1px, transparent 1px) !important;
+  background-size: 100% 100%, 100% 100%, 24px 24px, 24px 24px !important;
+}
+
+.hero-v2__center {
+  text-align: center !important;
+  max-width: 860px !important;
+  margin: 0 auto 2.5rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+#hero-title,
+.hero-v2__brand {
+  background: linear-gradient(135deg, #FFFFFF 0%, #E2E8F0 45%, #7DD3FC 80%, #38BDF8 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+  font-size: clamp(2.4rem, 5.2vw, 4.2rem) !important;
+  font-weight: 800 !important;
+}
+
+.hero-v2__subtitle {
+  color: #CBD5E1 !important;
+  font-size: clamp(1.1rem, 2.2vw, 1.6rem) !important;
+}
+
+.hero-v2__lead {
+  color: #CBD5E1;
+}
+
+.btn-primary-v2 {
+  background: linear-gradient(135deg, #38BDF8 0%, #0284C7 100%) !important;
+}
+
+.btn-ghost-v2 {
+  border-color: rgba(148, 163, 184, 0.25);
+  color: #E2E8F0;
+}
+
+.hero-bento-dock {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 1.15rem !important;
+}
+
+.bento-card {
+  background: rgba(15, 23, 42, 0.68) !important;
+  border: 1px solid rgba(148, 163, 184, 0.15) !important;
+  border-radius: 18px !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+.bento-card:hover {
+  border-color: rgba(125, 211, 252, 0.45) !important;
+}
+
+.bento-card--stats,
+.bento-card--arena,
+.bento-card--connect {
+  background: rgba(15, 23, 42, 0.68);
+}
+
+@media (max-width: 768px) {
+  .hero-bento-dock {
+    grid-template-columns: 1fr !important;
+  }
+  .bento-card--stats {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .hero-v2__actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    gap: 0.5rem !important;
+  }
+  .hero-v2__actions > *:first-child {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+  }
+  .hero-v2__actions > *:nth-child(2),
+  .hero-v2__actions > *:nth-child(3) {
+    flex: 1 1 calc(50% - 0.25rem) !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+  }
+  .bento-card--connect .social-links,
+  .bento-card--connect .social-icons,
+  .bento-card--connect .hero-socials,
+  .bento-card--connect nav,
+  .bento-card--connect div {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+  }
+  .bento-card--connect a {
+    flex: 1 1 auto !important;
+    text-align: center !important;
+  }
+}
+                                                                                                                                                                                                                                         justify-content: center !important;
                                                                                                                                                                                                                                                           padding: 4px 2px !important;
                                                                                                                                                                                                                                                             }
 
