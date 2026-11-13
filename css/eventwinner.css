@@ -31,7 +31,7 @@
 .post-user-status { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-sm); color: var(--neutral-400); font-size: var(--fs-xs); line-height: 1.4; }
 .user-badges-component { display: inline-block; }
 .user-badges-badge { display: inline-flex; align-items: center; gap: var(--space-xs); padding: var(--space-xs) var(--space-sm); border: var(--border-width-thin) solid transparent; border-radius: var(--border-radius-md); font-size: var(--fs-xs); font-weight: var(--fw-bold); letter-spacing: .2px; }
-.user-badges-closed { background: rgba(239, 68, 68, .15); color: var(--red-300); border-color: rgba(239, 68, 68, .4); }
+.user-badges-closed { background: rgba(239, 68, 68, .15); color: var(--red-300); border-color: rgba(239, 68, 68, .4) ; }
 .user-badges-inactive { background: rgba(176, 180, 184, .3); color: var(--neutral-200); border-color: rgba(158, 196, 196, .4); }
 .user-badges-premium { background: rgba(251, 191, 36, .15); color: var(--yellow-300); border-color: rgba(251, 191, 36, .4); }
 .hide-premium .user-badges-premium { display: none !important; }
