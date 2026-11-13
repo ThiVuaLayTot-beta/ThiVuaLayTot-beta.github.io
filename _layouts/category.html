@@ -53,7 +53,7 @@
 
                 {% for post in category_posts %}
                 <article class="category-card">
-                    <a href="{{ post.url }}" title="{{ post.title }}"><img src="/images/{{ post.id }}.png" class="category-card__image" loading="lazy"></a>
+                    <a href="{{ post.url }}" title="{{ post.title }}"><img src="/images/{{ post.id }}.png" alt="{{ post.title }}" class="category-card__image" loading="lazy" decoding="async"></a>
                     <div class="category-card__content">
                         <div class="post_in4">
                             <div class="category-card__detail">
