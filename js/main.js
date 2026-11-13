@@ -417,10 +417,10 @@ function initializeGlobalSearch() {
             return;
         }
 
-        const lowerQuery = query.toLowerCase();
+        const normalizedQuery = removeVietnameseTones(query);
         const results = searchData.filter(item =>
-            item.title.toLowerCase().includes(lowerQuery) ||
-            item.summary.toLowerCase().includes(lowerQuery)
+            removeVietnameseTones(item.title).includes(normalizedQuery) ||
+            removeVietnameseTones(item.summary).includes(normalizedQuery)
         );
 
         if (results.length === 0) {
@@ -482,24 +482,16 @@ function removeVietnameseTones(str) {
     .trim();
 }
 
-if (typeof searchInput !== 'undefined' && searchInput) {
-  searchInput.addEventListener('input', (e) => renderResults(e.target.value));
-}
-
-document.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-    e.preventDefault();
-    const openBtn = document.getElementById('search-open-btn') || document.querySelector('.search-toggle');
-    const closeBtn = document.getElementById('search-close-btn') || document.querySelector('.search-close');
-    const modal = document.getElementById('search-modal') || document.querySelector('.search-modal');
-    if (modal && (modal.classList.contains('active') || modal.style.display === 'block')) {
-      if (closeBtn) closeBtn.click();
-    } else if (openBtn) {
-      openBtn.click();
+document.addEventListener('keydown', (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+    event.preventDefault();
+    if (searchModal.classList.contains('active')) {
+      closeSearchBtn.click();
+    } else {
+      openSearchBtn.click();
     }
-  } else if (e.key === 'Escape') {
-    const closeBtn = document.getElementById('search-close-btn') || document.querySelector('.search-close');
-    if (closeBtn) closeBtn.click();
+  } else if (event.key === 'Escape' && searchModal.classList.contains('active')) {
+    closeSearchBtn.click();
   }
 });
 
@@ -514,28 +506,12 @@ function updateScrollProgressBar() {
 
 function initializeReadingUtilities() {
   const article = document.querySelector('.post-content, article, .content');
-  if (article) {
-    const text = article.textContent || '';
-    const words = text.trim().split(/\s+/).filter(Boolean).length;
-    const readingTime = Math.ceil(words / 200);
-    const timeBadge = document.querySelector('.reading-time');
-    if (timeBadge) {
-      timeBadge.textContent = `${readingTime} phút đọc`;
-    }
-  }
-  const backToTopBtn = document.getElementById('back-to-top');
-  if (backToTopBtn) {
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 300) {
-        backToTopBtn.style.display = 'block';
-      } else {
-        backToTopBtn.style.display = 'none';
-      }
-    });
-    backToTopBtn.addEventListener('click', () => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  }
+  if (!article) return;
+
+  const words = (article.textContent || '').trim().split(/\s+/).filter(Boolean).length;
+  const readingTime = Math.max(1, Math.ceil(words / 200));
+  const timeBadge = document.querySelector('.reading-time');
+  if (timeBadge) timeBadge.textContent = `${readingTime} phút đọc`;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
