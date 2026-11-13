@@ -69,7 +69,8 @@
 
     .information h1 {
         font-size: var(--fs-3xl);
-    }
+    }/* Ice Blue & Slate Bento Design - Post & Event Details */ .toc-container, #toc { background: rgba(15, 23, 42, 0.72) !important; border: 1px solid rgba(148, 163, 184, 0.16) !important; border-radius: 16px !important; padding: 18px 22px !important; backdrop-filter: blur(12px) !important; } .toc-container a, #toc a { color: #94A3B8 !important; transition: color 0.2s ease !important; } .toc-container a:hover, .toc-container a.active, #toc a:hover { color: #38BDF8 !important; } .reading-time, .badge, .post-tag { background: rgba(56, 189, 248, 0.1) !important; border: 1px solid rgba(56, 189, 248, 0.25) !important; color: #38BDF8 !important; border-radius: 9999px !important; padding: 4px 12px !important; font-weight: 600 !important; } .post-contents table, .event-info-table { background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(148, 163, 184, 0.16) !important; border-radius: 14px !important; overflow: hidden !important; color: #E2E8F0 !important; } .post-contents table th { background: rgba(30, 41, 59, 0.8) !important; color: #38BDF8 !important; } .copy-code-btn, .copy-link-btn { background: rgba(15, 23, 42, 0.8) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; color: #38BDF8 !important; border-radius: 10px !important; transition: all 0.2s ease !important; } .copy-code-btn:hover, .copy-link-btn:hover { background: #38BDF8 !important; color: #060911 !important; }
+    
 
     .post-banner {
         max-width: 100%;

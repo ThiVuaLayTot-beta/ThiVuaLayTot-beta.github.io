@@ -117,7 +117,8 @@
 .score-detail-table th, .score-detail-table td { padding: 10px !important; }
 .score-detail-table tfoot td { border-top: 2px solid var(--cyan-400); background: rgba(255, 255, 255, .05); }
 
-@media (max-width: 1024px) {
+@media (max-width: 1024px)/* Ice Blue & Slate Bento Design - Community & Event Cards */ .social-card, .about-card, .contact-card, .team-card, .member-card, .event-winner-card { background: rgba(15, 23, 42, 0.72) !important; border: 1px solid rgba(148, 163, 184, 0.16) !important; border-radius: 18px !important; backdrop-filter: blur(16px) !important; padding: 24px !important; transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important; } .social-card:hover, .about-card:hover, .contact-card:hover, .team-card:hover, .member-card:hover, .event-winner-card:hover { transform: translateY(-4px) !important; border-color: rgba(56, 189, 248, 0.45) !important; box-shadow: 0 10px 25px -5px rgba(56, 189, 248, 0.2) !important; }
+ {
   .table { margin: var(--space-xl) 0; }
   .name-tour { min-width: 15rem; }
   .winner { min-width: 12.5rem; }
