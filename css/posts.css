@@ -93,3 +93,7 @@
 .post-contents pre{position:relative;padding-top:42px}
 .post-contents pre>.copy-code-btn{position:absolute;top:7px;right:8px;min-height:28px;font-size:.75rem}
 .copy-code-btn--inline{margin:6px 0 12px;min-height:28px;font-size:.78rem}
+
+/* Keep linked headings visible below the fixed site navbar. */
+.post-contents h2,
+.post-contents h3 { scroll-margin-top: 92px; }
