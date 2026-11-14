@@ -410,7 +410,8 @@ function getCurrentMonthEvents(filters = getFilterState()) {
 
 function updateFilterControls(filters = getFilterState()) {
     const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]') || []);
-    const hasActiveFilters = Boolean(filters.search || filters.onlyPrize || filters.types.length !== allTypes.length);
+    const hasActiveFilters = Boolean(filters.search || filters.onlyPrize ||
+        filters.types.length !== allTypes.length || STATE.statusFilter !== 'all');
     if (DOM.resetFilters) DOM.resetFilters.hidden = !hasActiveFilters;
     if (DOM.categoryButton) {
         DOM.categoryButton.querySelector('.tour-dropdown-btn-content span').textContent =
@@ -479,6 +480,7 @@ function setStatusFilter(status) {
     saveFiltersToURL();
     updateStatusFilterButtons();
     renderActiveView();
+    if (STATE.selectedDate) openDailyEvents(STATE.selectedDate, false);
 }
 
 function matchesFilters(tournament, filters) {
@@ -922,6 +924,124 @@ function updateViewSwitcherButtons() {
     }
 }
 
+function getScheduleDateKey(year, month, day) {
+    return `${year}-${padZero(month + 1)}-${padZero(day)}`;
+}
+
+function closeDailyEvents() {
+    STATE.selectedDate = null;
+    if (DOM.dayPanel) DOM.dayPanel.hidden = true;
+    DOM.calendarBody?.querySelectorAll('td.is-selected').forEach(cell => cell.classList.remove('is-selected'));
+}
+
+function openDailyEvents(dateKey, shouldScroll = true) {
+    if (!DOM.dayPanel || !DOM.dayPanelEvents || !/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
+
+    STATE.selectedDate = dateKey;
+    const [year, month, day] = dateKey.split('-').map(Number);
+    DOM.dayPanelTitle.textContent = `Sự kiện ngày ${padZero(day)}/${padZero(month)}/${year}`;
+    DOM.dayPanelEvents.textContent = '';
+
+    const events = getSortedEvents().filter(tournament => {
+        const parts = getVietnamDateParts(tournament.startTime);
+        return getScheduleDateKey(parts.year, parts.month, parts.date) === dateKey &&
+            matchesFilters(tournament, getFilterState());
+    });
+
+    if (!events.length) {
+        const empty = document.createElement('p');
+        empty.className = 'empty-list-message';
+        empty.textContent = 'Không có sự kiện nào trong ngày này khớp với bộ lọc hiện tại.';
+        DOM.dayPanelEvents.appendChild(empty);
+    } else {
+        events.forEach(tournament => renderEventCard(tournament, DOM.dayPanelEvents));
+    }
+
+    DOM.dayPanel.hidden = false;
+    DOM.calendarBody?.querySelectorAll('td.is-selected').forEach(cell => cell.classList.remove('is-selected'));
+    DOM.calendarBody?.querySelector(`td[data-date="${dateKey}"]`)?.classList.add('is-selected');
+
+    if (shouldScroll && window.innerWidth <= CONFIG.MOBILE_BREAKPOINT) {
+        DOM.dayPanel.scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            block: 'nearest'
+        });
+    }
+}
+
+function updateNextMatchCountdown() {
+    if (!STATE.nextMatch || !DOM.nextMatchCountdown) return;
+
+    const remaining = getEventStartTime(STATE.nextMatch) - Date.now();
+    if (remaining <= 0) {
+        DOM.nextMatchCountdown.textContent = 'Đã đến giờ bắt đầu';
+        updateNextMatchSpotlight();
+        return;
+    }
+
+    const totalSeconds = Math.floor(remaining / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const clock = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
+    DOM.nextMatchCountdown.textContent = days > 0 ? `${days} ngày ${clock}` : clock;
+}
+
+function updateNextMatchSpotlight() {
+    if (!DOM.nextMatchSpotlight) return;
+
+    const now = Date.now();
+    const next = STATE.tournaments
+        .filter(tournament => {
+            const status = getEventStatus(tournament);
+            return getEventStartTime(tournament) > now &&
+                (status === 'Sắp diễn ra' || status === 'Dự kiến');
+        })
+        .sort((a, b) => getEventStartTime(a) - getEventStartTime(b))[0];
+
+    STATE.nextMatch = next || null;
+    if (!next) {
+        DOM.nextMatchSpotlight.hidden = true;
+        if (DOM.nextMatchJoin) DOM.nextMatchJoin.hidden = true;
+        return;
+    }
+
+    const parts = getVietnamDateParts(next.startTime);
+    const dateLabel = `${padZero(parts.date)}/${padZero(parts.month + 1)}/${parts.year}`;
+    const timeLabel = next.hasStartTime
+        ? ` · ${padZero(parts.hours)}:${padZero(parts.minutes)}`
+        : ' · Chưa công bố giờ bắt đầu';
+
+    DOM.nextMatchTitle.textContent = next.eventName || 'Giải đấu sắp diễn ra';
+    DOM.nextMatchMeta.textContent = `${dateLabel}${timeLabel} · ${getEventStatus(next)} · ${getPrizeCategory(next)}`;
+    DOM.nextMatchSpotlight.hidden = false;
+
+    if (DOM.nextMatchJoin) {
+        DOM.nextMatchJoin.hidden = !next.joinLink;
+        if (next.joinLink) DOM.nextMatchJoin.href = next.joinLink;
+    }
+    if (DOM.nextMatchDetail) DOM.nextMatchDetail.onclick = () => openModal(next);
+    updateNextMatchCountdown();
+}
+
+function goToToday() {
+    const today = getVietnamNow();
+    STATE.displayYear = today.getUTCFullYear();
+    STATE.displayMonth = today.getUTCMonth();
+    STATE.currentView = 'calendar';
+    closeDailyEvents();
+    updateViewSwitcherButtons();
+    renderActiveView();
+
+    const dateKey = getScheduleDateKey(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+    DOM.calendarBody?.querySelector(`td[data-date="${dateKey}"]`)?.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'center'
+    });
+    if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT) openDailyEvents(dateKey);
+}
+
 function renderActiveView() {
     if (DOM.calendarWrapper) DOM.calendarWrapper.style.display = 'none';
     if (DOM.listWrapper) DOM.listWrapper.style.display = 'none';
@@ -942,6 +1062,12 @@ function renderActiveView() {
     if (STATE.currentView === 'calendar') {
         if (DOM.calendarWrapper) DOM.calendarWrapper.style.display = 'block';
         renderCalendar();
+        const visibleEvents = getCurrentMonthEvents().length;
+        if (DOM.emptyEl && visibleEvents === 0) {
+            const message = DOM.emptyEl.querySelector('p');
+            if (message) message.textContent = 'Không có sự kiện nào khớp với các bộ lọc trong tháng này.';
+            DOM.emptyEl.style.display = 'block';
+        }
     } else {
         if (DOM.listWrapper) DOM.listWrapper.style.display = 'block';
         renderListView();
@@ -971,6 +1097,8 @@ function changeMonth(offset) {
 }
 
 function switchView(view) {
+    if (!['calendar', 'list'].includes(view)) return;
+    if (view === 'list') closeDailyEvents();
     STATE.currentView = view;
     updateViewSwitcherButtons();
     renderActiveView();
@@ -991,6 +1119,7 @@ function toggleTourDropdown(id) {
 function filterSchedule() {
     saveFiltersToURL();
     renderActiveView();
+    if (STATE.selectedDate) openDailyEvents(STATE.selectedDate, false);
 }
 
 function normalizeEventDate(value) {

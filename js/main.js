@@ -463,6 +463,7 @@ function initializeGlobalSearch() {
     }
     function openModal(){
         previousOverflow=document.body.style.overflow;
+        document.body.style.overflow="hidden";
         modal.classList.add("active");
         modal.setAttribute("aria-hidden","false");
         input.focus();
