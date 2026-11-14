@@ -265,4 +265,11 @@
   top: 20px;
   transform: rotate(45deg);
 }
-/* Ice Blue & Slate Bento Subpages Theme */ .breadcrumb { display: inline-flex !important; align-items: center !important; gap: 8px !important; padding: 6px 16px !important; background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(148, 163, 184, 0.16) !important; border-radius: 9999px !important; color: #94A3B8 !important; } .breadcrumb a { color: #38BDF8 !important; text-decoration: none !important; } #post-filter-input { background: rgba(15, 23, 42, 0.72) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; border-radius: 12px !important; color: #F8FAFC !important; padding: 12px 18px !important; outline: none !important; } #post-filter-input:focus { border-color: #38BDF8 !important; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25) !important; } .category-card { background: rgba(15, 23, 42, 0.72) !important; border: 1px solid rgba(148, 163, 184, 0.16) !important; border-radius: 18px !important; backdrop-filter: blur(16px) !important; transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important; } .category-card:hover { transform: translateY(-4px) !important; border-color: rgba(56, 189, 248, 0.45) !important; box-shadow: 0 12px 30px -10px rgba(56, 189, 248, 0.25) !important; }
+
+/* Ice Blue & Slate category refinements */
+.category-filter-container{margin:16px 0 20px}
+#post-filter-input{box-sizing:border-box;width:100%;margin:0;padding:12px 18px;border:1px solid rgba(56,189,248,.3);border-radius:12px;outline:none;background:rgba(15,23,42,.72);color:#f8fafc}
+#post-filter-input:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.25)}
+.category-card[hidden]{display:none!important}
+.category-empty-message{margin:18px 0;padding:20px;border:1px dashed rgba(125,211,252,.24);border-radius:12px;color:var(--color-text-secondary);text-align:center}
+@media(prefers-reduced-motion:reduce){.category-card{transition:none}.category-card:hover{transform:none}}

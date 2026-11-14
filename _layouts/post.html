@@ -23,6 +23,10 @@
                     <h1 class="page-title">{{ page.title }}</h1>
                     <i class="short_text" style="display: block; margin-bottom: var(--space-md);">{{ page.description }}</i>
                 <p align="center" style="text-align: center"><a href="/{{ page.category }}" class="post-tag"><span class="bx bx-purchase-tag-alt"></span> {{ page.tags }}</a> - <i style="color: var(--color-text-muted)">bởi <span style="color: var(--green-500)">{{ page.author }}</span></i></p>
+                <div class="post-reading-meta">
+                    <span class="reading-time" aria-live="polite"></span>
+                    <button type="button" id="copy-page-link" class="post-copy-link"><span class="bx bx-link" aria-hidden="true"></span> Sao chép liên kết</button>
+                </div>
                 <ul class="nav-tabs">
                     <li><a href="/blog"><span class="bx bx-edit-alt" style="color:var(--legacy-green)"></span>Tất cả bài đăng</a></li>
                     <li><a href="/chess"><span class="bx bxs-chess" style="color:var(--color-accent-dark)"></span>Kiến thức cờ vua</a></li>

@@ -1450,38 +1450,11 @@ footer .bottom-details .bottom_text {
 }
 
 /* SEARCH MODAL */
-.nav-search-btn {
-    background: transparent;
-    border: none;
-    color: var(--color-text-secondary);
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 50%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s, color 0.2s;
-    margin-left: 10px;
-}
+.nav-search-btn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;margin-left:8px;padding:0;border:1px solid rgba(125,211,252,.2);border-radius:50%;background:rgba(56,189,248,.06);color:#bae6fd;font-size:1.15rem;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
 
-@media (max-width: 620px) {
-    .nav-search-btn {
-        margin: 5px 0 0 0;
-        width: 100%;
-        border-radius: 9px;
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        background: rgba(255, 255, 255, 0.025);
-        padding: 10px;
-    }
-
-    .nav-search-btn::after {
-        content: 'Tìm kiếm';
-        font-family: inherit;
-        font-size: 0.83rem;
-        font-weight: 600;
-        margin-left: 7px;
-    }
+@media(max-width:1024px){
+.nav-menu .nav-search-btn{align-self:flex-end;flex:0 0 38px;width:38px;min-width:38px;height:38px;margin:6px 2px 0 auto;padding:0;border-radius:50%}
+.nav-menu .nav-search-btn::after{content:none}
 }
 
 .nav-search-btn:hover {
@@ -1701,3 +1674,13 @@ html, body {
                                                                                                                                                                                                                                                   }
                                                                                                                                                                                                                                                   }
                                                                                                                                                                                                                                                   
+
+/* Accessible global search dialog */
+.search-modal-field{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.search-modal-field small{color:#64748b;font-size:.68rem}
+.search-modal-dialog{margin:0 14px}
+.search-modal-overlay{box-sizing:border-box;padding:10vh 0 24px;overflow-y:auto}
+.search-modal-results{overscroll-behavior:contain}
+.search-result-item:focus-visible,.nav-search-btn:focus-visible,.close-search-btn:focus-visible{outline:2px solid #7dd3fc;outline-offset:3px}
+@media(max-width:600px){.search-modal-overlay{padding-top:8vh}.search-modal-header{gap:8px;padding:12px}.search-modal-header .search-icon{margin-right:4px}.search-modal-dialog{width:calc(100vw - 24px);margin:0 12px}}
+@media(prefers-reduced-motion:reduce){.search-modal-dialog,.search-modal-overlay,.nav-search-btn,.dropdown-menu,#back-to-top{transition:none!important;scroll-behavior:auto!important}}

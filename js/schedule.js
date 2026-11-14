@@ -73,7 +73,11 @@ const STATE = {
     currentView: 'calendar',
     displayYear: undefined,
     displayMonth: undefined,
-    lastFocusedElement: null
+    lastFocusedElement: null,
+    statusFilter: 'all',
+    selectedDate: null,
+    nextMatch: null,
+    countdownTimer: null
 };
 
 function cacheDOMElements() {
@@ -81,6 +85,18 @@ function cacheDOMElements() {
     DOM.errorEl = document.getElementById('error');
     DOM.emptyEl = document.getElementById('empty');
     DOM.lastUpdatedEl = document.getElementById('last-updated');
+    DOM.statusFilters = document.getElementById('schedule-status-filters');
+    DOM.todayButton = document.getElementById('btn-today');
+    DOM.dayPanel = document.getElementById('schedule-day-panel');
+    DOM.dayPanelTitle = document.getElementById('schedule-day-panel-title');
+    DOM.dayPanelEvents = document.getElementById('schedule-day-panel-events');
+    DOM.dayPanelClose = document.getElementById('schedule-day-panel-close');
+    DOM.nextMatchSpotlight = document.getElementById('next-match-spotlight');
+    DOM.nextMatchTitle = document.getElementById('next-match-title');
+    DOM.nextMatchMeta = document.getElementById('next-match-meta');
+    DOM.nextMatchCountdown = document.getElementById('next-match-countdown');
+    DOM.nextMatchJoin = document.getElementById('next-match-join');
+    DOM.nextMatchDetail = document.getElementById('next-match-detail');
     DOM.viewSwitcherContainer = document.getElementById('view-switcher-container');
     DOM.scheduleFilters = document.getElementById('schedule-filters');
     DOM.calendarWrapper = document.getElementById('calendar-wrapper');
@@ -428,35 +444,57 @@ function resetFilters() {
     if (DOM.scheduleSearch) DOM.scheduleSearch.value = '';
     if (DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = false;
     DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]').forEach(checkbox => { checkbox.checked = true; });
+    STATE.statusFilter = 'all';
+    updateStatusFilterButtons();
     filterSchedule();
 }
 
 function getFilterState() {
     return {
-        search: (DOM.scheduleSearch?.value || '').toLowerCase().trim(),
+        search: removeVietnameseTones(DOM.scheduleSearch?.value || ''),
         onlyPrize: DOM.schedulePrizeFilter?.checked || false,
         types: Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:checked') || []).map(cb => cb.value)
     };
 }
 
+function updateStatusFilterButtons() {
+    DOM.statusFilters?.querySelectorAll('button[data-status]').forEach(button => {
+        const active = button.dataset.status === STATE.statusFilter;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-pressed', String(active));
+    });
+}
+
+function statusMatchesFilter(tournament) {
+    const status = getEventStatus(tournament);
+    if (STATE.statusFilter === 'upcoming') return status === 'Sắp diễn ra' || status === 'Dự kiến';
+    if (STATE.statusFilter === 'ongoing') return status === 'Đang diễn ra';
+    if (STATE.statusFilter === 'ended') return status === 'Đã kết thúc';
+    return true;
+}
+
+function setStatusFilter(status) {
+    if (!['all', 'upcoming', 'ongoing', 'ended'].includes(status)) return;
+    STATE.statusFilter = status;
+    saveFiltersToURL();
+    updateStatusFilterButtons();
+    renderActiveView();
+}
+
 function matchesFilters(tournament, filters) {
-    const eventName = (tournament.eventName || '').toLowerCase();
-    const matchesSearch = !filters.search || eventName.includes(filters.search);
-    
-    let matchesPrize = true;
-    if (filters.onlyPrize) {
-        matchesPrize = isPrizeEvent(tournament);
-    }
-    
+    const name = removeVietnameseTones(tournament.eventName || '');
+    const matchesSearch = !filters.search || name.includes(filters.search);
+    const matchesPrize = !filters.onlyPrize || isPrizeEvent(tournament);
     const matchesType = filters.types.includes(tournament.eventType);
-    
-    return matchesSearch && matchesPrize && matchesType;
+    return matchesSearch && matchesPrize && matchesType && statusMatchesFilter(tournament);
 }
 
 function loadFiltersFromURL() {
     const params = new URLSearchParams(window.location.search);
     if (params.has('search') && DOM.scheduleSearch) DOM.scheduleSearch.value = params.get('search');
     if (params.has('prize') && DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = (params.get('prize') === '1');
+    const status = params.get('status');
+    if (['upcoming', 'ongoing', 'ended'].includes(status)) STATE.statusFilter = status;
     if (params.has('type') && DOM.scheduleTypeGroup) {
         const selectedTypes = params.get('type').toLowerCase().split(/[\s+]+/);
         DOM.scheduleTypeGroup.querySelectorAll('input[type="checkbox"]').forEach(cb => {
@@ -470,6 +508,7 @@ function saveFiltersToURL() {
     const filters = getFilterState();
     if (filters.search) params.set('search', filters.search);
     if (DOM.schedulePrizeFilter?.checked) params.set('prize', '1');
+    if (STATE.statusFilter !== 'all') params.set('status', STATE.statusFilter);
     const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]') || [])
         .map(cb => cb.value);
     if (filters.types.length < allTypes.length) {
@@ -499,7 +538,7 @@ function getCalendarDays(year, month) {
 
     let nextMonth = month + 1, nextYear = year;
     if (nextMonth > 11) { nextMonth = 0; nextYear++; }
-    const totalCells = days.length > 35 ? 42 : 35;
+    const totalCells = 42;
     const remainingDays = totalCells - days.length;
     for (let i = 1; i <= remainingDays; i++) {
         days.push({ day: i, month: nextMonth, year: nextYear, isCurrentMonth: false });
@@ -523,6 +562,20 @@ function renderCalendar() {
         for (let j = 0; j < 7; j++) {
             const dayObj = days[i + j];
             const td = document.createElement('td');
+            const dateKey = `${dayObj.year}-${padZero(dayObj.month + 1)}-${padZero(dayObj.day)}`;
+            td.dataset.date = dateKey;
+            td.tabIndex = 0;
+            td.setAttribute('aria-label', `Xem sự kiện ngày ${dayObj.day}/${dayObj.month + 1}/${dayObj.year}`);
+            if (STATE.selectedDate === dateKey) td.classList.add('is-selected');
+            td.addEventListener('click', event => {
+                if (event.target.closest('.event-icon')) return;
+                openDailyEvents(dateKey);
+            });
+            td.addEventListener('keydown', event => {
+                if (event.target !== td || !['Enter', ' '].includes(event.key)) return;
+                event.preventDefault();
+                openDailyEvents(dateKey);
+            });
             if (!dayObj.isCurrentMonth) td.classList.add('other-month');
             if (vnToday.getUTCFullYear() === dayObj.year &&
                 vnToday.getUTCMonth() === dayObj.month &&
@@ -562,10 +615,16 @@ function renderCalendar() {
                     const img = document.createElement('img');
                     img.src = tournament.logo || 'https://chess.com/bundles/web/images/image-default.445cb543.svg';
                     img.alt = '';
-                    icon.title = tournament.hasStartTime
-                        ? `${padZero(parts.hours)}:${padZero(parts.minutes)} — ${eventName}`
-                        : eventName;
-                    icon.addEventListener('click', () => openModal(tournament));
+                    const timeLabel = tournament.hasStartTime
+                        ? `${padZero(parts.hours)}:${padZero(parts.minutes)}`
+                        : 'Chưa có giờ bắt đầu';
+                    const tooltip = `${eventName}\n${timeLabel} · ${getEventStatus(tournament)}\n${tournament.eventRules || 'Chưa có thông tin thể lệ'}`;
+                    icon.dataset.tooltip = tooltip;
+                    icon.title = tooltip;
+                    icon.addEventListener('click', event => {
+                        event.stopPropagation();
+                        openModal(tournament);
+                    });
                     icon.appendChild(img);
                     eventsDiv.appendChild(icon);
                 });
@@ -867,11 +926,16 @@ function renderActiveView() {
     if (DOM.calendarWrapper) DOM.calendarWrapper.style.display = 'none';
     if (DOM.listWrapper) DOM.listWrapper.style.display = 'none';
     if (DOM.emptyEl) DOM.emptyEl.style.display = 'none';
+    updateStatusFilterButtons();
+    updateNextMatchSpotlight();
+
     if (STATE.tournaments.length === 0) {
         if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
         return;
     }
-    if (DOM.monthTitle) DOM.monthTitle.textContent = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
+    if (DOM.monthTitle) {
+        DOM.monthTitle.textContent = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
+    }
     updateNavButtonStates();
     updateFilterControls();
     updateResultsSummary();
@@ -894,6 +958,7 @@ function changeMonth(offset) {
 
     if (targetAbsoluteMonth < currentAbsoluteMonth - 1 || targetAbsoluteMonth > currentAbsoluteMonth + 1) return;
 
+    closeDailyEvents();
     STATE.displayMonth += offset;
     if (STATE.displayMonth < 0) {
         STATE.displayMonth = 11;
@@ -1085,12 +1150,14 @@ async function loadTournaments() {
         } else {
             if (DOM.viewSwitcherContainer) DOM.viewSwitcherContainer.style.display = 'inline-flex';
             if (DOM.scheduleFilters) DOM.scheduleFilters.style.display = 'flex';
-            STATE.currentView = window.innerWidth <= CONFIG.MOBILE_BREAKPOINT ? 'list' : 'calendar';
+            STATE.currentView = 'calendar';
             updateViewSwitcherButtons();
             const vnToday = getVietnamNow();
             STATE.displayYear = vnToday.getUTCFullYear();
             STATE.displayMonth = vnToday.getUTCMonth();
             renderActiveView();
+            if (STATE.countdownTimer !== null) window.clearInterval(STATE.countdownTimer);
+            STATE.countdownTimer = window.setInterval(updateNextMatchCountdown, 1000);
             const activeWrapper = STATE.currentView === 'calendar'
                 ? DOM.calendarWrapper
                 : DOM.listWrapper;
@@ -1107,18 +1174,22 @@ async function loadTournaments() {
 }
 
 function initializeEventListeners() {
-    window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') closeModal();
+    window.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            closeModal();
+            closeDailyEvents();
+        }
     });
-    window.addEventListener('click', (event) => {
+    window.addEventListener('click', event => {
         if (event.target === DOM.eventModal) closeModal();
     });
-    document.addEventListener('click', (event) => {
+    document.addEventListener('click', event => {
         if (!event.target.closest('.tour-dropdown')) {
-            document.querySelectorAll('.tour-dropdown').forEach(d => d.classList.remove('open'));
+            document.querySelectorAll('.tour-dropdown').forEach(dropdown => dropdown.classList.remove('open'));
             DOM.categoryButton?.setAttribute('aria-expanded', 'false');
         }
     });
+
     if (DOM.scheduleSearch) DOM.scheduleSearch.addEventListener('input', filterSchedule);
     if (DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.addEventListener('change', filterSchedule);
     if (DOM.scheduleTypeGroup) DOM.scheduleTypeGroup.addEventListener('change', filterSchedule);
@@ -1126,9 +1197,16 @@ function initializeEventListeners() {
     if (DOM.categoryButton) DOM.categoryButton.addEventListener('click', () => toggleTourDropdown('schedule-category-dropdown'));
     if (DOM.btnPrevMonth) DOM.btnPrevMonth.addEventListener('click', () => changeMonth(-1));
     if (DOM.btnNextMonth) DOM.btnNextMonth.addEventListener('click', () => changeMonth(1));
+    if (DOM.todayButton) DOM.todayButton.addEventListener('click', goToToday);
     if (DOM.btnViewCalendar) DOM.btnViewCalendar.addEventListener('click', () => switchView('calendar'));
     if (DOM.btnViewList) DOM.btnViewList.addEventListener('click', () => switchView('list'));
+    if (DOM.dayPanelClose) DOM.dayPanelClose.addEventListener('click', closeDailyEvents);
+    DOM.statusFilters?.querySelectorAll('button[data-status]').forEach(button => {
+        button.addEventListener('click', () => setStatusFilter(button.dataset.status));
+    });
+    updateStatusFilterButtons();
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
     cacheDOMElements();

@@ -3,6 +3,9 @@
 
 <head>
     <title>{{ page.title }} - CLB Thí Vua Lấy Tốt</title>
+    {% if page.schedule_css %}
+    <link rel="stylesheet" href="{{ page.schedule_css }}">
+    {% endif %}
     {% include head.html %}
 </head>
 
