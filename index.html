@@ -4,116 +4,72 @@ title: Trang chủ
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <title>Trang chủ - Thí Vua Lấy Tốt</title>
-    {% include head.html %}
-    <link href="/css/home.css" rel="stylesheet">
+  <title>Trang chủ - Thí Vua Lấy Tốt</title>
+  {% include head.html %}
+  <link href="/css/home.css" rel="stylesheet">
 </head>
 <body data-spy="scroll" data-target=".navbar" data-offset="51">
-    {% include navbar.html %}
+  {% include navbar.html %}
 
-    <main class="home-page">
-        <section class="hero-v2" id="home">
-            <div class="hero-v2__bg"></div>
-            <div class="hero-v2__noise"></div>
-            <div class="container hero-v2__grid">
-                <div class="hero-v2__content">
-                    <div class="eyebrow">
-                        <span class="eyebrow__dot"></span>
-                        Chào mừng bạn đã ghé thăm
-                    </div>
-                    <h1 id="hero-title">Thí Vua Lấy Tốt <span>Website</span></h1>
-                    <p class="hero-v2__lead">Cộng đồng cờ vua sôi động do TungJohn sáng lập. Nơi hội tụ niềm đam mê, nâng tầm trình độ và kết nối các kỳ thủ Việt Nam qua những giải đấu hấp dẫn.</p>
+  <main class="home-page">
+          <section class="hero-v2" id="home">
+      <div class="hero-v2__bg"></div>
+      <div class="hero-v2__noise"></div>
 
-                    <div class="hero-v2__actions">
-                        <a class="btn btn-primary-v2" href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noreferrer">
-                            <i class="bx bxs-chess"></i> Tham gia CLB
-                        </a>
-                        <a class="btn btn-ghost-v2" href="/events/tournaments/">
-                            <i class="bx bx-trophy"></i> Xem giải đấu
-                        </a>
-                        <a class="btn btn-ghost-v2" href="/schedule">
-                            <i class="bx bx-calendar-event"></i> Xem lịch đấu
-                        </a>
-                    </div>
+      <div class="hero-v2__center">
+        <div class="eyebrow"><span class="eyebrow__dot"></span> TUNGJOHN PLAYING CHESS • CỘNG ĐỒNG CỜ VUA VIỆT NAM</div>
+        <h1 id="hero-title"><span class="hero-v2__brand">Thí Vua Lấy Tốt</span><span class="hero-v2__subtitle">Đấu Trường & Cộng Đồng Cờ Vua Trực Tuyến</span></h1>
+        <p class="hero-v2__lead">Cộng đồng cờ vua sôi động do TungJohn sáng lập — nơi hội tụ niềm đam mê, nâng tầm chiến thuật và kết nối các kỳ thủ Việt Nam qua những giải đấu hấp dẫn.</p>
+        <div class="hero-v2__actions">
+          <a class="btn btn-primary-v2" href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noreferrer"><i class="bx bxs-chess"></i> Tham gia CLB</a>
+          <a class="btn btn-ghost-v2" href="/events/tournaments/"><i class="bx bx-trophy"></i> Xem giải đấu</a>
+          <a class="btn btn-ghost-v2" href="/schedule/"><i class="bx bx-calendar-event"></i> Xem lịch đấu</a>
+        </div>
+      </div>
 
-                    <div class="hero-v2__mini-stats">
-                        <div class="mini-stat">
-                            <strong>150K+</strong>
-                            <span>người theo dõi Youtube</span>
-                        </div>
-                        <div class="mini-stat">
-                            <strong>21K+</strong>
-                            <span>thành viên Chess.com</span>
-                        </div>
-                        <div class="mini-stat">
-                            <strong>100+</strong>
-                            <span>sự kiện có thưởng đã tổ chức</span>
-                        </div>
-                    </div>
+      <div class="hero-bento-dock">
+        <div class="bento-card bento-card--stats">
+          <div class="bento-stat">
+            <strong>165K+</strong>
+            <span>người theo dõi YouTube</span>
+          </div>
+          <div class="bento-stat">
+            <strong>21K+</strong>
+            <span>thành viên Chess.com</span>
+          </div>
+          <div class="bento-stat">
+            <strong>100+</strong>
+            <span>sự kiện có thưởng đã tổ chức</span>
+          </div>
+        </div>
 
-                    <div class="social-row social-row--hero">
-                        <a href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noreferrer" title="Chess.com club">
-                            <img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" alt="Chess.com">
-                        </a>
-                        <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank" rel="noreferrer" title="Lichess team">
-                            <img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt="Lichess">
-                        </a>
-                        <a href="https://facebook.com/groups/586909589413729" target="_blank" rel="noreferrer" title="Facebook group">
-                            <span class="bx bxl-facebook-square" style="color:#1877f2"></span>
-                        </a>
-                        <a href="https://discord.gg/bggkufa4nE" target="_blank" rel="noreferrer" title="Discord server">
-                            <span class="bx bxl-discord" style="color:#5865f2"></span>
-                        </a>
-                        <a href="https://zalo.me/g/zhrwtn779" target="_blank" rel="noreferrer" title="Zalo community">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo">
-                        </a>
-                        <a href="https://facebook.com/groups/586909589413729" target="_blank" rel="noreferrer" title="Messenger chats">
-                            <span class="bx bxl-messenger" style="color:#1877f2"></span>
-                        </a>
-                    </div>
-                </div>
+        <div class="bento-card bento-card--arena">
+          <div class="bento-badge">CLB CHÍNH THỨC • CHESS.COM & LICHESS</div>
+          <h3>Giải Đấu Hàng Tuần — Giao Lưu & Có Thưởng</h3>
+          <p>Tham gia các giải cờ chớp, cờ nhanh hàng tuần cùng cộng đồng. Thi đấu giao lưu, cọ xát kỹ năng và nhận giải thưởng hấp dẫn.</p>
+          <div class="bento-actions">
+            <a href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noreferrer" class="bento-link">Chess.com Club <i class="bx bx-right-arrow-alt"></i></a>
+            <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank" rel="noreferrer" class="bento-link">Lichess Team <i class="bx bx-right-arrow-alt"></i></a>
+          </div>
+        </div>
 
-                <div class="hero-v2__visual" aria-label="Mô phỏng bàn cờ">
-                    <div class="board-shell">
-                        <div class="board-shell__glow"></div>
-                        <div class="board-grid">
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                            <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
-                        </div>
-                        <div class="board-piece board-piece--king">♔</div>
-                        <div class="board-piece board-piece--queen">♕</div>
-                        <div class="board-piece board-piece--knight">♘</div>
-                        <div class="board-piece board-piece--rook">♖</div>
-
-                        <div class="board-card board-card--top">
-                            <strong>CLB chính thức</strong>
-                            <span>trên Chess.com từ 2025</span>
-                        </div>
-                        <div class="board-card board-card--bottom">
-                            <strong>Nhiều giải đấu</strong>
-                            <span>Giao lưu & Có thưởng</span>
-                        </div>
-                    </div>
-
-                    <div class="board-summary">
-                        <div>
-                            <span class="summary-label">Người sáng lập</span>
-                            <strong>TungJohn Playing Chess</strong>
-                        </div>
-                        <div>
-                            <span class="summary-label">Cộng đồng</span>
-                            <strong>Chơi · Học · Kết nối</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <div class="bento-card bento-card--connect">
+          <div class="bento-founder">
+            <strong>NGƯỜI SÁNG LẬP: TungJohn Playing Chess</strong>
+            <span>Chơi • Học • Kết nối</span>
+          </div>
+                <div class="social-row social-row--hero">
+            <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank" rel="noopener noreferrer" title="Lichess Team"><img src="https://lichess1&#46;org/assets/_____2/flair/img/activity.lichess.webp" alt="Lichess"></a>
+            <a href="https://youtube.com/channel/UCvNW1NAWWjblgrP6JQI4MbQ" target="_blank" rel="noopener noreferrer" title="YouTube"><span class="bx bxl-youtube" style="color:#ff0000"></span></a>
+            <a href="https://facebook.com/groups/586909589413729" target="_blank" rel="noopener noreferrer" title="Facebook Group"><span class="bx bxl-facebook-square" style="color:#1877f2"></span></a>
+            <a href="https://discord.gg/bggkufa4nE" target="_blank" rel="noopener noreferrer" title="Discord server"><span class="bx bxl-discord" style="color:#5865f2"></span></a>
+            <a href="https://zalo.me/g/zhrwtn779" target="_blank" rel="noopener noreferrer" title="Zalo community"><img src="https://upload&#46;wikimedia&#46;org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo"></a>
+            <a href="https://chess.com/member/tungjohn2005" target="_blank" rel="noopener noreferrer" title="Chess.com account"><img src="https://images.chesscomfiles.com/uploads/v1/user/33.862d5ff1.160x160o.578dc76c0662.png" alt="Chess.com"></a>
+          </div>
+        </div>
+      </div>
+          </section>
+      
 
         <section class="metric-strip" aria-labelledby="metric-title">
             <div class="container">
@@ -125,22 +81,22 @@ title: Trang chủ
                 <div class="metric-grid">
                     <article class="metric-card">
                         <strong>1.000+</strong>
-                        <span>Videos</span>
+                        <span>Video</span>
                         <p>Video cờ vua mới mỗi tuần, từ bài học cơ bản đến phân tích các ván đấu chuyên sâu.</p>
                     </article>
                     <article class="metric-card">
-                        <strong>160K+</strong>
-                        <span>YouTube subscribers</span>
+                        <strong>165K+</strong>
+                        <span>Người đăng ký YouTube</span>
                         <p>Cộng đồng theo dõi nội dung, giải đấu và các câu chuyện trên bàn cờ.</p>
                     </article>
                     <article class="metric-card">
                         <strong>21K+</strong>
-                        <span>Chess.com members</span>
+                        <span>Thành viên Chess.com</span>
                         <p>Nơi tổ chức các hoạt động chính của CLB như giải đấu, sự kiện.</p>
                     </article>
                     <article class="metric-card">
                         <strong>100+</strong>
-                        <span>Completed prize events</span>
+                        <span>Sự kiện có thưởng</span>
                         <p>Các giải đấu và sự kiện được tổ chức thường xuyên để mọi người giao lưu và cải thiện trình độ.</p>
                     </article>
                 </div>

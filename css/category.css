@@ -265,3 +265,11 @@
   top: 20px;
   transform: rotate(45deg);
 }
+
+/* Ice Blue & Slate category refinements */
+.category-filter-container{margin:16px 0 20px}
+#post-filter-input{box-sizing:border-box;width:100%;margin:0;padding:12px 18px;border:1px solid rgba(56,189,248,.3);border-radius:12px;outline:none;background:rgba(15,23,42,.72);color:#f8fafc}
+#post-filter-input:focus{border-color:#38bdf8;box-shadow:0 0 0 3px rgba(56,189,248,.25)}
+.category-card[hidden]{display:none!important}
+.category-empty-message{margin:18px 0;padding:20px;border:1px dashed rgba(125,211,252,.24);border-radius:12px;color:var(--color-text-secondary);text-align:center}
+@media(prefers-reduced-motion:reduce){.category-card{transition:none}.category-card:hover{transform:none}}
