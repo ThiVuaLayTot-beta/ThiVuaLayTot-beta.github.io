@@ -72,6 +72,7 @@ schedule_css: /css/schedule.css
                 </button>
             </div>
         </div>
+        </div>
     <div class="schedule-filter-panel" role="group" aria-label="Tìm kiếm và lọc sự kiện">
         <div class="schedule-filter-panel-header">
             <div class="schedule-filter-panel-title">
