@@ -1819,7 +1819,7 @@ a[href*="youtube"]:hover, .community-card[href*="youtube"]:hover { transform: sc
   letter-spacing: .075em;
 }
 
-.home-page > .hero-v2 .bento-card--arena h3 {
+.home-page > .hero-v2 .bento-card--arena h2 {
   margin: 0 0 .55rem;
   color: #e0f2fe;
   font-size: clamp(1.08rem, 1.45vw, 1.28rem);
