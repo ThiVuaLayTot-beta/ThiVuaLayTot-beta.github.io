@@ -27,11 +27,12 @@ schedule_css: /css/schedule.css
 
 <section id="next-match-spotlight" class="next-match-spotlight" aria-live="polite" hidden>
     <div class="next-match-content">
-        <span class="next-match-kicker"><i class="bx bx-broadcast" aria-hidden="true"></i> TÂM ĐIỂM SẮP DIỄN RA</span>
-        <span id="next-match-priority" class="next-match-priority" hidden></span>
+        <div class="next-match-eyebrow">
+            <span class="next-match-kicker"><i class="bx bx-broadcast" aria-hidden="true"></i> TÂM ĐIỂM SẮP DIỄN RA</span>
+            <span id="next-match-priority" class="next-match-priority" hidden></span>
+        </div>
         <h2 id="next-match-title">Đang tìm giải đấu tiếp theo…</h2>
         <p id="next-match-meta" class="next-match-meta"></p>
-        <p id="next-match-selection-note" class="next-match-selection-note"></p>
         <div class="next-match-countdown-wrap">
             <span>Thời gian bắt đầu còn</span>
             <strong id="next-match-countdown">--:--:--</strong>

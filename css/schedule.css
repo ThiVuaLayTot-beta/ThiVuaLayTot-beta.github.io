@@ -434,3 +434,105 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
     .schedule-system-card{transition:none}
     .schedule-system-card:hover{transform:none}
 }
+
+
+/* Schedule layout refinement: compact the intro and restore a clear reading order. */
+.schedule-intro-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+    align-items: start;
+    gap: 10px;
+    margin: 0 0 16px;
+}
+.schedule-intro-row .schedule-updated {
+    min-width: 0;
+    align-self: start;
+    line-height: 1.5;
+}
+.schedule-intro-row .schedule-guide {
+    width: 100%;
+    min-width: 0;
+    max-width: 420px;
+    margin: 0;
+}
+.schedule-intro-row .schedule-guide .schedule-intro {
+    margin: 0 10px 10px;
+    padding: 12px 14px;
+}
+.schedule-intro-row .schedule-guide .schedule-intro ul {
+    margin-bottom: 0;
+}
+
+.next-match-spotlight {
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 14px 18px;
+}
+.next-match-content {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.next-match-eyebrow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-bottom: 5px;
+}
+.next-match-priority {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 4px 8px;
+}
+.next-match-spotlight h2 {
+    margin: 0 0 3px;
+    font-size: clamp(1.05rem, 1.65vw, 1.32rem);
+}
+.next-match-meta {
+    line-height: 1.4;
+}
+.next-match-countdown-wrap {
+    gap: 7px;
+    margin-top: 6px;
+}
+.next-match-actions {
+    align-items: center;
+}
+
+.schedule-explorer-header {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    align-items: stretch;
+}
+.schedule-explorer .month-nav-wrapper {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+}
+.schedule-explorer-copy p {
+    max-width: none;
+}
+
+@media (max-width: 900px) {
+    .schedule-intro-row {
+        grid-template-columns: minmax(0, 1fr) minmax(250px, 360px);
+    }
+}
+@media (max-width: 768px) {
+    .schedule-intro-row {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+    .schedule-intro-row .schedule-guide {
+        width: 100%;
+        max-width: none;
+    }
+    .next-match-spotlight {
+        gap: 12px;
+        padding: 14px;
+    }
+    .next-match-actions {
+        width: 100%;
+    }
+}

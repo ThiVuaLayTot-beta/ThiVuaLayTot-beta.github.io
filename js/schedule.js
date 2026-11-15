@@ -1065,13 +1065,7 @@ function selectNextSpotlightEvent(tournaments, now = Date.now()) {
         return certaintyDifference || a.index - b.index;
     });
 
-    const selected = nearTermGroup[0];
-    const nearestEvent = candidates.find(item => item.startTime === nearestStart);
-    return {
-        ...selected,
-        wasPromoted: Boolean(nearestEvent && selected.index !== nearestEvent.index &&
-            selected.priority.rank > nearestEvent.priority.rank)
-    };
+    return nearTermGroup[0];
 }
 
 function updateNextMatchSpotlight() {
@@ -1097,15 +1091,10 @@ function updateNextMatchSpotlight() {
     const priority = selection.priority;
 
     DOM.nextMatchTitle.textContent = next.eventName || 'Giải đấu sắp diễn ra';
-    DOM.nextMatchMeta.textContent = `${dateLabel}${timeLabel} · ${getEventStatus(next)} · ${getPrizeCategory(next)}`;
+    DOM.nextMatchMeta.textContent = `${dateLabel}${timeLabel} · ${getEventStatus(next)}`;
     if (DOM.nextMatchPriority) {
         DOM.nextMatchPriority.textContent = priority.label;
         DOM.nextMatchPriority.hidden = false;
-    }
-    if (DOM.nextMatchSelectionNote) {
-        DOM.nextMatchSelectionNote.textContent = selection.wasPromoted
-            ? `Được ưu tiên trong nhóm sự kiện bắt đầu gần thời điểm sắp tới nhất (${SPOTLIGHT_PRIORITY_WINDOW_DAYS} ngày).`
-            : `Được chọn theo thứ tự ưu tiên và thời gian bắt đầu trong nhóm gần nhất (${SPOTLIGHT_PRIORITY_WINDOW_DAYS} ngày).`;
     }
     DOM.nextMatchSpotlight.dataset.priority = priority.key;
     DOM.nextMatchSpotlight.hidden = false;
