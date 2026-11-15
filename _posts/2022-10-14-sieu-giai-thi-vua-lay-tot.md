@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Siêu giải Thí Vua Lấy Tốt
+date: 2022-10-14
 category: events
 tags: Giải đấu
 author: Mr.TungJohn
@@ -44,7 +45,7 @@ Giải đầu tiên được tổ chức vào [**15/12/2022**](/events/tournamen
   - Một số hiện vật khác
 - Một số giải đặc biệt có thể có thêm các hạng thưởng như giải may mắn, giải đặc biệt,...
 
-<img src="/images/events/tvlt-medal.png" alt="Huy chương Siêu giải Thí Vua Lấy Tốt">
+<img src="/images/events/tvlt-medal.png" alt="Huy chương Siêu giải Thí Vua Lấy Tốt" loading="lazy">
 
 ## ⚠️ Quy định
 

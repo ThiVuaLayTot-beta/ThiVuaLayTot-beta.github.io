@@ -2,6 +2,7 @@
 layout: post
 image: /images/chess/chess-benefits.svg
 title: Những lợi ích khi chơi cờ vua
+date: 2024-10-06
 category: chess
 tags: Cờ vua
 author: Lê Đình Cường

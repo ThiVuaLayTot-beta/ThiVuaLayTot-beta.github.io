@@ -27,7 +27,7 @@ Giải luân phiên sử dụng 2 thể thức với logo như bên dưới
 
 <div>
   <a href="/events/cbtt-co-bi-thi-tot" aria-label="Các thể loại Cờ Bí Thí Tốt">
-    <img src="/images/events/cbtt-formats.png" alt="CBTT Format">
+    <img src="/images/events/cbtt-formats.png" alt="CBTT Format" loading="lazy">
   </a>
 </div>
 
