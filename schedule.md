@@ -45,7 +45,8 @@ schedule_css: /css/schedule.css
 </section>
 
 <section class="schedule-explorer" aria-labelledby="schedule-explorer-title">
-    <header class="schedule-explorer-header">
+    <header class="schedule-explorer-header" aria-labelledby="schedule-explorer-title">
+        <div class="schedule-explorer-top">
         <div class="schedule-explorer-copy">
             <span class="schedule-section-kicker">TRA CỨU & THEO DÕI</span>
             <h2 id="schedule-explorer-title">Lịch thi đấu</h2>
@@ -71,9 +72,7 @@ schedule_css: /css/schedule.css
                 </button>
             </div>
         </div>
-    </header>
-
-    <section class="schedule-filter-panel" aria-label="Tìm kiếm và lọc sự kiện">
+    <div class="schedule-filter-panel" role="group" aria-label="Tìm kiếm và lọc sự kiện">
         <div class="schedule-filter-panel-header">
             <div class="schedule-filter-panel-title">
                 <h3>Tìm kiếm & lọc</h3>
@@ -123,7 +122,8 @@ schedule_css: /css/schedule.css
                 <button type="button" id="schedule-reset-filters" class="reset-filters-btn" hidden><i class="bx bx-reset" aria-hidden="true"></i> Xóa lọc</button>
             </div>
         </div>
-    </section>
+    </div>
+    </header>
 
     <section class="schedule-results" aria-label="Kết quả lịch sự kiện">
         <div id="loading" class="loading" role="status" aria-live="polite">
