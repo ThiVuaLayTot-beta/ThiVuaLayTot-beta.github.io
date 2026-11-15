@@ -78,7 +78,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 
 .cc-modal-overlay{position:fixed;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s ease;z-index:2000}
 .cc-modal-overlay.open{opacity:1;visibility:visible}
-.cc-modal-dialog{background:radial-gradient(circle at top left,var(--color-bg-tertiary) 0%,var(--color-bg-primary) 100%);border-radius:var(--border-radius-xl);width:max-content;max-width:max-content;max-height:85vh;overflow:hidden;border:var(--border-width-base) solid var(--cyan-400);box-shadow:0 0 20px rgba(0,242,255,.3),0 0 40px rgba(0,102,204,.2);display:grid;grid-template-columns:470px 520px;grid-template-rows:auto;gap:0 1rem;padding:1rem;box-sizing:border-box}
+.cc-modal-dialog{background:radial-gradient(circle at top left,var(--color-bg-tertiary) 0%,var(--color-bg-primary) 100%);border-radius:var(--border-radius-xl);width:max-content;max-width:max-content;max-height:85vh;overflow:hidden;border:var(--border-width-base) solid var(--cyan-400);box-shadow:0 0 20px rgba(0,242,255,.3),0 0 40px rgba(0,102,204,.2);display:grid;grid-template-columns:minmax(260px,42%) minmax(0,58%);max-width:min(960px,94vw);width:100%;box-sizing:border-box;grid-template-rows:auto;gap:0 1rem;padding:1rem;box-sizing:border-box}
 .cc-modal-banner-section{background:var(--color-bg-primary);max-height:320px;border-radius:14px;border:var(--border-width-thin) solid rgba(53,201,252,.18);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
 .cc-modal-banner-section img{width:100%;height:100%;object-fit:cover;display:block}
 .cc-modal-content-wrapper{padding:1.5rem;overflow-y:auto;grid-column:2;grid-row:1/4;display:flex;flex-direction:column;gap:.75rem;min-width:0}
@@ -224,6 +224,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .badge-prize-combined-premium{background:linear-gradient(135deg,rgba(245,158,11,.18) 0%,rgba(239,68,68,.18) 100%);color:#f59e0b!important;border:1px dashed rgba(245,158,11,.6)!important;box-shadow:0 0 8px rgba(245,158,11,.25),inset 0 0 6px rgba(245,158,11,.1);position:relative;overflow:hidden;animation:prizePremiumPulse 3s infinite ease-in-out}
 @keyframes prizePremiumPulse{0%,100%{border-color:rgba(245,158,11,.5);box-shadow:0 0 8px rgba(245,158,11,.2)}50%{border-color:rgba(239,68,68,.8);box-shadow:0 0 12px rgba(239,68,68,.4)}}
 
+@media (max-width: 960px) { .cc-modal-dialog { width: min(95vw, 560px); display: flex; flex-direction: column; grid-template-columns: 1fr; } .cc-modal-banner-section { width: 100%; flex: 0 0 auto; min-height: unset; border-radius: 16px 16px 0 0; } .cc-modal-banner-section img { width: 100%; height: auto; min-height: unset; max-height: 247px; } .cc-modal-content-wrapper { padding: 1.5rem; min-width: unset; max-width: unset; } }
 @media(max-width:768px){
     .month-nav-wrapper{padding:8px 12px}
     .month-nav-btn{width:34px;height:34px;font-size:18px}

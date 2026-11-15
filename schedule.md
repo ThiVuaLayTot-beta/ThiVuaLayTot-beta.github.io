@@ -219,9 +219,9 @@ schedule_css: /css/schedule.css
             </div>
         </div>
         <div class="btn-group">
-            <a id="modal-join" href="#" target="_blank"><button class="btn btn-primary" type="button"><span class="bx bx-user-plus"></span> Tham gia</button></a>
-            <a id="modal-rule" href="#" target="_blank"><button class="btn btn-secondary" type="button"><span class="bx bx-task"></span> Thể lệ</button></a>
-            <a id="modal-results" href="#" target="_blank"><button class="btn btn-secondary" type="button"><span class="bx bx-trophy"></span> Kết quả</button></a>
+            <a id="modal-join" href="#" target="_blank" class="btn btn-primary" rel="noopener noreferrer"><span class="bx bx-user-plus"></span> Tham gia</a>
+            <a id="modal-rule" href="#" target="_blank" class="btn btn-secondary" rel="noopener noreferrer"><span class="bx bx-task"></span> Thể lệ</a>
+            <a id="modal-results" href="#" target="_blank" class="btn btn-secondary" rel="noopener noreferrer"><span class="bx bx-trophy"></span> Kết quả</a>
         </div>
     </div>
 </div>

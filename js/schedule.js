@@ -46,7 +46,7 @@ const BANNER_MAP = {
     tvlt: "/images/events/sieu-giai-thi-vua-lay-tot.png",
     cttq: "/images/events/giai-chien-truong-thi-quan.png",
     cbtt: "/images/events/su-kien-co-bi-thi-tot.png",
-    dttv: "/images/events/dau-truong-thi-vua.png",
+    dttv: "/images/events/tvlt-medal.png",
     "club-arena": "https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/VN-SenJin/phpjs58p98gfqbbaDynSFJ.png",
     "multi-club-arena": "https://images.chesscomfiles.com/uploads/v1/images_users/tiny_mce/VN-SenJin/php4oaq7r23q7n79I3kRE6.png",
     "swiss": "https://images.chesscomfiles.com/uploads/v1/chess_term/a4c9fe4c-9c0b-11ed-b393-4181bdd78517.3191b6e0.630x354o.10a700f2cb88.png",
@@ -129,6 +129,15 @@ function cacheDOMElements() {
     DOM.modalResultsBtn = document.getElementById('modal-results');
 }
 
+function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+function safeUrl(url) {
+    try {
+        const u = new URL(String(url ?? ''), window.location.origin);
+        return ['http:', 'https:'].includes(u.protocol) ? u.href : '';
+    } catch { return ''; }
+}
 function getVietnamNow() {
     const now = new Date();
     const vnTime = new Date(now.getTime() + CONFIG.VIETNAM_OFFSET_MS);
@@ -746,7 +755,7 @@ function renderEventCard(tournament, container) {
             </div>
             <div class="event-card-title-group">
                 <div class="event-card-badges">${categoryHTML}</div>
-                <h3 class="event-card-title">${tournament.eventName || 'Tournament'}</h3>
+                <h3 class="event-card-title">${escapeHtml(tournament.eventName || 'Tournament')}</h3>
             </div>
         </div>
         <div class="event-card-details">
@@ -825,7 +834,7 @@ function openModal(tournament) {
     const isEnded = isEndedEvent(tournament);
 
     if (tournament.joinLink) {
-        DOM.modalName.innerHTML = `<a href="${tournament.joinLink}" target="_blank">${tournament.eventName || 'Chi tiết giải đấu'}</a>`;
+        DOM.modalName.innerHTML = `<a href="${safeUrl(tournament.joinLink)}" target="_blank">${tournament.eventName || 'Chi tiết giải đấu'}</a>`;
     } else {
         DOM.modalName.innerHTML = `<a href="#" onclick="event.preventDefault(); alert('Hiện chưa có link giải, hãy hỏi các quản trị viên hoặc người tổ chức giải này để tìm hiểu thêm!');">${tournament.eventName || 'Chi tiết giải đấu'}</a>`;
     }
@@ -1307,6 +1316,16 @@ function initializeEventListeners() {
         if (event.key === 'Escape') {
             closeModal();
             closeDailyEvents();
+        } else if (event.key === 'Tab' && DOM.eventModal && DOM.eventModal.classList.contains('open')) {
+            const focusable = Array.from(DOM.eventModal.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])')).filter(el => el.offsetParent !== null);
+            if (focusable.length) {
+                const first = focusable[0], last = focusable[focusable.length - 1];
+                if (event.shiftKey) {
+                    if (document.activeElement === first) { event.preventDefault(); last.focus(); } else if (!DOM.eventModal.contains(document.activeElement)) { event.preventDefault(); last.focus(); }
+                } else if (document.activeElement === last) {
+                    event.preventDefault(); first.focus();
+                }
+            }
         }
     });
     window.addEventListener('click', event => {

@@ -1486,6 +1486,11 @@ a[href*="youtube"]:hover, .community-card[href*="youtube"]:hover { transform: sc
   font-weight: 800 !important;
 }
 
+.hero-v2__brand,
+.hero-v2__subtitle {
+  display: block;
+}
+
 .hero-v2__subtitle {
   color: #CBD5E1 !important;
   font-size: clamp(1.1rem, 2.2vw, 1.6rem) !important;

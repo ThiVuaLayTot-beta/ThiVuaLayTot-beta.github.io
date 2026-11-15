@@ -12,7 +12,7 @@ description: Đội ngũ quản trị nhiệt tình, sẵn sàng hỗ trợ thà
 <div id="admins" class="leaders-only pos_header">
     <h2 align="center">Các thành viên điều hành</h2>
     <div class="people">
-        <div id="own" class="list-item-people">
+        <span id="owner" aria-hidden="true"></span><div id="own" class="list-item-people">
             <div class="list-item-info">
                 <img class="profile-thumbnail" src="https://images.chesscomfiles.com/uploads/v1/group/515437.8435c963.160x160o.57cc274de812.png" alt="Mr. TungJohn">
                 <div class="list-people-detail">
