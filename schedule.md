@@ -1,8 +1,4 @@
 ---
-layout: default
-title: Lịch sự kiện của tháng
-schedule_css: /css/schedule.css
----
 
 <div class="schedule-intro-row">
     <p class="schedule-updated">

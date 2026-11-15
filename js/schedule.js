@@ -1355,7 +1355,7 @@ async function loadTournaments() {
             throw new Error(`API trả về ${rawEvents.length} sự kiện nhưng không có trường "startTime" hợp lệ. Hãy kiểm tra định dạng ngày trong JSON Apps Script.`);
         }
 
-        if (DOM.loadingEl) DOM.loadingEl.style.display = 'none';
+        if (DOM.loadingEl) DOM.loadingEl.style.display = 'none'; const skeletonEl = document.getElementById('schedule-skeleton'); if (skeletonEl) skeletonEl.style.display = 'none';
 
         if (STATE.tournaments.length === 0) {
             if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
