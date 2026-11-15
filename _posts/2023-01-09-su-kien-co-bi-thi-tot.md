@@ -6,6 +6,7 @@ tags: Giải đấu
 author: VN-SenJin
 description: Một sự kiện diễn ra trong câu lạc bộ Thí Vua Lấy Tốt và được tổ chức hàng tháng với tiền thưởng...
 permalink: /events/cbtt-co-bi-thi-tot
+date: 2023-01-09
 ---
 
 **Thể lệ đã được thay đổi và áp dụng từ 20/9/2026*
