@@ -2070,3 +2070,17 @@ a[href*="youtube"]:hover, .community-card[href*="youtube"]:hover { transform: sc
   }
 }
 
+/* Keep the first hero content clear of the fixed site navigation. */
+@media (max-width: 1100px) {
+  .home-page > .hero-v2 {
+    padding-top: calc(72px + 2rem + env(safe-area-inset-top, 0px));
+  }
+}
+
+@media (max-width: 768px) {
+  .home-page > .hero-v2 {
+    padding-top: calc(60px + 1.5rem + env(safe-area-inset-top, 0px));
+  }
+}
+
+
