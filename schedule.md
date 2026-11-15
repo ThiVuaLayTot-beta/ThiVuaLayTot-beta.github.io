@@ -1,5 +1,4 @@
 ---
----
 layout: default
 title: Lịch sự kiện của tháng
 schedule_css: /css/schedule.css
