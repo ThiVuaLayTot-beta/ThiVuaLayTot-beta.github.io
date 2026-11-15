@@ -1,6 +1,6 @@
 ---
 layout: post
-image: /images/tvltlogo.png
+image: /images/chess/chess-benefits.svg
 title: Những lợi ích khi chơi cờ vua
 category: chess
 tags: Cờ vua

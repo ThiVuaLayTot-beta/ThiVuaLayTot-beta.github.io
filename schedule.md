@@ -178,7 +178,7 @@ schedule_css: /css/schedule.css
         <div class="cc-modal-banner-section">
             <img id="modal-banner" src="/" alt="Banner">
         </div>
-        <button class="cc-modal-close" onclick="closeModal()" aria-label="Đóng cửa sổ">×</button>
+        <button type="button" class="cc-modal-close" aria-label="Đóng cửa sổ">×</button>
         <div class="cc-modal-content-wrapper">
             <div class="cc-modal-header-row">
                 <div class="cc-modal-logo-box">
