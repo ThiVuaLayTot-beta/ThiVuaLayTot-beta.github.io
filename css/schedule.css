@@ -1222,3 +1222,101 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
     }
 }
 
+
+
+/* Compact status selector: replaces the row of status chips. */
+.schedule-filter-panel-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+}
+
+.schedule-status-select-wrap {
+    display: grid;
+    gap: 6px;
+    width: min(100%, 245px);
+    min-width: 210px;
+    margin: 0;
+}
+
+.schedule-status-select-label {
+    color: #8fa3bd;
+    font-size: .68rem;
+    font-weight: 750;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.schedule-status-select-control {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid rgba(125, 211, 252, .24);
+    border-radius: 11px;
+    background: rgba(15, 23, 42, .68);
+    color: #7dd3fc;
+    transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.schedule-status-select-control:focus-within {
+    border-color: rgba(125, 211, 252, .72);
+    background: rgba(15, 23, 42, .9);
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, .1);
+}
+
+.schedule-status-select-control > i:first-child {
+    flex: 0 0 auto;
+    margin-right: 9px;
+    font-size: 17px;
+    pointer-events: none;
+}
+
+.schedule-status-select-control > i:last-child {
+    flex: 0 0 auto;
+    margin-left: 8px;
+    color: #91a8c2;
+    font-size: 18px;
+    pointer-events: none;
+}
+
+.schedule-status-select-control select {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    padding: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #e2e8f0;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.schedule-status-select-control select option {
+    background: #0b1729;
+    color: #e2e8f0;
+}
+
+@media (max-width: 1100px) {
+    .schedule-filter-panel-header {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .schedule-filter-panel-header {
+        grid-template-columns: minmax(0, 1fr);
+        align-items: stretch;
+    }
+
+    .schedule-status-select-wrap {
+        width: 100%;
+        min-width: 0;
+    }
+}

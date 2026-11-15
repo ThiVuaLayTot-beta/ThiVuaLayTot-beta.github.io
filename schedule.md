@@ -83,12 +83,19 @@ schedule_css: /css/schedule.css
                     <h3>Thu hẹp kết quả</h3>
                     <p>Chọn trạng thái hoặc kết hợp thêm bộ lọc bên dưới.</p>
                 </div>
-                <div id="schedule-status-filters" class="schedule-status-filters" role="group" aria-label="Lọc theo trạng thái">
-                    <button type="button" data-status="all" class="active" aria-pressed="true">Tất cả</button>
-                    <button type="button" data-status="upcoming" aria-pressed="false">Sắp diễn ra</button>
-                    <button type="button" data-status="ongoing" aria-pressed="false">Đang diễn ra</button>
-                    <button type="button" data-status="ended" aria-pressed="false">Đã kết thúc</button>
-                </div>
+                <label class="schedule-status-select-wrap" for="schedule-status-filters">
+                    <span class="schedule-status-select-label">Trạng thái</span>
+                    <span class="schedule-status-select-control">
+                        <i class="bx bx-pulse" aria-hidden="true"></i>
+                        <select id="schedule-status-filters" aria-label="Lọc sự kiện theo trạng thái">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="upcoming">Sắp diễn ra</option>
+                            <option value="ongoing">Đang diễn ra</option>
+                            <option value="ended">Đã kết thúc</option>
+                        </select>
+                        <i class="bx bx-chevron-down" aria-hidden="true"></i>
+                    </span>
+                </label>
             </div>
 
             <div id="schedule-filters" class="schedule-control-bar" style="display: none;">

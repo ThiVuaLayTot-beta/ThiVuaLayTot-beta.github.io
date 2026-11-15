@@ -482,11 +482,9 @@ function getFilterState() {
 }
 
 function updateStatusFilterButtons() {
-    DOM.statusFilters?.querySelectorAll('button[data-status]').forEach(button => {
-        const active = button.dataset.status === STATE.statusFilter;
-        button.classList.toggle('active', active);
-        button.setAttribute('aria-pressed', String(active));
-    });
+    if (DOM.statusFilters instanceof HTMLSelectElement) {
+        DOM.statusFilters.value = STATE.statusFilter;
+    }
 }
 
 function statusMatchesFilter(tournament) {
@@ -1441,9 +1439,9 @@ function initializeEventListeners() {
     if (DOM.btnViewList) DOM.btnViewList.addEventListener('click', () => switchView('list'));
     if (DOM.dayPanelClose) DOM.dayPanelClose.addEventListener('click', closeDailyEvents);
     if (DOM.modalCloseBtn) DOM.modalCloseBtn.addEventListener('click', closeModal);
-    DOM.statusFilters?.querySelectorAll('button[data-status]').forEach(button => {
-        button.addEventListener('click', () => setStatusFilter(button.dataset.status));
-    });
+    if (DOM.statusFilters instanceof HTMLSelectElement) {
+        DOM.statusFilters.addEventListener('change', () => setStatusFilter(DOM.statusFilters.value));
+    }
     updateStatusFilterButtons();
 }
 
