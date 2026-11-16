@@ -430,8 +430,10 @@ function updateFilterControls(filters = getFilterState()) {
         filters.types.length !== allTypes.length || STATE.statusFilter !== 'all');
     if (DOM.resetFilters) DOM.resetFilters.hidden = !hasActiveFilters;
     if (DOM.categoryButton) {
-        DOM.categoryButton.querySelector('.tour-dropdown-btn-content span').textContent =
-            filters.types.length === allTypes.length ? 'Thể loại' : `Thể loại (${filters.types.length}/${allTypes.length})`;
+        const categoryLabel = DOM.categoryButton.querySelector('[data-filter-label], .tour-dropdown-btn-content span');
+        const categoryText = `Thể loại (${filters.types.length}/${allTypes.length})`;
+        if (categoryLabel) categoryLabel.textContent = categoryText;
+        DOM.categoryButton.setAttribute('aria-label', `${categoryText}. Mở bộ lọc thể loại`);
     }
 }
 
@@ -1326,7 +1328,16 @@ function trapModalFocus(event) {
 function initializeEventListeners() {
     window.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
-            if (DOM.eventModal?.classList.contains('open')) closeModal();
+            if (DOM.eventModal?.classList.contains('open')) {
+                closeModal();
+            } else {
+                const openDropdown = document.querySelector('.tour-dropdown.open');
+                if (openDropdown) {
+                    openDropdown.classList.remove('open');
+                    DOM.categoryButton?.setAttribute('aria-expanded', 'false');
+                    DOM.categoryButton?.focus();
+                }
+            }
         } else if (event.key === 'Tab' && DOM.eventModal?.classList.contains('open')) {
             trapModalFocus(event);
         }
