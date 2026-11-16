@@ -2544,3 +2544,33 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
         transition: none;
     }
 }
+
+.empty-list-message {
+  grid-column: 1 / -1;
+  padding: 40px;
+  color: var(--neutral-500);
+  text-align: center;
+}
+
+.empty-list-message i {
+  display: block;
+  margin-bottom: 15px;
+  color: var(--cyan-400);
+  font-size: 3rem;
+}
+
+.empty-list-message p {
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.error-hint {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.9em;
+}
+
+.error-hint a {
+  color: inherit;
+  text-decoration: underline;
+}
