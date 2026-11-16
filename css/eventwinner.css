@@ -423,3 +423,40 @@
   .styled-table tbody tr,
   .cc-avatar-img { transition:none; }
 }
+
+/* Score breakdown dialog: fit the table on desktop, swipe it horizontally on touch screens. */
+.score-detail-table-scroll {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: visible;
+}
+
+.score-detail-table-scroll > .score-detail-table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.score-detail-table th,
+.score-detail-table td {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+@media (max-width: 768px) {
+  .score-detail-table-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
+  }
+
+  .score-detail-table-scroll > .score-detail-table {
+    width: 600px;
+    min-width: 600px;
+    max-width: none;
+    table-layout: auto;
+  }
+}
