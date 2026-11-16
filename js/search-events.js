@@ -52,14 +52,7 @@ const FILTER_CONFIG = {
         paramName: 'format',
         separator: ' '
     },
-    premium: {
-        elementId: 'premiumToggle',
-        paramName: 'premium',
-        getValue: (el) => (el?.checked ?? true) ? '1' : '0',
-        setValue: (el, val) => { if (el) el.checked = (val !== '0'); },
-        shouldSave: (val) => val === '0',
-        isSaved: (val, default_val) => val !== default_val
-    }
+
 };
 
 // ========== Helper Functions ==========
@@ -133,7 +126,7 @@ function parseCheckboxParam(paramValue) {
 window.loadTournamentFiltersFromURL = function() {
     const params = new URLSearchParams(window.location.search);
 
-    // Process single-element filters (search, sort, premium)
+    // Process single-element filters (search and sort)
     Object.entries(FILTER_CONFIG).forEach(([key, config]) => {
         if (config.elementId) {
             const element = document.getElementById(config.elementId);
@@ -193,17 +186,6 @@ window.saveTournamentFiltersToURL = function() {
 
 // ========== Filter Functions ==========
 
-/**
- * Toggles the visibility of Premium user badges inside tbody.
- */
-window.togglePremium = function() {
-    const premiumToggle = document.getElementById('premiumToggle');
-    const checked = premiumToggle?.checked ?? true;
-    const tbody = document.getElementById('tournament-tbody');
-    if (tbody) {
-        tbody.classList.toggle('hide-premium', !checked);
-    }
-};
 
 /**
  * Mapping for filter values to normalize data attributes
@@ -268,10 +250,6 @@ window.searchTable = debounce(function() {
     const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
 
-    // Toggle premium badges
-    if (typeof window.togglePremium === 'function') {
-        window.togglePremium();
-    }
 
     // Save state to URL
     if (typeof window.saveTournamentFiltersToURL === 'function') {

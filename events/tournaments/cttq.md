@@ -24,7 +24,7 @@ title: Bảng tổng giải Chiến Trường Thí Quân
 <div class="tour-select-container" style="grid-column: span 2;"><select id="cttq-status-filter" class="tour-select-btn" onchange="searchTable()"><option value="all">Tất cả trạng thái</option><option value="finished">Đã hoàn thành</option><option value="unfinished">Chưa hoàn thành</option></select></div>
 </div>
 <div class="tour-search-row"><div class="tour-search-wrapper"><span class="bx bx-search tour-search-icon"></span><input type="text" id="searchInput" class="tour-search-input" placeholder="Tìm kiếm..." onkeyup="searchTable()"></div>
-<div class="tour-misc"><label class="tour-switch-container"><span class="tour-switch"><input type="checkbox" id="premiumToggle" checked onchange="searchTable()"><span class="tour-slider"></span></span><span>Hiện Premium Badge</span></label><div id="loading-status" class="loading-status-badge"><span id="statusIcon" class="bx bx-dots-horizontal-rounded" style="color:var(--primary-warning)"></span><span id="current-tournament">0</span> tháng</div></div></div>
+<div class="tour-misc"><div id="loading-status" class="loading-status-badge"><span id="statusIcon" class="bx bx-dots-horizontal-rounded" style="color:var(--primary-warning)"></span><span id="current-tournament">0</span> tháng</div></div></div>
 </div>
 <section class="tournament-results-section">
     <div id="cttq-months-container" data-fetch-aggregated="cttq"></div>

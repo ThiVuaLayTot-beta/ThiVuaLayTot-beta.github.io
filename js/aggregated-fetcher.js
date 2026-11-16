@@ -36,7 +36,6 @@
         'closed:abuse': { c: 'user-badges-closed', i: 'bx bx-dislike', t: 'Bị khóa: Lạm dụng' },
         'closed:fair_play_violations': { c: 'user-badges-closed', i: 'bx bx-block', t: 'Bị khóa: Fair Play' },
         'closed': { c: 'user-badges-inactive', i: 'bx bx-no-signal', t: 'Bị khóa' },
-        'premium': { c: 'user-badges-premium', i: 'bx bxs-star', t: 'Premium' }
     };
 
     const PLAYER_TOP6_STORE = new Map();
@@ -699,7 +698,7 @@
                 return;
             }
 
-            container.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Tháng</th><th class=\"organization-day\">Thống kê</th><th class=\"players\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display: none\"><td style=\"color: var(--color-warning);font-size:medium\">Không tìm thấy kết quả nào!</td></tr></tbody></table></div>";
+            container.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Tháng</th><th class=\"organization-day\">Thống kê</th><th class=\"players\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display: none\"><td colspan=\"9\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div>";
 
             if (typeof window.loadTournamentFiltersFromURL === 'function') {
                 window.loadTournamentFiltersFromURL();

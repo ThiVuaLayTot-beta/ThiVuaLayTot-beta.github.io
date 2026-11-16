@@ -41,7 +41,6 @@
         'closed:abuse': { c: 'user-badges-closed', i: 'bx bx-dislike', t: 'Bị khóa: Lạm dụng' },
         'closed:fair_play_violations': { c: 'user-badges-closed', i: 'bx bx-block', t: 'Bị khóa: Fair Play' },
         'closed': { c: 'user-badges-inactive', i: 'bx bx-no-signal', t: 'Đã khóa' },
-        'premium': { c: 'user-badges-premium', i: 'bx bxs-star', t: 'Premium' }
     };
 
     function getRankBadge(rank) {
@@ -374,7 +373,7 @@
             return; 
         }
 
-        el.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Giải đấu</th><th class=\"organization-day\">Thời gian bắt đầu</th><th class=\"rules\">Thể lệ</th><th class=\"players\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display:none\"><td style=\"color:var(--color-warning)\">Không tìm thấy kết quả nào!</td></tr></tbody></table></div><br><br><hr>";
+        el.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Giải đấu</th><th class=\"organization-day\">Thời gian bắt đầu</th><th class=\"rules\">Thể lệ</th><th class=\"players\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display:none\"><td colspan=\"10\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div><br><br><hr>";
 
         if (typeof window.loadTournamentFiltersFromURL === 'function') {
             window.loadTournamentFiltersFromURL();
