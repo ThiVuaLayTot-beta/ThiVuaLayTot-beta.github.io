@@ -50,19 +50,27 @@ schedule_css: /css/schedule.css
     <header class="schedule-explorer-header" aria-labelledby="schedule-explorer-title">
         <div class="schedule-explorer-top">
             <div class="schedule-explorer-copy">
-                <span class="schedule-section-kicker">TRUNG TÂM ĐIỀU KHIỂN · 01</span>
+                <span class="schedule-section-kicker">LỊCH SỰ KIỆN</span>
                 <h2 id="schedule-explorer-title">Lịch thi đấu</h2>
                 <p>Theo dõi lịch, tìm giải phù hợp và truy cập nhanh thông tin sự kiện.</p>
             </div>
 
-            <div class="month-nav-wrapper" role="group" aria-label="Điều hướng lịch theo tháng">
-                <button type="button" class="month-nav-btn" id="btn-prev-month" title="Tháng trước" aria-label="Xem tháng trước">
-                    <i class="bx bx-chevron-left" aria-hidden="true"></i>
-                </button>
-                <div class="month-title" id="month-title" aria-live="polite">Đang tải…</div>
-                <button type="button" class="month-nav-btn" id="btn-next-month" title="Tháng sau" aria-label="Xem tháng sau">
-                    <i class="bx bx-chevron-right" aria-hidden="true"></i>
-                </button>
+            <div class="schedule-explorer-tools">
+                <div class="month-nav-wrapper" role="group" aria-label="Điều hướng lịch theo tháng">
+                    <button type="button" class="month-nav-btn" id="btn-prev-month" title="Tháng trước" aria-label="Xem tháng trước">
+                        <i class="bx bx-chevron-left" aria-hidden="true"></i>
+                    </button>
+                    <div class="month-display" aria-live="polite">
+                        <span class="month-display-label">ĐANG XEM</span>
+                        <div class="month-display-value">
+                            <span class="month-title" id="month-title">Đang tải…</span>
+                            <span class="month-year" id="month-year"></span>
+                        </div>
+                    </div>
+                    <button type="button" class="month-nav-btn" id="btn-next-month" title="Tháng sau" aria-label="Xem tháng sau">
+                        <i class="bx bx-chevron-right" aria-hidden="true"></i>
+                    </button>
+                </div>
                 <div id="view-switcher-container" class="segmented-control" style="display: none;" role="group" aria-label="Kiểu hiển thị">
                     <button type="button" id="btn-view-calendar" class="segment-btn" title="Xem dạng lịch" aria-pressed="false">
                         <i class="bx bx-calendar" aria-hidden="true"></i><span>Lịch</span>
@@ -77,7 +85,7 @@ schedule_css: /css/schedule.css
         <div class="schedule-filter-panel" role="search" aria-label="Tìm kiếm và lọc sự kiện">
             <div class="schedule-filter-panel-header">
                 <div class="schedule-filter-panel-title">
-                    <span class="schedule-filter-overline">02 / KHÁM PHÁ SỰ KIỆN</span>
+                    <span class="schedule-filter-overline">KHÁM PHÁ SỰ KIỆN</span>
                     <h3>Tìm giải đấu phù hợp</h3>
                 </div>
                 <p class="schedule-filter-hint"><i class="bx bx-info-circle" aria-hidden="true"></i> Kết hợp các tiêu chí để tìm nhanh sự kiện phù hợp.</p>

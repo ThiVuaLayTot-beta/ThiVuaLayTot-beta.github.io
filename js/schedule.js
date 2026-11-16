@@ -99,6 +99,7 @@ function cacheDOMElements() {
     DOM.calendarBody = document.getElementById('calendar-body');
     DOM.listContainer = document.getElementById('list-container');
     DOM.monthTitle = document.getElementById('month-title');
+    DOM.monthYear = document.getElementById('month-year');
     DOM.btnPrevMonth = document.getElementById('btn-prev-month');
     DOM.btnNextMonth = document.getElementById('btn-next-month');
     DOM.resultsSummary = document.getElementById('schedule-results-summary');
@@ -1054,9 +1055,8 @@ function renderActiveView() {
         if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
         return;
     }
-    if (DOM.monthTitle) {
-        DOM.monthTitle.textContent = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
-    }
+    if (DOM.monthTitle) DOM.monthTitle.textContent = CONFIG.MONTH_NAMES[STATE.displayMonth];
+    if (DOM.monthYear) DOM.monthYear.textContent = String(STATE.displayYear);
     updateNavButtonStates();
     updateFilterControls();
     updateResultsSummary();
