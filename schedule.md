@@ -6,38 +6,18 @@ schedule_css: /css/schedule.css
 
 <div class="schedule-intro-row">
     <details class="schedule-guide">
-        <summary><i class="bx bx-info-circle" aria-hidden="true"></i> Hướng dẫn sử dụng</summary>
-        <section class="schedule-intro" aria-label="Hướng dẫn sử dụng lịch">
-            <p class="schedule-intro-title">Tìm giải nhanh, rồi chọn một sự kiện để xem chi tiết và tham gia.</p>
+        <summary>💡 Mẹo sử dụng lịch</summary>
+        <section class="schedule-intro" aria-label="Mẹo sử dụng lịch">
             <ul>
-                <li>Chọn biểu tượng giải đấu trên lịch hoặc nút <strong>Chi tiết</strong> trong danh sách.</li>
+                <li>Bấm vào ngày hoặc biểu tượng giải đấu để xem chi tiết &amp; tham gia.</li>
                 <li>Các mục <strong>Dự kiến</strong> có thể thay đổi về ngày, giờ hoặc thể lệ.</li>
-                <li>Dùng tìm kiếm, bộ lọc trạng thái, thể loại và giải thưởng để thu hẹp kết quả.</li>
+                <li>Lọc nhanh theo trạng thái, <strong>Thể loại</strong> &amp; <strong>🏆 Chỉ có thưởng</strong>.</li>
+                <li>Chuyển đổi nhanh giữa chế độ <strong>Lịch</strong> và <strong>Danh sách</strong>.</li>
             </ul>
         </section>
     </details>
 </div>
 
-<section id="next-match-spotlight" class="next-match-spotlight" aria-live="off" hidden>
-    <div class="next-match-main">
-        <div class="next-match-eyebrow">
-            <span class="next-match-kicker"><i class="bx bx-broadcast" aria-hidden="true"></i> TÂM ĐIỂM SẮP DIỄN RA</span>
-            <span id="next-match-priority" class="next-match-priority" hidden></span>
-        </div>
-        <h2 id="next-match-title">Đang tìm giải đấu tiếp theo…</h2>
-        <p id="next-match-meta" class="next-match-meta"></p>
-    </div>
-    <div class="next-match-aside">
-        <div class="next-match-countdown-wrap">
-            <span>Thời gian bắt đầu còn</span>
-            <strong id="next-match-countdown">--:--:--</strong>
-        </div>
-        <div class="next-match-actions">
-            <a id="next-match-join" class="next-match-join" href="#" target="_blank" rel="noopener noreferrer" hidden><i class="bx bx-log-in-circle" aria-hidden="true"></i> Vào phòng đấu</a>
-            <button id="next-match-detail" type="button" class="next-match-detail"><i class="bx bx-info-circle" aria-hidden="true"></i> Chi tiết</button>
-        </div>
-    </div>
-</section>
 
 <section class="schedule-explorer" aria-label="Điều hướng lịch và bộ lọc sự kiện">
     <header class="schedule-explorer-header">
@@ -48,9 +28,9 @@ schedule_css: /css/schedule.css
                         <i class="bx bx-chevron-left" aria-hidden="true"></i>
                     </button>
                     <div class="month-display" aria-live="polite">
-                        <span class="month-display-label">ĐANG XEM</span>
+                        <span class="month-display-label">THÁNG</span>
                         <div class="month-display-value">
-                            <span class="month-title" id="month-title">Đang tải…</span>
+                            <span class="month-title" id="month-title"><span class="month-box">11</span><span class="year-box">2026</span></span>
                             <span class="month-year" id="month-year"></span>
                         </div>
                     </div>
@@ -95,7 +75,7 @@ schedule_css: /css/schedule.css
                     <button type="button" class="tour-dropdown-btn compact-btn" id="schedule-category-button" aria-expanded="false" aria-controls="schedule-type-group">
                         <span class="tour-dropdown-btn-content">
                             <i class="bx bx-filter-alt" aria-hidden="true"></i>
-                            <span data-filter-label>Thể loại (9/9)</span>
+                            <span data-filter-label>Thể loại (8/8)</span>
                         </span>
                         <i class="bx bx-chevron-down tour-dropdown-arrow" aria-hidden="true"></i>
                     </button>
@@ -103,7 +83,7 @@ schedule_css: /css/schedule.css
                         <label class="custom-checkbox-container"><input type="checkbox" value="tvlt" checked><span class="checkmark"></span> Thí Vua Lấy Tốt</label>
                         <label class="custom-checkbox-container"><input type="checkbox" value="cttq" checked><span class="checkmark"></span> Chiến Trường Thí Quân</label>
                         <label class="custom-checkbox-container"><input type="checkbox" value="cbtt" checked><span class="checkmark"></span> Cờ Bí Thí Tốt</label>
-                        <label class="custom-checkbox-container"><input type="checkbox" value="dttv" checked><span class="checkmark"></span> Đấu Trường Thí Vua</label>
+                        <label class="custom-checkbox-container"><input type="checkbox" id="schedule-prize-filter"><span class="checkmark"></span> 🏆 Chỉ có thưởng</label>
                         <label class="custom-checkbox-container"><input type="checkbox" value="multi-club-arena" checked><span class="checkmark"></span> Đấu trường đa CLB (Multi-Club Arena)</label>
                         <label class="custom-checkbox-container"><input type="checkbox" value="club-arena" checked><span class="checkmark"></span> Đấu trường Arena</label>
                         <label class="custom-checkbox-container"><input type="checkbox" value="swiss" checked><span class="checkmark"></span> Hệ Thụy Sĩ (Swiss)</label>
@@ -112,14 +92,7 @@ schedule_css: /css/schedule.css
                     </div>
                 </div>
 
-                <label class="compact-switch-container schedule-filter-prize">
-                    <span class="compact-switch">
-                        <input type="checkbox" id="schedule-prize-filter">
-                        <span class="compact-slider"></span>
-                    </span>
-                    <span class="switch-label">Chỉ có thưởng</span>
-                </label>
-
+         
                 <button type="button" id="schedule-reset-filters" class="reset-filters-btn" hidden>
                     <i class="bx bx-reset" aria-hidden="true"></i> Xóa lọc
                 </button>

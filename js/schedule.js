@@ -433,7 +433,7 @@ function getCurrentMonthEvents(filters = getFilterState()) {
 }
 
 function updateFilterControls(filters = getFilterState()) {
-    const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]') || []);
+    const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)') || []);
     const hasActiveFilters = Boolean(filters.search || filters.onlyPrize ||
         filters.types.length !== allTypes.length || STATE.statusFilter !== 'all');
     if (DOM.resetFilters) DOM.resetFilters.hidden = !hasActiveFilters;
@@ -470,7 +470,7 @@ function updateResultsSummary() {
 function resetFilters() {
     if (DOM.scheduleSearch) DOM.scheduleSearch.value = '';
     if (DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = false;
-    DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]').forEach(checkbox => { checkbox.checked = true; });
+    DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)').forEach(checkbox => { checkbox.checked = true; });
     STATE.statusFilter = 'all';
     updateStatusFilterButtons();
     filterSchedule();
@@ -480,7 +480,7 @@ function getFilterState() {
     return {
         search: removeVietnameseTones(DOM.scheduleSearch?.value || ''),
         onlyPrize: DOM.schedulePrizeFilter?.checked || false,
-        types: Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:checked') || []).map(cb => cb.value)
+        types: Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter):checked') || []).map(cb => cb.value)
     };
 }
 
@@ -522,7 +522,7 @@ function loadFiltersFromURL() {
     if (['upcoming', 'ongoing', 'ended'].includes(status)) STATE.statusFilter = status;
     if (params.has('type') && DOM.scheduleTypeGroup) {
         const selectedTypes = params.get('type').toLowerCase().split(/[\s+]+/);
-        DOM.scheduleTypeGroup.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        DOM.scheduleTypeGroup.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)').forEach(cb => {
             cb.checked = selectedTypes.includes(cb.value.toLowerCase());
         });
     }
@@ -534,7 +534,7 @@ function saveFiltersToURL() {
     if (filters.search) params.set('search', filters.search);
     if (DOM.schedulePrizeFilter?.checked) params.set('prize', '1');
     if (STATE.statusFilter !== 'all') params.set('status', STATE.statusFilter);
-    const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]') || [])
+    const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)') || [])
         .map(cb => cb.value);
     if (filters.types.length < allTypes.length) {
         params.set('type', filters.types.length ? filters.types.join(' ') : 'none');
@@ -1070,8 +1070,8 @@ function renderActiveView() {
         if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
         return;
     }
-    if (DOM.monthTitle) DOM.monthTitle.textContent = CONFIG.MONTH_NAMES[STATE.displayMonth];
-    if (DOM.monthYear) DOM.monthYear.textContent = String(STATE.displayYear);
+    if (DOM.monthTitle) { const monthStr = padZero(STATE.displayMonth + 1); const yearStr = String(STATE.displayYear); const key = `${monthStr}-${yearStr}`; if (DOM.monthTitle.dataset.monthKey !== key) { DOM.monthTitle.dataset.monthKey = key; DOM.monthTitle.innerHTML = `<span class="month-box">${monthStr}</span><span class="year-box">${yearStr}</span>`; } }
+    if (DOM.monthYear) DOM.monthYear.textContent = '';
     updateNavButtonStates();
     updateFilterControls();
     updateResultsSummary();
@@ -1183,7 +1183,7 @@ function ensureEventTypeFilters(events) {
     const group = DOM.scheduleTypeGroup;
     if (!group) return;
 
-    const existingCheckboxes = Array.from(group.querySelectorAll('input[type="checkbox"]'));
+    const existingCheckboxes = Array.from(group.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)'));
     const existingTypes = new Set(existingCheckboxes.map(checkbox => checkbox.value.toLowerCase()));
     const params = new URLSearchParams(window.location.search);
     const typeParam = params.get('type');
