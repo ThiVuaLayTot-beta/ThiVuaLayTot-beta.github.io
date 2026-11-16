@@ -1327,7 +1327,6 @@ function initializeEventListeners() {
     window.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
             if (DOM.eventModal?.classList.contains('open')) closeModal();
-
         } else if (event.key === 'Tab' && DOM.eventModal?.classList.contains('open')) {
             trapModalFocus(event);
         }

@@ -25,7 +25,7 @@ schedule_css: /css/schedule.css
     </details>
 </div>
 
-<section id="next-match-spotlight" class="next-match-spotlight" aria-live="polite" hidden>
+<section id="next-match-spotlight" class="next-match-spotlight" aria-live="off" hidden>
     <div class="next-match-main">
         <div class="next-match-eyebrow">
             <span class="next-match-kicker"><i class="bx bx-broadcast" aria-hidden="true"></i> TÂM ĐIỂM SẮP DIỄN RA</span>
