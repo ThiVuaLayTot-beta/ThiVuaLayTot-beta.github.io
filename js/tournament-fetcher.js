@@ -210,7 +210,7 @@
                 </div>
 
                 <div class="score-detail-table-scroll">
-                <table class="styled-table score-detail-table">
+                    <table class="styled-table score-detail-table">
                     <thead>
                         <tr>
                             <th>Giải Đấu</th>
@@ -250,7 +250,7 @@
             });
 
             html += `</tbody>
-                </table>
+                    </table>
                 </div>
             </div>`;
 
