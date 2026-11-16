@@ -440,9 +440,9 @@
                 const s = data.settings?.initial_setup || null;
                 if ((v === 'standard' || v === 'chess') && s) v = 'custom';
 
-                const fmtStr = rds === 1 
-                    ? ` Đấu trường Arena ${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}` 
-                    : ` Hệ Thụy Sĩ ${rds} vòng`;
+                const fmtStr = rds === 1
+                    ? `<span class="tournament-format-badge tournament-format-arena"><i class="bx bx-trophy" aria-hidden="true"></i><span>Arena</span><span class="tournament-format-detail">${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}</span></span>`
+                    : `<span class="tournament-format-badge tournament-format-swiss"><i class="bx bx-list-ol" aria-hidden="true"></i><span>Hệ Thụy Sĩ</span><span class="tournament-format-detail">${rds} vòng</span></span>`;
 
                 let row = `<td><a href="${data.url}" target="_blank">${data.name}</a></td>
                     <td>${formatDate(data.start_time || data.startTime)}</td>

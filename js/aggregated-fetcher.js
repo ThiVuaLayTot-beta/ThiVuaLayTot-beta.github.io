@@ -367,9 +367,9 @@
                 }
 
                 const tourPlayers = this.buildPlayersMap(data.players || [], pointsMap);
-                const format = meta.rounds === 1 
-                    ? `Đấu trường Arena ${calculateDuration(meta.startTime, meta.endTime)}`
-                    : `Hệ Thụy Sĩ ${meta.rounds} vòng`;
+                const format = meta.rounds === 1
+                    ? `<span class="tournament-format-badge tournament-format-arena"><i class="bx bx-trophy" aria-hidden="true"></i><span>Arena</span><span class="tournament-format-detail">${calculateDuration(meta.startTime, meta.endTime)}</span></span>`
+                    : `<span class="tournament-format-badge tournament-format-swiss"><i class="bx bx-list-ol" aria-hidden="true"></i><span>Hệ Thụy Sĩ</span><span class="tournament-format-detail">${meta.rounds} vòng</span></span>`;
 
                 tournaments.push({
                     id: tournamentIds[i],
