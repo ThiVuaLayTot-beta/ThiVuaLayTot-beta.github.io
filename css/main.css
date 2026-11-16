@@ -225,14 +225,6 @@ hr {
   margin: 0 auto;
 }
 
-.container-fluid {
-  width: 100%;
-  padding-right: var(--space-md);
-  padding-left: var(--space-md);
-  margin-right: auto;
-  margin-left: auto;
-}
-
 @media (max-width: 1024px) {
   .container {
     padding: var(--space-6xl) var(--space-4xl);
@@ -766,7 +758,6 @@ html {
   }
 }
 
-
 /* BUTTONS */
 
 .btn {
@@ -838,47 +829,7 @@ html {
   color: var(--color-text-primary);
 }
 
-.btn-accent {
-  background-color: var(--color-accent);
-  color: var(--color-bg-primary);
-}
-
-.btn-accent:hover {
-  background-color: var(--color-accent-dark);
-}
-
-.btn-success {
-  background-color: var(--color-success);
-}
-
-.btn-success:hover {
-  background-color: var(--color-success-dark);
-}
-
-.btn-danger {
-  background-color: var(--color-danger);
-}
-
-.btn-danger:hover {
-  background-color: var(--color-danger-dark);
-}
-
 /* LINKS & TEXT UTILITIES */
-
-.text-color {
-  background: var(--gradient-purple-cyan);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.text-muted {
-  color: var(--color-text-muted);
-}
 
 /* SOCIAL BUTTONS */
 
@@ -1572,12 +1523,11 @@ footer .bottom-details .bottom_text {
     line-height: 1.4;
 }
 
-.search-no-results, .search-error {
+.search-no-results {
     padding: 20px;
     text-align: center;
     color: var(--color-text-secondary);
 }
-
 
 /* Mobile & Tablet UI/UX Overhaul for Navbar & Global Layout */
 html, body {
@@ -1593,9 +1543,7 @@ html, body {
                     }
 
                       .tvlt-brand .logo,
-                        .tvlt-brand__logo,
-                          .brand-logo img,
-                            .page-header .logo {
+                        .page-header .logo {
                                 width: 36px !important;
                                     height: 36px !important;
                                         max-width: 36px !important;
@@ -1603,8 +1551,7 @@ html, body {
                                                 object-fit: contain;
                                                   }
 
-                                                    .tvlt-brand__text,
-                                                      .brand-text {
+                                                    .tvlt-brand__text {
                                                           white-space: nowrap !important;
                                                               overflow: hidden;
                                                                   text-overflow: ellipsis;
@@ -1635,9 +1582,7 @@ html, body {
                                                                                                                                           }
 
                                                                                                                                             #open-search-btn span:not(.bx):not([class*="bx"]),
-                                                                                                                                              #open-search-btn .btn-text,
-                                                                                                                                                #open-search-btn .search-label,
-                                                                                                                                                  .nav-search-btn span:not(.bx):not([class*="bx"]) {
+                                                                                                                                              .nav-search-btn span:not(.bx):not([class*="bx"]) {
                                                                                                                                                       display: none !important;
                                                                                                                                                         }
 
@@ -1654,10 +1599,9 @@ html, body {
 
                                                                                                                                                                                             #mobile-nav-menu a,
                                                                                                                                                                                               #mobile-nav-menu .nav-link,
-                                                                                                                                                                                                #mobile-nav-menu button,
-                                                                                                                                                                                                  #mobile-nav-menu .menu-item,
-                                                                                                                                                                                                    .nav-menu a,
-                                                                                                                                                                                                      .nav-menu button {
+                                                                                                                                                                                              #mobile-nav-menu button,
+                                                                                                                                                                                              .nav-menu a,
+                                                                                                                                                                                              .nav-menu button {
                                                                                                                                                                                                           min-height: 44px !important;
                                                                                                                                                                                                               height: 44px !important;
                                                                                                                                                                                                                   display: flex !important;
