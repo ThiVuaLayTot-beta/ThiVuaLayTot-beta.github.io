@@ -2,7 +2,6 @@ const CONFIG = {
     API_URL: 'https://script.google.com/macros/s/AKfycbzBFtevfcYM7MLEgpB2R5hn4_sS3RovSy_rBiuljJMRgOJ7KEl50lffXH46aEOd-uAX/exec',
     VIETNAM_OFFSET_MS: 7 * 3600 * 1000,
     EVENT_DURATION_MS: 2 * 60 * 60 * 1000,
-    MOBILE_BREAKPOINT: 768,
     MONTH_NAMES: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
     DAY_NAMES_VN: ['Chủ Nhật', 'Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy'],
     INTERNAL_EVENT_TYPES: ["cttq", "tvlt", "cbtt", "dttv"]
@@ -75,7 +74,6 @@ const STATE = {
     displayMonth: undefined,
     lastFocusedElement: null,
     statusFilter: 'all',
-    selectedDate: null,
     nextMatch: null,
     countdownTimer: null
 };
@@ -86,11 +84,6 @@ function cacheDOMElements() {
     DOM.emptyEl = document.getElementById('empty');
     DOM.lastUpdatedEl = document.getElementById('last-updated');
     DOM.statusFilters = document.getElementById('schedule-status-filters');
-    DOM.todayButton = document.getElementById('btn-today');
-    DOM.dayPanel = document.getElementById('schedule-day-panel');
-    DOM.dayPanelTitle = document.getElementById('schedule-day-panel-title');
-    DOM.dayPanelEvents = document.getElementById('schedule-day-panel-events');
-    DOM.dayPanelClose = document.getElementById('schedule-day-panel-close');
     DOM.nextMatchSpotlight = document.getElementById('next-match-spotlight');
     DOM.nextMatchTitle = document.getElementById('next-match-title');
     DOM.nextMatchPriority = document.getElementById('next-match-priority');
@@ -501,7 +494,6 @@ function setStatusFilter(status) {
     saveFiltersToURL();
     updateStatusFilterButtons();
     renderActiveView();
-    if (STATE.selectedDate) openDailyEvents(STATE.selectedDate, false);
 }
 
 function matchesFilters(tournament, filters) {
@@ -585,20 +577,6 @@ function renderCalendar() {
         for (let j = 0; j < 7; j++) {
             const dayObj = days[i + j];
             const td = document.createElement('td');
-            const dateKey = `${dayObj.year}-${padZero(dayObj.month + 1)}-${padZero(dayObj.day)}`;
-            td.dataset.date = dateKey;
-            td.tabIndex = 0;
-            td.setAttribute('aria-label', `Xem sự kiện ngày ${dayObj.day}/${dayObj.month + 1}/${dayObj.year}`);
-            if (STATE.selectedDate === dateKey) td.classList.add('is-selected');
-            td.addEventListener('click', event => {
-                if (event.target.closest('.event-icon')) return;
-                openDailyEvents(dateKey);
-            });
-            td.addEventListener('keydown', event => {
-                if (event.target !== td || !['Enter', ' '].includes(event.key)) return;
-                event.preventDefault();
-                openDailyEvents(dateKey);
-            });
             if (!dayObj.isCurrentMonth) td.classList.add('other-month');
             if (vnToday.getUTCFullYear() === dayObj.year &&
                 vnToday.getUTCMonth() === dayObj.month &&
@@ -953,51 +931,6 @@ function updateViewSwitcherButtons() {
     }
 }
 
-function getScheduleDateKey(year, month, day) {
-    return `${year}-${padZero(month + 1)}-${padZero(day)}`;
-}
-
-function closeDailyEvents() {
-    STATE.selectedDate = null;
-    if (DOM.dayPanel) DOM.dayPanel.hidden = true;
-    DOM.calendarBody?.querySelectorAll('td.is-selected').forEach(cell => cell.classList.remove('is-selected'));
-}
-
-function openDailyEvents(dateKey, shouldScroll = true) {
-    if (!DOM.dayPanel || !DOM.dayPanelEvents || !/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) return;
-
-    STATE.selectedDate = dateKey;
-    const [year, month, day] = dateKey.split('-').map(Number);
-    DOM.dayPanelTitle.textContent = `Sự kiện ngày ${padZero(day)}/${padZero(month)}/${year}`;
-    DOM.dayPanelEvents.textContent = '';
-
-    const events = getSortedEvents().filter(tournament => {
-        const parts = getVietnamDateParts(tournament.startTime);
-        return getScheduleDateKey(parts.year, parts.month, parts.date) === dateKey &&
-            matchesFilters(tournament, getFilterState());
-    });
-
-    if (!events.length) {
-        const empty = document.createElement('p');
-        empty.className = 'empty-list-message';
-        empty.textContent = 'Không có sự kiện nào trong ngày này khớp với bộ lọc hiện tại.';
-        DOM.dayPanelEvents.appendChild(empty);
-    } else {
-        events.forEach(tournament => renderEventCard(tournament, DOM.dayPanelEvents));
-    }
-
-    DOM.dayPanel.hidden = false;
-    DOM.calendarBody?.querySelectorAll('td.is-selected').forEach(cell => cell.classList.remove('is-selected'));
-    DOM.calendarBody?.querySelector(`td[data-date="${dateKey}"]`)?.classList.add('is-selected');
-
-    if (shouldScroll && window.innerWidth <= CONFIG.MOBILE_BREAKPOINT) {
-        DOM.dayPanel.scrollIntoView({
-            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-            block: 'nearest'
-        });
-    }
-}
-
 function updateNextMatchCountdown() {
     if (!STATE.nextMatch || !DOM.nextMatchCountdown) return;
 
@@ -1094,6 +1027,8 @@ function updateNextMatchSpotlight() {
         DOM.nextMatchPriority.textContent = priority.label;
         DOM.nextMatchPriority.hidden = false;
     }
+    const countdownWrap = DOM.nextMatchCountdown?.closest('.next-match-countdown-wrap');
+    if (countdownWrap) countdownWrap.hidden = !next.hasStartTime;
     DOM.nextMatchSpotlight.dataset.priority = priority.key;
     DOM.nextMatchSpotlight.hidden = false;
 
@@ -1104,23 +1039,6 @@ function updateNextMatchSpotlight() {
     }
     if (DOM.nextMatchDetail) DOM.nextMatchDetail.onclick = () => openModal(next);
     updateNextMatchCountdown();
-}
-
-function goToToday() {
-    const today = getVietnamNow();
-    STATE.displayYear = today.getUTCFullYear();
-    STATE.displayMonth = today.getUTCMonth();
-    STATE.currentView = 'calendar';
-    closeDailyEvents();
-    updateViewSwitcherButtons();
-    renderActiveView();
-
-    const dateKey = getScheduleDateKey(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
-    DOM.calendarBody?.querySelector(`td[data-date="${dateKey}"]`)?.scrollIntoView({
-        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-        block: 'center'
-    });
-    if (window.innerWidth <= CONFIG.MOBILE_BREAKPOINT) openDailyEvents(dateKey);
 }
 
 function renderActiveView() {
@@ -1165,7 +1083,6 @@ function changeMonth(offset) {
 
     if (targetAbsoluteMonth < currentAbsoluteMonth - 1 || targetAbsoluteMonth > currentAbsoluteMonth + 1) return;
 
-    closeDailyEvents();
     STATE.displayMonth += offset;
     if (STATE.displayMonth < 0) {
         STATE.displayMonth = 11;
@@ -1179,7 +1096,6 @@ function changeMonth(offset) {
 
 function switchView(view) {
     if (!['calendar', 'list'].includes(view)) return;
-    if (view === 'list') closeDailyEvents();
     STATE.currentView = view;
     updateViewSwitcherButtons();
     renderActiveView();
@@ -1200,7 +1116,6 @@ function toggleTourDropdown(id) {
 function filterSchedule() {
     saveFiltersToURL();
     renderActiveView();
-    if (STATE.selectedDate) openDailyEvents(STATE.selectedDate, false);
 }
 
 function normalizeEventDate(value) {
@@ -1412,7 +1327,7 @@ function initializeEventListeners() {
     window.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
             if (DOM.eventModal?.classList.contains('open')) closeModal();
-            closeDailyEvents();
+
         } else if (event.key === 'Tab' && DOM.eventModal?.classList.contains('open')) {
             trapModalFocus(event);
         }
@@ -1434,10 +1349,8 @@ function initializeEventListeners() {
     if (DOM.categoryButton) DOM.categoryButton.addEventListener('click', () => toggleTourDropdown('schedule-category-dropdown'));
     if (DOM.btnPrevMonth) DOM.btnPrevMonth.addEventListener('click', () => changeMonth(-1));
     if (DOM.btnNextMonth) DOM.btnNextMonth.addEventListener('click', () => changeMonth(1));
-    if (DOM.todayButton) DOM.todayButton.addEventListener('click', goToToday);
     if (DOM.btnViewCalendar) DOM.btnViewCalendar.addEventListener('click', () => switchView('calendar'));
     if (DOM.btnViewList) DOM.btnViewList.addEventListener('click', () => switchView('list'));
-    if (DOM.dayPanelClose) DOM.dayPanelClose.addEventListener('click', closeDailyEvents);
     if (DOM.modalCloseBtn) DOM.modalCloseBtn.addEventListener('click', closeModal);
     if (DOM.statusFilters instanceof HTMLSelectElement) {
         DOM.statusFilters.addEventListener('change', () => setStatusFilter(DOM.statusFilters.value));

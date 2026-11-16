@@ -26,21 +26,23 @@ schedule_css: /css/schedule.css
 </div>
 
 <section id="next-match-spotlight" class="next-match-spotlight" aria-live="polite" hidden>
-    <div class="next-match-content">
+    <div class="next-match-main">
         <div class="next-match-eyebrow">
             <span class="next-match-kicker"><i class="bx bx-broadcast" aria-hidden="true"></i> TÂM ĐIỂM SẮP DIỄN RA</span>
             <span id="next-match-priority" class="next-match-priority" hidden></span>
         </div>
         <h2 id="next-match-title">Đang tìm giải đấu tiếp theo…</h2>
         <p id="next-match-meta" class="next-match-meta"></p>
+    </div>
+    <div class="next-match-aside">
         <div class="next-match-countdown-wrap">
             <span>Thời gian bắt đầu còn</span>
             <strong id="next-match-countdown">--:--:--</strong>
         </div>
-    </div>
-    <div class="next-match-actions">
-        <a id="next-match-join" class="next-match-join" href="#" target="_blank" rel="noopener noreferrer" hidden><i class="bx bx-log-in-circle" aria-hidden="true"></i> Vào phòng đấu</a>
-        <button id="next-match-detail" type="button" class="next-match-detail"><i class="bx bx-info-circle" aria-hidden="true"></i> Chi tiết</button>
+        <div class="next-match-actions">
+            <a id="next-match-join" class="next-match-join" href="#" target="_blank" rel="noopener noreferrer" hidden><i class="bx bx-log-in-circle" aria-hidden="true"></i> Vào phòng đấu</a>
+            <button id="next-match-detail" type="button" class="next-match-detail"><i class="bx bx-info-circle" aria-hidden="true"></i> Chi tiết</button>
+        </div>
     </div>
 </section>
 
@@ -56,10 +58,6 @@ schedule_css: /css/schedule.css
             <div class="month-nav-wrapper" role="group" aria-label="Điều hướng lịch theo tháng">
                 <button type="button" class="month-nav-btn" id="btn-prev-month" title="Tháng trước" aria-label="Xem tháng trước">
                     <i class="bx bx-chevron-left" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="month-nav-today" id="btn-today" title="Quay về tháng và ngày hiện tại">
-                    <i class="bx bx-calendar-check" aria-hidden="true"></i>
-                    <span>Hôm nay</span>
                 </button>
                 <div class="month-title" id="month-title" aria-live="polite">Đang tải…</div>
                 <button type="button" class="month-nav-btn" id="btn-next-month" title="Tháng sau" aria-label="Xem tháng sau">
@@ -157,13 +155,6 @@ schedule_css: /css/schedule.css
                 <tbody id="calendar-body"></tbody>
             </table>
         </div>
-        <section id="schedule-day-panel" class="schedule-day-panel" aria-live="polite" hidden>
-            <div class="schedule-day-panel-header">
-                <h2 id="schedule-day-panel-title">Sự kiện trong ngày</h2>
-                <button type="button" id="schedule-day-panel-close" aria-label="Đóng danh sách ngày"><i class="bx bx-x" aria-hidden="true"></i></button>
-            </div>
-            <div id="schedule-day-panel-events" class="schedule-day-panel-events"></div>
-        </section>
         <div id="list-wrapper" style="display: none;"><div id="list-container" class="events-list-grid"></div></div>
         <p id="schedule-results-summary" class="schedule-results-summary" aria-live="polite"></p>
         <div id="error" style="display: none;" role="alert"></div>
