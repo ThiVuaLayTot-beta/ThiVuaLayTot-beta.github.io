@@ -637,7 +637,7 @@ function renderCalendar() {
             td.classList.toggle('other-month', !isCurrentMonth);
             td.classList.toggle('today', today.getUTCFullYear() === year && today.getUTCMonth() === month && today.getUTCDate() === day);
 
-            const dayNum = document.createElement('span');
+            const dayNum = document.createElement('div');
             dayNum.className = 'day-number';
             dayNum.textContent = day;
 
@@ -646,8 +646,7 @@ function renderCalendar() {
             (eventsByDay.get(dateKeyOf(year, month, day)) || []).forEach(tournament => {
                 eventsDiv.appendChild(createEventIcon(tournament));
             });
-
-            const dayHeader = document.createElement('div'); dayHeader.className = 'day-cell-header'; dayHeader.appendChild(dayNum); if (td.classList.contains('today')) { const todayTag = document.createElement('span'); todayTag.className = 'today-badge'; todayTag.textContent = 'HÔM NAY'; dayHeader.appendChild(todayTag); } if (eventsDiv.childElementCount >= 2) { const countBadge = document.createElement('span'); countBadge.className = 'day-event-count'; countBadge.textContent = eventsDiv.childElementCount + ' giải'; dayHeader.appendChild(countBadge); } td.append(dayHeader, eventsDiv);
+            td.append(dayNum, eventsDiv);
             tr.appendChild(td);
         });
         rows.appendChild(tr);
@@ -742,7 +741,7 @@ function getEventEndTime(tournament) {
 
 function renderEventCard(tournament, container) {
     const card = document.createElement('div');
-    card.className = 'event-list-card event-card';
+    card.className = 'event-list-card';
     const isCoThuong = isPrizeEvent(tournament);
     const isTentative = isTentativeEvent(tournament);
     const isEnded = isEndedEvent(tournament);
