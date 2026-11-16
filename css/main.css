@@ -937,8 +937,6 @@ footer {
 .footer .footer_main {
   position: relative;
   padding: 4rem 3rem;
-  margin-left: auto;
-  margin-right: auto;
   background:
     linear-gradient(
       135deg,
@@ -949,17 +947,9 @@ footer {
 }
 
 .footer_main .footer_content {
-  margin-left: auto;
-  margin-right: auto;
   display: grid;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   gap: 3rem;
-}
-
-.footer_content .col_1 {
-  grid-column: span 1 / span 1;
-  align-items: center;
-  justify-content: center;
 }
 
 .footer_content .tvlt_details {
@@ -972,13 +962,8 @@ footer {
   animation: leftSideAni 1s ease forwards;
 }
 
-.footer_content .col_1 .logo img {
-  width: 50px;
-  height: 50px;
-}
-
 .footer_content .col_1 .logo:hover {
-    transform: scale(1.2);
+  transform: scale(1.2);
 }
 
 .footer_content .col_1 .tvlt_name {
@@ -990,7 +975,7 @@ footer {
 
 .footer_content .col_1 .tungjohn {
   color: antiquewhite;
-  font-size: .875rem;
+  font-size: 0.875rem;
   line-height: 1.25rem;
   font-weight: 500;
 }
@@ -1011,15 +996,14 @@ footer {
 
 .footer_content .link_boxes .box {
   width: 100%;
-  flex-wrap: wrap;
 }
 
 .footer_content .link_boxes .box .link_name {
   color: #fff;
   font-weight: 400;
-  margin-bottom: 10px;
-  position: relative;
   font-size: 20px;
+  margin: 6px 0 10px;
+  position: relative;
 }
 
 .link_boxes .box .link_name::before {
@@ -1043,13 +1027,21 @@ footer {
   color: #fff;
   text-decoration: none;
   opacity: 0.8;
-  transition: all 0.4s ease;
+  transition:
+    color 0.4s ease,
+    opacity 0.4s ease;
 }
 
 .footer_content .link_boxes .box li a:hover {
   text-decoration: underline;
   opacity: 1;
   color: #38bdf8;
+}
+
+/* Hiện viền khi điều hướng bằng bàn phím */
+.footer a:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 3px;
 }
 
 footer .bottom-details {
@@ -1075,14 +1067,14 @@ footer .bottom-details .bottom_text {
   text-decoration: none;
 }
 
+.bottom-details .bottom_text a {
+  margin-right: 10px;
+}
+
 .bottom-details .bottom_text a:hover {
   opacity: 1;
   text-decoration: underline;
   color: #38bdf8;
-}
-
-.bottom-details .bottom_text a {
-  margin-right: 10px;
 }
 
 @media (min-width: 949px) {
@@ -1095,15 +1087,18 @@ footer .bottom-details .bottom_text {
 @media (max-width: 700px) {
   footer .footer_content .link_boxes {
     flex-wrap: wrap;
-  }
-  .box {
-    width: 100%;
-    margin-top: 10px;
-    justify-content: center;
-  }
-  footer .footer_content .link_boxes {
     width: 95%;
     margin-top: 10px;
+  }
+
+  footer .link_boxes .box {
+    margin-top: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer_content .col_1 .logo {
+    animation: none;
   }
 }
 
