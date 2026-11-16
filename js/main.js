@@ -428,16 +428,21 @@ function initializeGlobalSearch() {
             showMessage("Đang tải dữ liệu tìm kiếm…");
             return;
         }
+        const terms = normalized.split(/\s+/);
+        const hasAll = (text) => terms.every((term) => text.includes(term));
         const matches = index
             .map((item) => {
-                const title = removeVietnameseTones(item.title);
-                const summary = removeVietnameseTones(item.summary);
-                const content = removeVietnameseTones(item.content);
+                // normalise each field once (not on every keystroke)
+                const text = (item.normalized ??= {
+                    title: removeVietnameseTones(item.title),
+                    summary: removeVietnameseTones(item.summary),
+                    content: removeVietnameseTones(item.content),
+                });
                 let score = 0;
-                if (title.startsWith(normalized)) score += 5;
-                else if (title.includes(normalized)) score += 4;
-                if (summary.includes(normalized)) score += 2;
-                if (content.includes(normalized)) score += 1;
+                if (text.title.startsWith(normalized)) score += 5;
+                else if (hasAll(text.title)) score += 4;
+                if (hasAll(text.summary)) score += 2;
+                if (hasAll(text.content)) score += 1;
                 return { item, score };
             })
             .filter((result) => result.score > 0)
