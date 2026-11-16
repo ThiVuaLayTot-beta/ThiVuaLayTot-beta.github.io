@@ -136,10 +136,9 @@ schedule_css: /css/schedule.css
             </table>
         </div>
         <div id="list-wrapper" style="display: none;"><div id="list-container" class="events-list-grid"></div></div>
-        <p id="schedule-results-summary" class="schedule-results-summary" aria-live="polite"></p>
         <p class="schedule-updated schedule-results-updated">
             <i class="bx bx-refresh" aria-hidden="true"></i>
-            Cập nhật dữ liệu lần cuối: <strong id="last-updated">Đang tải…</strong>
+           <span id="schedule-results-summary" class="schedule-results-summary" aria-live="polite"></span> <span class="schedule-updated-sep">·</span> CCập nhật dữ liệu lần cuối: <strong id="last-updated">Đang tải…</strong>
             <span class="schedule-updated-separator">·</span>
             Có thắc mắc? Trao đổi trên <a href="https://chess.com/clubs/forum/view/lich-su-kien-hang-thang-clb-tvlt?clubId=325849&quote_id=125015758&page=1#comment_box" target="_blank" rel="noopener noreferrer">forum</a>
             hoặc liên hệ <a href="/leaders#admin3">M-DinhHoangViet</a>.

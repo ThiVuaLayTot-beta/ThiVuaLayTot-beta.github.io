@@ -464,7 +464,7 @@ function updateResultsSummary() {
     }
 
     const count = getCurrentMonthEvents().length;
-    DOM.resultsSummary.textContent = `Đang hiển thị ${count} sự kiện trong tháng ${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}.`;
+    DOM.resultsSummary.textContent = `Đang hiển thị ${count} sự kiện trong ${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}.`;
 }
 
 function resetFilters() {
@@ -918,8 +918,7 @@ function updateNavButtonStates() {
     const currentAbsoluteMonth = realYear * 12 + realMonth;
     const displayAbsoluteMonth = STATE.displayYear * 12 + STATE.displayMonth;
 
-    const canPrevious = displayAbsoluteMonth > currentAbsoluteMonth - 1;
-    const canNext = displayAbsoluteMonth < currentAbsoluteMonth + 1;
+    const canPrevious = displayAbsoluteMonth > currentAbsoluteMonth - 60;
 
     if (DOM.btnPrevMonth) {
         DOM.btnPrevMonth.disabled = !canPrevious;
@@ -927,8 +926,8 @@ function updateNavButtonStates() {
     }
 
     if (DOM.btnNextMonth) {
-        DOM.btnNextMonth.disabled = !canNext;
-        DOM.btnNextMonth.style.opacity = canNext ? '1' : '0.3';
+        DOM.btnNextMonth.disabled = false;
+        DOM.btnNextMonth.style.opacity = '1';
     }
 }
 
@@ -1097,7 +1096,7 @@ function changeMonth(offset) {
     const displayAbsoluteMonth = STATE.displayYear * 12 + STATE.displayMonth;
     const targetAbsoluteMonth = displayAbsoluteMonth + offset;
 
-    if (targetAbsoluteMonth < currentAbsoluteMonth - 1 || targetAbsoluteMonth > currentAbsoluteMonth + 1) return;
+    if (targetAbsoluteMonth < currentAbsoluteMonth - 60) return;
 
     STATE.displayMonth += offset;
     if (STATE.displayMonth < 0) {

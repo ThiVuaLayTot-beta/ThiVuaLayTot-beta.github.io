@@ -2904,3 +2904,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .schedule-intro-row .schedule-guide > summary::after {
     content: none !important;
 }
+.schedule-updated #schedule-results-summary {
+    display: inline !important; background: transparent !important; border: none !important;
+    padding: 0 !important; margin: 0 !important; color: #7DD3FC !important; font-weight: 600 !important;
+}
