@@ -2900,3 +2900,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
         transform: none;
     }
 }
+/* Use the explicit chevron in the guide summary; suppress the legacy pseudo-arrow. */
+.schedule-intro-row .schedule-guide > summary::after {
+    content: none !important;
+}
