@@ -256,13 +256,13 @@
 
 #tournament-table .styled-table tbody td:first-child > a {
   display:inline-block;
-  color:#8fe1ff;
+  color:var(--color-primary-light);
   font-size:.88rem;
   font-weight:800;
   line-height:1.4;
   overflow-wrap:anywhere;
 }
-#tournament-table .styled-table tbody td:first-child > a:hover { color:#fff; text-shadow:none; }
+#tournament-table .styled-table tbody td:first-child > a:hover { color:var(--color-accent); text-shadow:none; }
 #tournament-table .styled-table tbody td:nth-child(3) a {
   display:inline-flex;
   align-items:center;
