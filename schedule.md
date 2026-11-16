@@ -41,7 +41,7 @@ schedule_css: /css/schedule.css
 
 <section class="schedule-explorer" aria-label="Điều hướng lịch và bộ lọc sự kiện">
     <header class="schedule-explorer-header">
-        <div class="schedule-explorer-top">
+        <div class="schedule-explorer-top schedule-toolbar">
             <div class="schedule-explorer-tools">
                 <div class="month-nav-wrapper" role="group" aria-label="Điều hướng lịch theo tháng">
                     <button type="button" class="month-nav-btn" id="btn-prev-month" title="Tháng trước" aria-label="Xem tháng trước">
