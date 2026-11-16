@@ -2390,3 +2390,67 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 @media (prefers-reduced-motion: reduce) {
     .schedule-explorer .month-nav-btn { transition: none; }
 }
+
+
+/* Place the last-refresh metadata directly beneath the visible event count. */
+.schedule-intro-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 13px;
+}
+
+.schedule-intro-row .schedule-guide {
+    width: auto;
+    max-width: none;
+    justify-self: end;
+}
+
+.schedule-results .schedule-results-updated {
+    display: block;
+    margin: 5px 0 0;
+    padding: 0 12px 2px;
+    border: 0;
+    background: transparent;
+    color: #8193aa;
+    font-size: .74rem;
+    line-height: 1.55;
+    text-align: left;
+}
+
+.schedule-results-updated strong {
+    color: #a9d8f5;
+    font-variant-numeric: tabular-nums;
+    font-weight: 650;
+}
+
+.schedule-results-updated a {
+    color: #8fcdf2;
+    text-decoration: none;
+    text-underline-offset: 3px;
+}
+
+.schedule-results-updated a:hover {
+    color: #d7f0ff;
+    text-decoration: underline;
+}
+
+.schedule-results-updated .schedule-updated-separator {
+    padding-inline: 5px;
+    color: #60758d;
+}
+
+@media (max-width: 768px) {
+    .schedule-intro-row {
+        justify-content: stretch;
+    }
+
+    .schedule-intro-row .schedule-guide {
+        width: 100%;
+    }
+
+    .schedule-results .schedule-results-updated {
+        padding-inline: 4px;
+        font-size: .72rem;
+    }
+}
