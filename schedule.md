@@ -39,15 +39,9 @@ schedule_css: /css/schedule.css
     </div>
 </section>
 
-<section class="schedule-explorer" aria-labelledby="schedule-explorer-title">
-    <header class="schedule-explorer-header" aria-labelledby="schedule-explorer-title">
+<section class="schedule-explorer" aria-label="Điều hướng lịch và bộ lọc sự kiện">
+    <header class="schedule-explorer-header">
         <div class="schedule-explorer-top">
-            <div class="schedule-explorer-copy">
-                <span class="schedule-section-kicker"><i class="bx bx-calendar-event" aria-hidden="true"></i> LỊCH SỰ KIỆN</span>
-                <h2 id="schedule-explorer-title">Lịch thi đấu</h2>
-                <p>Theo dõi lịch, tìm giải phù hợp và truy cập nhanh thông tin sự kiện.</p>
-            </div>
-
             <div class="schedule-explorer-tools">
                 <div class="month-nav-wrapper" role="group" aria-label="Điều hướng lịch theo tháng">
                     <button type="button" class="month-nav-btn" id="btn-prev-month" title="Tháng trước" aria-label="Xem tháng trước">
@@ -76,25 +70,15 @@ schedule_css: /css/schedule.css
         </div>
 
         <div class="schedule-filter-panel" role="search" aria-label="Tìm kiếm và lọc sự kiện">
-            <div class="schedule-filter-panel-header">
-                <div class="schedule-filter-panel-title">
-                    <span class="schedule-filter-overline">KHÁM PHÁ SỰ KIỆN</span>
-                    <h3>Tìm giải đấu phù hợp</h3>
-                </div>
-                <p class="schedule-filter-hint"><i class="bx bx-info-circle" aria-hidden="true"></i> Kết hợp các tiêu chí để tìm nhanh sự kiện phù hợp.</p>
-            </div>
-
-                        <div id="schedule-filters" class="schedule-filter-controls" style="display: none;">
-                <label class="schedule-filter-field schedule-filter-search" for="schedule-search">
-                    <span class="schedule-filter-field-label">Tìm kiếm</span>
+            <div id="schedule-filters" class="schedule-filter-controls" style="display: none;">
+                <label class="schedule-filter-field schedule-filter-search" for="schedule-search" aria-label="Tìm kiếm sự kiện">
                     <span class="schedule-filter-input-control">
                         <i class="bx bx-search" aria-hidden="true"></i>
                         <input type="search" id="schedule-search" class="control-input search-input" placeholder="Nhập tên giải đấu…" aria-label="Tìm kiếm sự kiện">
                     </span>
                 </label>
 
-                <label class="schedule-filter-field schedule-filter-status" for="schedule-status-filters">
-                    <span class="schedule-filter-field-label">Trạng thái</span>
+                <label class="schedule-filter-field schedule-filter-status" for="schedule-status-filters" aria-label="Trạng thái">
                     <span class="schedule-status-select-control">
                         <i class="bx bx-pulse" aria-hidden="true"></i>
                         <select id="schedule-status-filters" aria-label="Lọc sự kiện theo trạng thái">

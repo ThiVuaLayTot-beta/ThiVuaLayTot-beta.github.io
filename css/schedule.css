@@ -2574,3 +2574,24 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
   color: inherit;
   text-decoration: underline;
 }
+
+
+/* Keep the category menu above the calendar and event-list surfaces. */
+.schedule-explorer-header {
+    z-index: 40;
+}
+.schedule-explorer-top {
+    grid-template-columns: minmax(0, 1fr);
+}
+.schedule-explorer-tools {
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+.schedule-filter-panel {
+    z-index: 41;
+}
+.schedule-filter-panel .schedule-filter-category {
+    z-index: 1000;
+}
+.schedule-filter-panel .schedule-filter-category .tour-dropdown-menu {
+    z-index: 1001;
+}
