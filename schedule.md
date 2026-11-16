@@ -6,15 +6,34 @@ schedule_css: /css/schedule.css
 
 <div class="schedule-intro-row">
     <details class="schedule-guide">
-        <summary>💡 Mẹo sử dụng lịch</summary>
-        <section class="schedule-intro" aria-label="Mẹo sử dụng lịch">
-            <ul>
-                <li>Bấm vào ngày hoặc biểu tượng giải đấu để xem chi tiết &amp; tham gia.</li>
-                <li>Các mục <strong>Dự kiến</strong> có thể thay đổi về ngày, giờ hoặc thể lệ.</li>
-                <li>Lọc nhanh theo trạng thái, <strong>Thể loại</strong> &amp; <strong>🏆 Chỉ có thưởng</strong>.</li>
-                <li>Chuyển đổi nhanh giữa chế độ <strong>Lịch</strong> và <strong>Danh sách</strong>.</li>
-            </ul>
-        </section>
+        <summary aria-controls="schedule-guide-panel">
+            <span class="schedule-guide-summary-icon" aria-hidden="true"><i class="bx bx-bulb"></i></span>
+            <span class="schedule-guide-summary-copy">
+                <strong>Mẹo sử dụng lịch</strong>
+                <small>4 thao tác giúp bạn tìm giải đấu nhanh hơn</small>
+            </span>
+            <i class="bx bx-chevron-down schedule-guide-chevron" aria-hidden="true"></i>
+        </summary>
+        <div class="schedule-guide-panel" id="schedule-guide-panel" aria-label="Hướng dẫn sử dụng lịch">
+            <div class="schedule-guide-grid">
+                <div class="schedule-guide-item">
+                    <span class="schedule-guide-step">01</span>
+                    <div><strong>Xem thông tin giải</strong><p>Chọn ngày hoặc biểu tượng giải đấu để mở thông tin chi tiết và đường dẫn tham gia.</p></div>
+                </div>
+                <div class="schedule-guide-item">
+                    <span class="schedule-guide-step">02</span>
+                    <div><strong>Chú ý trạng thái</strong><p>Giải <b>Dự kiến</b> chưa chốt hoàn toàn; ngày, giờ hoặc thể lệ có thể được cập nhật.</p></div>
+                </div>
+                <div class="schedule-guide-item">
+                    <span class="schedule-guide-step">03</span>
+                    <div><strong>Lọc đúng giải cần tìm</strong><p>Dùng tìm kiếm, trạng thái, thể loại hoặc tùy chọn <b>Chỉ có thưởng</b> để thu hẹp kết quả.</p></div>
+                </div>
+                <div class="schedule-guide-item">
+                    <span class="schedule-guide-step">04</span>
+                    <div><strong>Đổi cách xem</strong><p>Chuyển giữa <b>Lịch</b> và <b>Danh sách</b>; dùng mũi tên để xem tháng trước hoặc tháng sau.</p></div>
+                </div>
+            </div>
+        </div>
     </details>
 </div>
 
