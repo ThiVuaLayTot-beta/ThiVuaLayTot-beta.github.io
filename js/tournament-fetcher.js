@@ -209,7 +209,8 @@
                     ${badgeHtml ? `<div style="margin-top: 5px;">${badgeHtml}</div>` : ''}
                 </div>
 
-                <table class="styled-table score-detail-table" style="width: 100%;">
+                <div class="score-detail-table-scroll">
+                <table class="styled-table score-detail-table">
                     <thead>
                         <tr>
                             <th>Giải Đấu</th>
@@ -250,6 +251,7 @@
 
             html += `</tbody>
                 </table>
+                </div>
             </div>`;
 
             ModalManager.show(`Lịch sử lọt top 6 của ${username}`, html);
