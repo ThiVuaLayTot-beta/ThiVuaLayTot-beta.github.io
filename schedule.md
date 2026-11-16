@@ -43,7 +43,7 @@ schedule_css: /css/schedule.css
     <header class="schedule-explorer-header" aria-labelledby="schedule-explorer-title">
         <div class="schedule-explorer-top">
             <div class="schedule-explorer-copy">
-                <span class="schedule-section-kicker">LỊCH SỰ KIỆN</span>
+                <span class="schedule-section-kicker"><i class="bx bx-calendar-event" aria-hidden="true"></i> LỊCH SỰ KIỆN</span>
                 <h2 id="schedule-explorer-title">Lịch thi đấu</h2>
                 <p>Theo dõi lịch, tìm giải phù hợp và truy cập nhanh thông tin sự kiện.</p>
             </div>
@@ -84,72 +84,61 @@ schedule_css: /css/schedule.css
                 <p class="schedule-filter-hint"><i class="bx bx-info-circle" aria-hidden="true"></i> Kết hợp các tiêu chí để tìm nhanh sự kiện phù hợp.</p>
             </div>
 
-            <div id="schedule-filters" class="schedule-filter-controls" style="display: none;">
-                <div class="schedule-filter-primary">
-                    <label class="schedule-filter-field schedule-filter-search" for="schedule-search">
-                        <span class="schedule-filter-field-label">Tìm kiếm</span>
-                        <span class="schedule-filter-input-control">
-                            <i class="bx bx-search" aria-hidden="true"></i>
-                            <input type="search" id="schedule-search" class="control-input search-input" placeholder="Nhập tên giải đấu…" aria-label="Tìm kiếm sự kiện">
+                        <div id="schedule-filters" class="schedule-filter-controls" style="display: none;">
+                <label class="schedule-filter-field schedule-filter-search" for="schedule-search">
+                    <span class="schedule-filter-field-label">Tìm kiếm</span>
+                    <span class="schedule-filter-input-control">
+                        <i class="bx bx-search" aria-hidden="true"></i>
+                        <input type="search" id="schedule-search" class="control-input search-input" placeholder="Nhập tên giải đấu…" aria-label="Tìm kiếm sự kiện">
+                    </span>
+                </label>
+
+                <label class="schedule-filter-field schedule-filter-status" for="schedule-status-filters">
+                    <span class="schedule-filter-field-label">Trạng thái</span>
+                    <span class="schedule-status-select-control">
+                        <i class="bx bx-pulse" aria-hidden="true"></i>
+                        <select id="schedule-status-filters" aria-label="Lọc sự kiện theo trạng thái">
+                            <option value="all">Tất cả trạng thái</option>
+                            <option value="upcoming">Sắp diễn ra</option>
+                            <option value="ongoing">Đang diễn ra</option>
+                            <option value="ended">Đã kết thúc</option>
+                        </select>
+                        <i class="bx bx-chevron-down" aria-hidden="true"></i>
+                    </span>
+                </label>
+
+                <div class="tour-dropdown schedule-filter-category" id="schedule-category-dropdown">
+                    <button type="button" class="tour-dropdown-btn compact-btn" id="schedule-category-button" aria-expanded="false" aria-controls="schedule-type-group">
+                        <span class="tour-dropdown-btn-content">
+                            <i class="bx bx-filter-alt" aria-hidden="true"></i>
+                            <span data-filter-label>Thể loại (9/9)</span>
                         </span>
-                    </label>
-
-                    <label class="schedule-filter-field schedule-filter-status" for="schedule-status-filters">
-                        <span class="schedule-filter-field-label">Trạng thái</span>
-                        <span class="schedule-status-select-control">
-                            <i class="bx bx-pulse" aria-hidden="true"></i>
-                            <select id="schedule-status-filters" aria-label="Lọc sự kiện theo trạng thái">
-                                <option value="all">Tất cả trạng thái</option>
-                                <option value="upcoming">Sắp diễn ra</option>
-                                <option value="ongoing">Đang diễn ra</option>
-                                <option value="ended">Đã kết thúc</option>
-                            </select>
-                            <i class="bx bx-chevron-down" aria-hidden="true"></i>
-                        </span>
-                    </label>
-                </div>
-
-                <div class="schedule-filter-secondary">
-                    <div class="schedule-filter-secondary-heading">
-                        <span class="schedule-filter-secondary-title">Bộ lọc bổ sung</span>
-                        <span class="schedule-filter-secondary-description">Thể loại và điều kiện giải thưởng</span>
-                    </div>
-
-                    <div class="schedule-filter-secondary-controls">
-                        <div class="tour-dropdown" id="schedule-category-dropdown">
-                            <button type="button" class="tour-dropdown-btn compact-btn" id="schedule-category-button" aria-expanded="false" aria-controls="schedule-type-group">
-                                <span class="tour-dropdown-btn-content">
-                                    <i class="bx bx-filter-alt" aria-hidden="true"></i>
-                                    <span data-filter-label>Thể loại (9/9)</span>
-                                </span>
-                                <i class="bx bx-chevron-down tour-dropdown-arrow" aria-hidden="true"></i>
-                            </button>
-                            <div class="tour-dropdown-menu" id="schedule-type-group" aria-label="Lọc theo thể loại">
-                                <label class="custom-checkbox-container"><input type="checkbox" value="tvlt" checked><span class="checkmark"></span> Thí Vua Lấy Tốt</label>
-                                <label class="custom-checkbox-container"><input type="checkbox" value="cttq" checked><span class="checkmark"></span> Chiến Trường Thí Quân</label>
-                                <label class="custom-checkbox-container"><input type="checkbox" value="cbtt" checked><span class="checkmark"></span> Cờ Bí Thí Tốt</label>
-                                <label class="custom-checkbox-container"><input type="checkbox" value="dttv" checked><span class="checkmark"></span> Đấu Trường Thí Vua</label>
-                                <label class="custom-checkbox-container"><input type="checkbox" value="multi-club-arena" checked><span class="checkmark"></span> Đấu trường đa CLB (Multi-Club Arena)</label>
-                                <label class="custom-checkbox-container"><input type="checkbox" value="club-arena" checked><span class="checkmark"></span> Đấu trường Arena</label>
-                                <label class="custom-checkbox-container"><input type="checkbox" value="swiss" checked><span class="checkmark"></span> Hệ Thụy Sĩ (Swiss)</label>
-                                <label class="custom-checkbox-container"><input type="checkbox" value="vote" checked><span class="checkmark"></span> Cờ vua bỏ phiếu (Votechess)</label>
-                                <label class="custom-checkbox-container"><input type="checkbox" value="daily" checked><span class="checkmark"></span> Cờ hàng ngày (Daily)</label>
-                            </div>
-                        </div>
-
-                        <label class="compact-switch-container">
-                            <span class="compact-switch">
-                                <input type="checkbox" id="schedule-prize-filter">
-                                <span class="compact-slider"></span>
-                            </span>
-                            <span class="switch-label">Chỉ có thưởng</span>
-                        </label>
-
-                        <button type="button" id="schedule-reset-filters" class="reset-filters-btn" hidden>
-                            <i class="bx bx-reset" aria-hidden="true"></i> Xóa tất cả
-                        </button>
+                        <i class="bx bx-chevron-down tour-dropdown-arrow" aria-hidden="true"></i>
+                    </button>
+                    <div class="tour-dropdown-menu" id="schedule-type-group" aria-label="Lọc theo thể loại">
+                        <label class="custom-checkbox-container"><input type="checkbox" value="tvlt" checked><span class="checkmark"></span> Thí Vua Lấy Tốt</label>
+                        <label class="custom-checkbox-container"><input type="checkbox" value="cttq" checked><span class="checkmark"></span> Chiến Trường Thí Quân</label>
+                        <label class="custom-checkbox-container"><input type="checkbox" value="cbtt" checked><span class="checkmark"></span> Cờ Bí Thí Tốt</label>
+                        <label class="custom-checkbox-container"><input type="checkbox" value="dttv" checked><span class="checkmark"></span> Đấu Trường Thí Vua</label>
+                        <label class="custom-checkbox-container"><input type="checkbox" value="multi-club-arena" checked><span class="checkmark"></span> Đấu trường đa CLB (Multi-Club Arena)</label>
+                        <label class="custom-checkbox-container"><input type="checkbox" value="club-arena" checked><span class="checkmark"></span> Đấu trường Arena</label>
+                        <label class="custom-checkbox-container"><input type="checkbox" value="swiss" checked><span class="checkmark"></span> Hệ Thụy Sĩ (Swiss)</label>
+                        <label class="custom-checkbox-container"><input type="checkbox" value="vote" checked><span class="checkmark"></span> Cờ vua bỏ phiếu (Votechess)</label>
+                        <label class="custom-checkbox-container"><input type="checkbox" value="daily" checked><span class="checkmark"></span> Cờ hàng ngày (Daily)</label>
                     </div>
                 </div>
+
+                <label class="compact-switch-container schedule-filter-prize">
+                    <span class="compact-switch">
+                        <input type="checkbox" id="schedule-prize-filter">
+                        <span class="compact-slider"></span>
+                    </span>
+                    <span class="switch-label">Chỉ có thưởng</span>
+                </label>
+
+                <button type="button" id="schedule-reset-filters" class="reset-filters-btn" hidden>
+                    <i class="bx bx-reset" aria-hidden="true"></i> Xóa lọc
+                </button>
             </div>
         </div>    </header>
 
