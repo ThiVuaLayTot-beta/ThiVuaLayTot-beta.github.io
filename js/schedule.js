@@ -1359,7 +1359,7 @@ async function loadTournaments() {
             if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
         } else {
             if (DOM.viewSwitcherContainer) DOM.viewSwitcherContainer.style.display = 'inline-flex';
-            if (DOM.scheduleFilters) DOM.scheduleFilters.style.display = 'flex';
+            if (DOM.scheduleFilters) DOM.scheduleFilters.style.display = 'grid';
             STATE.currentView = 'calendar';
             updateViewSwitcherButtons();
             const vnToday = getVietnamNow();
