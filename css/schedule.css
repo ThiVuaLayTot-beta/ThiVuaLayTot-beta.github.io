@@ -2907,4 +2907,4 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .schedule-updated #schedule-results-summary {
     display: inline !important; background: transparent !important; border: none !important;
     padding: 0 !important; margin: 0 !important; color: #7DD3FC !important; font-weight: 600 !important;
-}
+} .schedule-explorer-header .schedule-explorer-top, .schedule-explorer-header .schedule-toolbar { border: none !important; background: transparent !important; box-shadow: none !important; border-radius: 0 !important; } .schedule-explorer-header .schedule-filter-panel { border: none !important; border-top: 1px solid rgba(148, 163, 184, 0.16) !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; } #month-title { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; gap: 8px !important; }
