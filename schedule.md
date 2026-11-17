@@ -40,8 +40,8 @@ schedule_css: /css/schedule.css
 
 <section class="schedule-explorer" aria-label="Điều hướng lịch và bộ lọc sự kiện">
     <header class="schedule-explorer-header">
-        <div class="schedule-explorer-top schedule-toolbar">
-            <div class="schedule-explorer-tools">
+        <div class="schedule-explorer-top">
+            <div class="schedule-toolbar schedule-explorer-tools" role="group" aria-label="Điều hướng và chế độ xem lịch">
                 <div class="month-nav-wrapper" role="group" aria-label="Điều hướng lịch theo tháng">
                     <button type="button" class="month-nav-btn" id="btn-prev-month" title="Tháng trước" aria-label="Xem tháng trước">
                         <i class="bx bx-chevron-left" aria-hidden="true"></i>
@@ -66,6 +66,7 @@ schedule_css: /css/schedule.css
                     </button>
                 </div>
             </div>
+
         </div>
 
         <div class="schedule-filter-panel" role="search" aria-label="Tìm kiếm và lọc sự kiện">
