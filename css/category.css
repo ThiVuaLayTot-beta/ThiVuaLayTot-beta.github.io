@@ -246,3 +246,21 @@
 .category-card[hidden]{display:none!important}
 .category-empty-message{margin:18px 0;padding:20px;border:1px dashed rgba(125,211,252,.24);border-radius:12px;color:var(--color-text-secondary);text-align:center}
 @media(prefers-reduced-motion:reduce){.category-card{transition:none}.category-card:hover{transform:none}}
+/* Category Subpage Animations & Spotlight */
+.category-card { position: relative; overflow: hidden; animation: subpageFadeUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both; transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease; }
+.category-card:nth-child(1) { animation-delay: 0ms; }
+.category-card:nth-child(2) { animation-delay: 55ms; }
+.category-card:nth-child(3) { animation-delay: 110ms; }
+.category-card:nth-child(4) { animation-delay: 165ms; }
+.category-card:nth-child(5) { animation-delay: 220ms; }
+.category-card:nth-child(6) { animation-delay: 275ms; }
+.category-card:nth-child(7) { animation-delay: 330ms; }
+.category-card:nth-child(8) { animation-delay: 385ms; }
+.category-card::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.35s ease; background: radial-gradient(360px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(56, 189, 248, 0.12), transparent 65%); z-index: 1; }
+.category-card:hover::before { opacity: 1; }
+.category-card:hover { transform: translateY(-4px); border-color: rgba(125, 211, 252, 0.42); box-shadow: 0 16px 36px -8px rgba(2, 6, 23, 0.65), 0 0 22px rgba(56, 189, 248, 0.1); }
+.category-card__image { transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+.category-card:hover .category-card__image { transform: scale(1.04); }
+.category-card__link { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease; }
+.category-card:hover .category-card__link { transform: translateX(4px); }
+@media (prefers-reduced-motion: reduce) { .category-card { animation: none; transition: none; } .category-card:hover { transform: none; } .category-card:hover .category-card__image, .category-card:hover .category-card__link { transform: none; } }
