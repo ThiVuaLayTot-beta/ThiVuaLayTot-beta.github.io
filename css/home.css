@@ -1121,8 +1121,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
 
 .home-page > .hero-v2 .bento-link:hover {
   color: #e0f2fe;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 
 .home-page > .hero-v2 .bento-card--connect {
@@ -1592,7 +1591,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
 
 .founder-profile__secondary:hover {
   color: #bae6fd;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .founder-profile__media:focus-visible,

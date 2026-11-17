@@ -1796,7 +1796,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 
 .schedule-results-updated a:hover {
     color: #d7f0ff;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .schedule-results-updated .schedule-updated-separator {

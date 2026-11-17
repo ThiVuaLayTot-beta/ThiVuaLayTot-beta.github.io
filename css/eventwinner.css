@@ -282,8 +282,7 @@
 #tournament-table .styled-table tbody td:nth-child(3) a:hover {
   background:transparent;
   color:var(--color-accent);
-  text-decoration:underline;
-  text-underline-offset:3px;
+  text-decoration:none;
 }
 #tournament-table .styled-table tbody td:nth-child(3) img { width:15px; height:15px; object-fit:contain; }
 #tournament-table .styled-table tbody td:nth-child(2) { color:var(--neutral-200); font-size:.79rem; line-height:1.65; }

@@ -202,7 +202,7 @@ a {
 
 a:hover {
   color: var(--color-accent);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 a img:hover {
@@ -1033,7 +1033,7 @@ footer {
 }
 
 .footer_content .link_boxes .box li a:hover {
-  text-decoration: underline;
+  text-decoration: none;
   opacity: 1;
   color: #38bdf8;
 }
@@ -1073,7 +1073,7 @@ footer .bottom-details .bottom_text {
 
 .bottom-details .bottom_text a:hover {
   opacity: 1;
-  text-decoration: underline;
+  text-decoration: none;
   color: #38bdf8;
 }
 
@@ -1388,7 +1388,7 @@ footer .bottom-details .bottom_text {
 
 .breadcrumb a:hover {
   color: var(--color-text-primary);
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .breadcrumb .bx {
