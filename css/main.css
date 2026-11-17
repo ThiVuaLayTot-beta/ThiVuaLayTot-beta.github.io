@@ -1623,3 +1623,76 @@ html, body {
 .search-result-item:focus-visible,.nav-search-btn:focus-visible,.close-search-btn:focus-visible{outline:2px solid #7dd3fc;outline-offset:3px}
 @media(max-width:600px){.search-modal-overlay{padding-top:8vh}.search-modal-header{gap:8px;padding:12px}.search-modal-header .search-icon{margin-right:4px}.search-modal-dialog{width:calc(100vw - 24px);margin:0 12px}}
 @media(prefers-reduced-motion:reduce){.search-modal-dialog,.search-modal-overlay,.nav-search-btn,.dropdown-menu,#back-to-top{transition:none!important;scroll-behavior:auto!important}}
+
+
+/* Footer layout safeguards: keep the club banner inside its grid track. */
+.footer_main .footer_content > *,
+.footer_content .link_boxes,
+.footer_content .link_boxes .box {
+  min-width: 0;
+}
+
+.club_banner {
+  width: 100%;
+  max-width: 300px;
+  margin: 1rem auto;
+}
+
+.club_banner > a {
+  display: block;
+  width: 100%;
+}
+
+.cc_club_banner {
+  display: block;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  aspect-ratio: 1171 / 614;
+  object-fit: contain;
+}
+
+@media (min-width: 949px) {
+  .footer_main .footer_content {
+    grid-template-columns: minmax(0, 1.15fr) repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 2.25rem);
+  }
+}
+
+@media (min-width: 701px) and (max-width: 948px) {
+  .footer_main .footer_content {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem;
+  }
+
+  .footer_content .col_1 {
+    grid-column: 1 / -1;
+    width: 100%;
+    max-width: 520px;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 700px) {
+  .footer .footer_main {
+    padding: 2.75rem 1.25rem;
+  }
+
+  .footer_main .footer_content {
+    gap: 1.75rem;
+  }
+}
+
+@media (max-width: 560px) {
+  footer .bottom-details .bottom_text {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 20px;
+    text-align: center;
+  }
+
+  .bottom-details .bottom_text a {
+    margin-right: 0;
+  }
+}

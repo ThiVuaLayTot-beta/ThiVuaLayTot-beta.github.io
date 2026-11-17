@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Chơi MiniGames nhận Diamond Membership
+image: /images/events/2024/04/17/choi-minigame-nhan-membership.png
 date: 2024-04-17T00:00:00+00:00
 category: events
 tags: Minigame

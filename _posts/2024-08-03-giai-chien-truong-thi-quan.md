@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Sự kiện Chiến Trường Thí Quân
+image: /images/events/giai-chien-truong-thi-quan.png
 category: events
 tags: Giải đấu
 author: M-DinhHoangViet

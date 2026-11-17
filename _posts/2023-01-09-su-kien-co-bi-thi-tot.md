@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Giải đấu Cờ Bí Thí Tốt
+image: /images/events/su-kien-co-bi-thi-tot.png
 category: events
 tags: Giải đấu
 author: VN-SenJin

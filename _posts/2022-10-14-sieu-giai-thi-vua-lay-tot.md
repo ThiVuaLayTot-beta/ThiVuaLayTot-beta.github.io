@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Siêu giải Thí Vua Lấy Tốt
+image: /images/events/sieu-giai-thi-vua-lay-tot.png
 date: 2022-10-14
 category: events
 tags: Giải đấu

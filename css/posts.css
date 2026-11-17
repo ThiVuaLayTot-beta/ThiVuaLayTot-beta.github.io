@@ -58,8 +58,7 @@
 
     .information h1 {
         font-size: var(--fs-3xl);
-    }/* Ice Blue & Slate Bento Design - Post & Event Details */ #toc { background: rgba(15, 23, 42, 0.72) !important; border: 1px solid rgba(148, 163, 184, 0.16) !important; border-radius: 16px !important; padding: 18px 22px !important; backdrop-filter: blur(12px) !important; } #toc a { color: #94A3B8 !important; transition: color 0.2s ease !important; } #toc a:hover { color: #38BDF8 !important; } .reading-time, .badge, .post-tag { background: rgba(56, 189, 248, 0.1) !important; border: 1px solid rgba(56, 189, 248, 0.25) !important; color: #38BDF8 !important; border-radius: 9999px !important; padding: 4px 12px !important; font-weight: 600 !important; } .post-contents table { background: rgba(15, 23, 42, 0.6) !important; border: 1px solid rgba(148, 163, 184, 0.16) !important; border-radius: 14px !important; overflow: hidden !important; color: #E2E8F0 !important; } .post-contents table th { background: rgba(30, 41, 59, 0.8) !important; color: #38BDF8 !important; } .copy-code-btn { background: rgba(15, 23, 42, 0.8) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important; color: #38BDF8 !important; border-radius: 10px !important; transition: all 0.2s ease !important; } .copy-code-btn:hover { background: #38BDF8 !important; color: #060911 !important; }
-    
+    }    
 
     .post-banner {
         max-width: 100%;
@@ -85,3 +84,76 @@
 /* Keep linked headings visible below the fixed site navbar. */
 .post-contents h2,
 .post-contents h3 { scroll-margin-top: 92px; }
+
+
+/* Ice Blue & Slate article components — shared across desktop and mobile. */
+.reading-time,
+.badge,
+.post-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border: 1px solid rgba(56, 189, 248, .25);
+    border-radius: 9999px;
+    background: rgba(56, 189, 248, .1);
+    color: #7dd3fc;
+    font-weight: 600;
+    line-height: 1.45;
+}
+
+.post-toc {
+    border: 1px solid rgba(148, 163, 184, .2);
+    border-radius: 16px;
+    background: rgba(15, 23, 42, .72);
+    box-shadow: 0 12px 28px rgba(2, 8, 23, .16);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+}
+
+.post-toc > strong { color: #bae6fd; }
+.post-toc a {
+    color: #a8b7ca;
+    text-decoration: none;
+    transition: color .18s ease;
+}
+.post-toc a:hover { color: #38bdf8; }
+
+.post-contents table {
+    max-width: 100%;
+    border: 1px solid rgba(148, 163, 184, .16);
+    border-radius: 14px;
+    background: rgba(15, 23, 42, .6);
+    color: #e2e8f0;
+}
+.post-contents table th {
+    background: rgba(30, 41, 59, .8);
+    color: #7dd3fc;
+}
+
+.copy-code-btn {
+    border: 1px solid rgba(56, 189, 248, .3);
+    border-radius: 10px;
+    background: rgba(15, 23, 42, .86);
+    color: #7dd3fc;
+    transition: color .18s ease, background .18s ease, border-color .18s ease;
+}
+.copy-code-btn:hover {
+    border-color: #38bdf8;
+    background: #38bdf8;
+    color: #060911;
+}
+
+@media (max-width: 768px) {
+    .post-contents table {
+        display: block;
+        width: max-content;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .post-toc a,
+    .copy-code-btn { transition: none; }
+}

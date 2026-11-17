@@ -143,23 +143,92 @@
 
     // ========== Modal Manager ==========
     const ModalManager = {
+        previousFocus: null,
+        previousOverflow: '',
+
         show(title, content) {
-            const m = document.getElementById('scoreModal'), t = document.getElementById('modal-player-name'), b = document.getElementById('modal-score-breakdown');
-            if (m && t && b) { 
-                t.textContent = title; 
-                b.innerHTML = content; 
-                m.classList.add('open'); 
-                document.body.style.overflow = 'hidden'; 
+            const modal = document.getElementById('scoreModal');
+            const titleElement = document.getElementById('modal-player-name');
+            const contentElement = document.getElementById('modal-score-breakdown');
+            if (!modal || !titleElement || !contentElement) return;
+
+            if (!modal.classList.contains('open')) {
+                this.previousFocus = document.activeElement;
+                this.previousOverflow = document.body.style.overflow;
+            }
+
+            titleElement.textContent = title;
+            contentElement.innerHTML = content;
+            modal.setAttribute('aria-hidden', 'false');
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+
+            const focusTarget = modal.querySelector('.cc-modal-close') ||
+                modal.querySelector('.cc-modal-dialog');
+            focusTarget?.focus({ preventScroll: true });
+        },
+
+        close() {
+            const modal = document.getElementById('scoreModal');
+            if (!modal || !modal.classList.contains('open')) return;
+
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = this.previousOverflow;
+
+            const previousFocus = this.previousFocus;
+            this.previousFocus = null;
+            if (previousFocus?.isConnected) {
+                previousFocus.focus?.({ preventScroll: true });
             }
         },
-        close() { 
-            const m = document.getElementById('scoreModal'); 
-            if (m) { 
-                m.classList.remove('open'); 
-                document.body.style.overflow = ''; 
-            } 
+
+        handleKeydown(event) {
+            const modal = document.getElementById('scoreModal');
+            if (!modal?.classList.contains('open')) return;
+
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                this.close();
+                return;
+            }
+            if (event.key !== 'Tab') return;
+
+            const dialog = modal.querySelector('.score-modal-dialog');
+            if (!dialog) return;
+            const focusable = Array.from(dialog.querySelectorAll(
+                'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            )).filter(element => element.getClientRects().length > 0 && !element.closest('[hidden]'));
+
+            if (!focusable.length) {
+                event.preventDefault();
+                dialog.focus();
+                return;
+            }
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const active = document.activeElement;
+
+            if (!dialog.contains(active)) {
+                event.preventDefault();
+                (event.shiftKey ? last : first).focus();
+            } else if (event.shiftKey && active === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && active === last) {
+                event.preventDefault();
+                first.focus();
+            }
         }
     };
+
+    const scoreModal = document.getElementById('scoreModal');
+    scoreModal?.querySelector('.cc-modal-close')?.addEventListener('click', () => ModalManager.close());
+    scoreModal?.addEventListener('click', event => {
+        if (event.target === scoreModal) ModalManager.close();
+    });
+    document.addEventListener('keydown', event => ModalManager.handleKeydown(event));
 
     // ========== Store Player Data with Tournament Details ==========
     const PLAYER_DATA_STORE = new Map();
@@ -479,10 +548,6 @@
         }
 
         // ========== Setup Event Listeners ==========
-        document.getElementById('scoreModal')?.addEventListener('click', e => { 
-            if (e.target.id === 'scoreModal') ModalManager.close(); 
-        });
-
         tbody.addEventListener('click', e => {
             const playerCell = e.target.closest('.clickable-player');
             if (playerCell) {

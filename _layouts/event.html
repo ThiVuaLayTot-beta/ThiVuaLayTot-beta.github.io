@@ -24,9 +24,9 @@
     </div>
     {% include footer.html %}
 
-    <div id="scoreModal" class="cc-modal-overlay">
-        <div class="cc-modal-dialog score-modal-dialog">
-            <button class="cc-modal-close" onclick="TournamentModalManager.close()">×</button>
+    <div id="scoreModal" class="cc-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-player-name">
+        <div class="cc-modal-dialog score-modal-dialog" role="document" tabindex="-1">
+            <button type="button" class="cc-modal-close" aria-label="Đóng cửa sổ">×</button>
             <div class="cc-modal-content-wrapper">
                 <div class="cc-modal-header-row">
                     <div class="cc-modal-title-section">

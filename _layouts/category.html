@@ -23,7 +23,7 @@
             </header>
 
             <div class="category-filter-container">
-                <input type="text" id="post-filter-input" placeholder="Lọc bài viết theo tiêu đề hoặc mô tả..." class="control-input search-input" style="width: 100%; margin-bottom: 20px;">
+                <input type="search" id="post-filter-input" aria-label="Lọc danh sách bài viết" placeholder="Lọc bài viết theo tiêu đề hoặc mô tả..." class="control-input search-input" style="width: 100%; margin-bottom: 20px;">
             </div>
             <nav class="nav-tabs" aria-label="Danh mục bài viết">
                 <a href="/blog" {% if page.category == "blog" %}class="active" aria-current="page"{% endif %}>
