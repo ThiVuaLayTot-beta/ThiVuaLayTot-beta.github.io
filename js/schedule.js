@@ -81,8 +81,6 @@ const STATE = {
     displayMonth: undefined,
     lastFocusedElement: null,
     statusFilter: 'all',
-    nextMatch: null,
-    countdownTimer: null
 };
 
 function cacheDOMElements() {
@@ -91,14 +89,6 @@ function cacheDOMElements() {
     DOM.emptyEl = document.getElementById('empty');
     DOM.lastUpdatedEl = document.getElementById('last-updated');
     DOM.statusFilters = document.getElementById('schedule-status-filters');
-    DOM.nextMatchSpotlight = document.getElementById('next-match-spotlight');
-    DOM.nextMatchTitle = document.getElementById('next-match-title');
-    DOM.nextMatchPriority = document.getElementById('next-match-priority');
-    DOM.nextMatchSelectionNote = document.getElementById('next-match-selection-note');
-    DOM.nextMatchMeta = document.getElementById('next-match-meta');
-    DOM.nextMatchCountdown = document.getElementById('next-match-countdown');
-    DOM.nextMatchJoin = document.getElementById('next-match-join');
-    DOM.nextMatchDetail = document.getElementById('next-match-detail');
     DOM.viewSwitcherContainer = document.getElementById('view-switcher-container');
     DOM.scheduleFilters = document.getElementById('schedule-filters');
     DOM.calendarWrapper = document.getElementById('calendar-wrapper');
@@ -947,122 +937,11 @@ function updateViewSwitcherButtons() {
     }
 }
 
-function updateNextMatchCountdown() {
-    if (!STATE.nextMatch || !DOM.nextMatchCountdown) return;
-
-    const remaining = getEventStartTime(STATE.nextMatch) - Date.now();
-    if (remaining <= 0) {
-        DOM.nextMatchCountdown.textContent = 'Đã đến giờ bắt đầu';
-        updateNextMatchSpotlight();
-        return;
-    }
-
-    const totalSeconds = Math.floor(remaining / 1000);
-    const days = Math.floor(totalSeconds / 86400);
-    const hours = Math.floor((totalSeconds % 86400) / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    const clock = `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
-    DOM.nextMatchCountdown.textContent = days > 0 ? `${days} ngày ${clock}` : clock;
-}
-
-const SPOTLIGHT_PRIORITY_WINDOW_DAYS = 7;
-const SPOTLIGHT_PRIORITY_WINDOW_MS = SPOTLIGHT_PRIORITY_WINDOW_DAYS * 24 * 60 * 60 * 1000;
-
-function getSpotlightPriority(tournament) {
-    const category = getPrizeCategory(tournament);
-    const priorities = {
-        'Đặc biệt+Có thưởng': { rank: 4, key: 'special-prize', label: 'Ưu tiên cao nhất · Đặc biệt + Có thưởng' },
-        'Đặc biệt': { rank: 3, key: 'special', label: 'Ưu tiên · Giải đặc biệt' },
-        'Có thưởng': { rank: 2, key: 'prize', label: 'Ưu tiên · Giải có thưởng' },
-        'Giao lưu': { rank: 1, key: 'community', label: 'Giải giao lưu gần nhất' }
-    };
-    return priorities[category] || priorities['Giao lưu'];
-}
-
-function selectNextSpotlightEvent(tournaments, now = Date.now()) {
-    const candidates = tournaments
-        .map((tournament, index) => ({
-            tournament,
-            index,
-            startTime: getEventStartTime(tournament),
-            status: getEventStatus(tournament),
-            priority: getSpotlightPriority(tournament)
-        }))
-        .filter(item =>
-            item.startTime > now &&
-            [STATUS.UPCOMING, STATUS.TENTATIVE].includes(item.status)
-        );
-
-    if (!candidates.length) return null;
-
-    const nearestStart = Math.min(...candidates.map(item => item.startTime));
-    const priorityWindowEnd = nearestStart + SPOTLIGHT_PRIORITY_WINDOW_MS;
-    const nearTermGroup = candidates.filter(item => item.startTime <= priorityWindowEnd);
-
-    nearTermGroup.sort((a, b) => {
-        const priorityDifference = b.priority.rank - a.priority.rank;
-        if (priorityDifference !== 0) return priorityDifference;
-
-        const timeDifference = a.startTime - b.startTime;
-        if (timeDifference !== 0) return timeDifference;
-
-        // At identical priority and time, a confirmed event ranks above a tentative one.
-        const certaintyDifference = Number(a.status === STATUS.TENTATIVE) - Number(b.status === STATUS.TENTATIVE);
-        return certaintyDifference || a.index - b.index;
-    });
-
-    return nearTermGroup[0];
-}
-
-function updateNextMatchSpotlight() {
-    if (!DOM.nextMatchSpotlight) return;
-
-    const selection = selectNextSpotlightEvent(STATE.tournaments);
-    const next = selection?.tournament || null;
-
-    STATE.nextMatch = next;
-    if (!next) {
-        DOM.nextMatchSpotlight.hidden = true;
-        if (DOM.nextMatchJoin) DOM.nextMatchJoin.hidden = true;
-        if (DOM.nextMatchPriority) DOM.nextMatchPriority.hidden = true;
-        DOM.nextMatchSpotlight.removeAttribute('data-priority');
-        return;
-    }
-
-    const parts = getVietnamDateParts(next.startTime);
-    const dateLabel = `${padZero(parts.date)}/${padZero(parts.month + 1)}/${parts.year}`;
-    const timeLabel = next.hasStartTime
-        ? ` · ${padZero(parts.hours)}:${padZero(parts.minutes)}`
-        : ' · Chưa công bố giờ bắt đầu';
-    const priority = selection.priority;
-
-    DOM.nextMatchTitle.textContent = next.eventName || 'Giải đấu sắp diễn ra';
-    DOM.nextMatchMeta.textContent = `${dateLabel}${timeLabel} · ${getEventStatus(next)}`;
-    if (DOM.nextMatchPriority) {
-        DOM.nextMatchPriority.textContent = priority.label;
-        DOM.nextMatchPriority.hidden = false;
-    }
-    const countdownWrap = DOM.nextMatchCountdown?.closest('.next-match-countdown-wrap');
-    if (countdownWrap) countdownWrap.hidden = !next.hasStartTime;
-    DOM.nextMatchSpotlight.dataset.priority = priority.key;
-    DOM.nextMatchSpotlight.hidden = false;
-
-    if (DOM.nextMatchJoin) {
-        const joinUrl = safeUrl(next.joinLink);
-        DOM.nextMatchJoin.hidden = !joinUrl;
-        if (joinUrl) DOM.nextMatchJoin.href = joinUrl;
-    }
-    if (DOM.nextMatchDetail) DOM.nextMatchDetail.onclick = () => openModal(next);
-    updateNextMatchCountdown();
-}
-
 function renderActiveView() {
     if (DOM.calendarWrapper) DOM.calendarWrapper.style.display = 'none';
     if (DOM.listWrapper) DOM.listWrapper.style.display = 'none';
     if (DOM.emptyEl) DOM.emptyEl.style.display = 'none';
     updateStatusFilterButtons();
-    updateNextMatchSpotlight();
 
     if (STATE.tournaments.length === 0) {
         if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
@@ -1282,8 +1161,6 @@ function showSchedule() {
     STATE.displayMonth = today.getUTCMonth();
     renderActiveView();
 
-    window.clearInterval(STATE.countdownTimer);
-    STATE.countdownTimer = window.setInterval(updateNextMatchCountdown, 1000);
     DOM.calendarWrapper?.classList.add('schedule-entrance');
 }
 
