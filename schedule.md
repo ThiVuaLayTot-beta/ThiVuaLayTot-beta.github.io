@@ -118,30 +118,6 @@ schedule_css: /css/schedule.css
             </div>
         </div>    </header>
 
-        <section id="next-match-spotlight" class="next-match-spotlight" aria-labelledby="next-match-title" hidden>
-            <div class="next-match-copy">
-                <div class="next-match-eyebrow">
-                    <span class="next-match-kicker"><i class="bx bx-bullseye" aria-hidden="true"></i> TÂM ĐIỂM SẮP DIỄN RA</span>
-                    <span id="next-match-priority" class="next-match-priority" hidden></span>
-                </div>
-                <h2 id="next-match-title"></h2>
-                <p id="next-match-meta" class="next-match-meta"></p>
-                <div class="next-match-countdown-wrap">
-                    <i class="bx bx-time-five" aria-hidden="true"></i>
-                    <span>Bắt đầu sau</span>
-                    <strong id="next-match-countdown">--:--:--</strong>
-                </div>
-            </div>
-            <div class="next-match-actions">
-                <a id="next-match-join" class="next-match-join" href="#" target="_blank" rel="noopener noreferrer" hidden>
-                    <i class="bx bx-user-plus" aria-hidden="true"></i> Tham gia
-                </a>
-                <button id="next-match-detail" class="next-match-detail" type="button">
-                    <i class="bx bx-detail" aria-hidden="true"></i> Xem chi tiết
-                </button>
-            </div>
-        </section>
-
     <section class="schedule-results" aria-label="Kết quả lịch sự kiện">
         <div id="loading" class="loading" role="status" aria-live="polite">
             <span class="schedule-skeleton-label">Đang tải dữ liệu lịch sự kiện…</span>
