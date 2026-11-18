@@ -536,7 +536,7 @@
 
                 const fmtStr = rds === 1
                     ? `<span class="tournament-format-badge tournament-format-arena"><i class="bx bx-trophy" aria-hidden="true"></i><span>Arena</span><span class="tournament-format-detail">${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}</span></span>`
-                    : `<span class="tournament-format-badge tournament-format-swiss"><i class="bx bx-list-ol" aria-hidden="true"></i><span>Hệ Thụy Sĩ</span><span class="tournament-format-detail">${rds} vòng</span></span>`;
+                    : `<span class="tournament-format-badge tournament-format-swiss"><i class="bx bx-list-ol" aria-hidden="true"></i><span>Hệ Thụy Sĩ</span><span class="tournament-format-detail">${escapeHTML(rds)} vòng</span></span>`;
 
                 const tournamentUrl = escapeHTML(safeHttpUrl(data.url, `${CONFIG.CHESS_COM_URL}/tournament/${encodeURIComponent(id)}`));
                 const tournamentName = escapeHTML(data.name || 'Unknown');
