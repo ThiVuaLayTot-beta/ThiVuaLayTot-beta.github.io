@@ -752,7 +752,7 @@ function renderEventCard(tournament, container) {
     card.innerHTML = `
         <div class="event-card-header">
             <div class="event-card-logo">
-                <img src="${escapeHTML(safeUrl(tournament.logo, '/images/tvltlogo.png'))}" alt="" onerror="this.onerror=null;this.src='/images/tvltlogo.png';">
+                <img src="${escapeHTML(safeUrl(tournament.logo, '/images/tvltlogo.png'))}" alt="" data-fallback-src="/images/tvltlogo.png">
             </div>
             <div class="event-card-title-group">
                 <div class="event-card-badges">${categoryHTML}</div>
