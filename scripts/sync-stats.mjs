@@ -76,10 +76,13 @@ const count = txt.split('\n').filter((l) => l.trim()).length;
 return count > 0 ? count : null;
 } catch (e) { console.warn('Gist raw failed:', e.message); return null; }
 }
-
+async function fetchAppsScriptStats() { const url = process.env.APPS_SCRIPT_STATS_URL; if (!url) return null; try { const res = await fetch(url, { headers: { 'User-Agent': 'ThiVuaLayTot-StatSync/1.0' } }); if (!res.ok) return null; const data = await res.json(); if (data && (data.youtube_subs || data.chesscom_members || data.prize_events)) return data; } catch (e) { console.warn('Apps Script stats fetch failed:', e.message); } return null; }
 async function main() {
 let prev = {};
 try { prev = JSON.parse(await readFile(STATS_PATH, 'utf8')); } catch {}
+const appsData = await fetchAppsScriptStats(); if (appsData) { const next = { youtube_subs: appsData.youtube_subs || prev.youtube_subs || '174K+', youtube_subs_raw: appsData.youtube_subs_raw || prev.youtube_subs_raw || 174000, chesscom_members: appsData.chesscom_members || prev.chesscom_members || '21K+', chesscom_members_raw: appsData.chesscom_members_raw || prev.chesscom_members_raw || 21000, prize_events: appsData.prize_events || prev.prize_events || '100+', prize_events_raw: appsData.prize_events_raw || prev.prize_events_raw || 100, updated_at: appsData.updated_at || new Date().toISOString(), source: appsData.source || 'google-apps-script' }; await writeFile(STATS_PATH, JSON.stringify(next, null, 2) + '\n', 'utf8'); console.log('Stats synced from Apps Script:', next); return; }
+
+
 const [ytRaw, chessRaw, eventsRaw] = await Promise.all([fetchYouTubeSubs(), fetchChessComMembers(), fetchPrizeEvents()]);
 const next = {
 youtube_subs: ytRaw ? formatThousandsK(ytRaw) : (prev.youtube_subs || '174K+'),
