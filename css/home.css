@@ -81,7 +81,7 @@
   gap: 0.75rem;
   padding: 0.7rem 1rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(16px);
   color: rgba(255, 255, 255, 0.88);
@@ -92,8 +92,8 @@
 .eyebrow__dot {
   width: 0.6rem;
   height: 0.6rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #8b5cf6, #38bdf8);
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #8b5cf6, var(--accent-ice));
   box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.16);
   flex: 0 0 auto;
 }
@@ -105,12 +105,12 @@
   line-height: 0.96;
   letter-spacing: -0.05em;
   font-weight: 800;
-  color: #f8fafc;
+  color: var(--text-primary);
   text-wrap: balance;
 }
 
 .hero-v2 h1 span {
-  background: linear-gradient(135deg, #8b5cf6 0%, #38bdf8 55%, #a855f7 100%);
+  background: linear-gradient(135deg, #8b5cf6 0%, var(--accent-ice) 55%, #a855f7 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -140,7 +140,7 @@
 
 .home-page a:focus-visible,
 .home-page summary:focus-visible {
-  outline: 3px solid #7dd3fc;
+  outline: 3px solid var(--accent-ice-soft);
   outline-offset: 4px;
   border-radius: 0.4rem;
 }
@@ -153,7 +153,7 @@
   gap: 0.6rem;
   min-height: 3.2rem;
   padding: 0.9rem 1.2rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   text-decoration: none;
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -163,7 +163,7 @@
 
 .btn.btn-primary-v2 {
   color: #07111f;
-  background: linear-gradient(135deg, #c4b5fd 0%, #38bdf8 52%, #7c3aed 100%);
+  background: linear-gradient(135deg, #c4b5fd 0%, var(--accent-ice) 52%, #7c3aed 100%);
   box-shadow: 0 16px 42px rgba(56, 189, 248, 0.24), 0 10px 24px rgba(124, 58, 237, 0.18);
 }
 
@@ -201,7 +201,7 @@
   justify-content: center;
   width: 2.95rem;
   height: 2.95rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.045);
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
@@ -319,7 +319,7 @@
   align-items: center;
   gap: 0.45rem;
   padding: 0.42rem 0.72rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.04);
   color: #c4b5fd;
@@ -401,7 +401,7 @@
   left: 50%;
   width: 2px;
   transform: translateX(-50%);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 .timeline::before {
@@ -412,7 +412,7 @@
   bottom: auto;
   height: var(--timeline-progress);
   max-height: calc(100% - 2.8rem);
-  background: linear-gradient(180deg, #8b5cf6, #38bdf8);
+  background: linear-gradient(180deg, #8b5cf6, var(--accent-ice));
   box-shadow: 0 0 20px rgba(56, 189, 248, 0.58);
   transition: height 180ms linear;
 }
@@ -448,7 +448,7 @@
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(191, 219, 254, 0.38);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: #111a32;
   color: #c4b5fd;
   box-shadow: 0 0 0 0.45rem rgba(5, 8, 22, 0.86);
@@ -756,7 +756,7 @@
 a[href*="zalo"], a[href*="lichess"], a[href*="chess.com"], a[href*="youtube"] { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease !important; }
 a[href*="zalo"]:hover { transform: scale(1.04) translateY(-2px) !important; border-color: rgba(0, 104, 255, 0.6) !important; box-shadow: 0 10px 25px -5px rgba(0, 104, 255, 0.4) !important; }
 a[href*="lichess"]:hover { transform: scale(1.04) translateY(-2px) !important; border-color: rgba(245, 158, 11, 0.6) !important; box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.4) !important; }
-.event-card, .post-card, .partner-item { border-radius: 18px; transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1); border: 1px solid var(--color-border); background: var(--bg-card); box-shadow: var(--shadow-lg); }
+.event-card, .post-card, .partner-item { border-radius: var(--radius-card); transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1); border: 1px solid var(--color-border); background: var(--bg-card); box-shadow: var(--shadow-lg); }
 a[href*="chess.com"]:hover { transform: scale(1.04) translateY(-2px) !important; border-color: rgba(34, 197, 94, 0.6) !important; box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.4) !important; }
 a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; border-color: rgba(239, 68, 68, 0.6) !important; box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4) !important; }
 
@@ -869,8 +869,8 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
 .bento-card{border-color:rgba(148,163,184,.18)!important;background:rgba(15,23,42,.82)!important}
 .bento-card:hover{border-color:rgba(125,211,252,.48)!important;box-shadow:0 16px 36px -12px rgba(56,189,248,.2)!important}
 .bento-stat strong,.bento-card--arena h3{color:#bae6fd}
-.bento-badge{border-color:rgba(125,211,252,.25);color:#7dd3fc}
-.bento-card--connect a:focus-visible,.hero-v2__actions a:focus-visible{outline:2px solid #7dd3fc;outline-offset:3px}
+.bento-badge{border-color:rgba(125,211,252,.25);color:var(--accent-ice-soft)}
+.bento-card--connect a:focus-visible,.hero-v2__actions a:focus-visible{outline:2px solid var(--accent-ice-soft);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.hero-v2 *,.hero-bento-dock *,.hero-v2__actions .btn,.bento-card{animation:none!important;transition:none!important}.bento-card:hover,.hero-v2__actions .btn:hover{transform:none!important}}
 
 /* Keep the founder identity stacked while the six social shortcuts stay aligned. */
@@ -942,7 +942,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
   max-width: 14ch;
   margin: 1.15rem 0 .8rem;
   background: none;
-  color: #f8fafc;
+  color: var(--text-primary);
   -webkit-text-fill-color: currentColor;
   font-size: clamp(3rem, 5.1vw, 5.1rem);
   font-weight: 800;
@@ -953,7 +953,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
 
 .home-page > .hero-v2 #hero-title .hero-v2__brand {
   display: block;
-  background: linear-gradient(115deg, #e0f2fe 0%, #7dd3fc 48%, #818cf8 100%);
+  background: linear-gradient(115deg, #e0f2fe 0%, var(--accent-ice-soft) 48%, #818cf8 100%);
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
@@ -1078,9 +1078,9 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
   margin-bottom: .65rem;
   padding: .32rem .6rem;
   border: 1px solid rgba(125, 211, 252, .24);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(56, 189, 248, .07);
-  color: #7dd3fc;
+  color: var(--accent-ice-soft);
   font-size: .67rem;
   font-weight: 750;
   letter-spacing: .075em;
@@ -1113,7 +1113,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
   display: inline-flex;
   align-items: center;
   gap: .3rem;
-  color: #7dd3fc;
+  color: var(--accent-ice-soft);
   font-size: .82rem;
   font-weight: 650;
   text-decoration: none;
@@ -1191,7 +1191,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
 }
 
 .home-page > .hero-v2 a:focus-visible {
-  outline: 2px solid #7dd3fc;
+  outline: 2px solid var(--accent-ice-soft);
   outline-offset: 3px;
 }
 
@@ -1447,7 +1447,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
 }
 
 .founder-profile__media-caption span {
-  color: #7dd3fc;
+  color: var(--accent-ice-soft);
   font-size: .68rem;
   font-weight: 800;
   letter-spacing: .15em;
@@ -1483,7 +1483,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
   align-items: center;
   gap: .65rem;
   margin-bottom: 1rem;
-  color: #7dd3fc;
+  color: var(--accent-ice-soft);
   font-size: .72rem;
   font-weight: 800;
   letter-spacing: .16em;
@@ -1492,13 +1492,13 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
 .founder-profile__eyebrow span {
   width: 24px;
   height: 1px;
-  background: #38bdf8;
+  background: var(--accent-ice);
 }
 
 .founder-profile__content h2 {
   max-width: 16ch;
   margin: 0 0 1.15rem;
-  color: #f8fafc;
+  color: var(--text-primary);
   font-size: clamp(2rem, 3.7vw, 3.45rem);
   font-weight: 800;
   line-height: 1.08;
@@ -1507,7 +1507,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
 }
 
 .founder-profile__content h2 span {
-  color: #7dd3fc;
+  color: var(--accent-ice-soft);
 }
 
 .founder-profile__content > p {
@@ -1596,7 +1596,7 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
 
 .founder-profile__media:focus-visible,
 .founder-profile__actions a:focus-visible {
-  outline: 3px solid #7dd3fc;
+  outline: 3px solid var(--accent-ice-soft);
   outline-offset: 4px;
 }
 
