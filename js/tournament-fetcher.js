@@ -52,12 +52,27 @@
             5: '🏅 Hạng 5',
             6: '⭐ Hạng 6'
         };
-        return badges[rank] || (rank ? `Hạng ${rank}` : 'N/A');
+        return badges[rank] || (rank ? `Hạng ${escapeHTML(rank)}` : 'N/A');
     }
 
     // ========== Utility Functions ==========
+    function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[character]);
+    }
+
+    function safeHttpUrl(value, fallback = '#') {
+        try {
+            const url = new URL(String(value ?? ''), window.location.origin);
+            return ['http:', 'https:'].includes(url.protocol) ? url.href : fallback;
+        } catch {
+            return fallback;
+        }
+    }
+
     function createImg(src, w = 15) {
-        return `<img src="${src}" width="${w}" height="${w}" alt="" style="vertical-align:middle">`;
+        return `<img src="${escapeHTML(safeHttpUrl(src))}" width="${w}" height="${w}" alt="" style="vertical-align:middle">`;
     }
 
     function formatVariantLink(variant, setup) {
@@ -66,15 +81,15 @@
         const img = createImg(CONFIG.CHESS_COM_URL + config.icon);
         
         if (setup) {
-            return `<br><a href="javascript:void(0)" class="custom-variant-link" data-setup="${setup}">${config.name} ${img}</a><br>`;
+            return `<br><a href="javascript:void(0)" class="custom-variant-link" data-setup="${escapeHTML(setup)}">${escapeHTML(config.name)} ${img}</a><br>`;
         }
-        return `<br><a href="${url}" target="_blank">${config.name} ${img}</a><br>`;
+        return `<br><a href="${escapeHTML(safeHttpUrl(url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(config.name)} ${img}</a><br>`;
     }
 
     function formatTimeControl(tc, timeClass) {
         const icon = TIME_ICONS[timeClass];
         const iconHtml = icon ? createImg(CONFIG.CHESS_COM_URL + icon.p) : '';
-        return `${tc} ${icon?.name || 'Standard'}${iconHtml}`;
+        return `${escapeHTML(tc)} ${icon?.name || 'Standard'}${iconHtml}`;
     }
 
     function formatBadge(status) {
@@ -269,12 +284,15 @@
             }
 
             const { avatar, status, breakdown } = playerData;
+            const safeUsername = escapeHTML(username);
+            const safeAvatar = escapeHTML(safeHttpUrl(avatar, CONFIG.DEFAULT_AVATAR));
+            const profileUrl = `${CONFIG.CHESS_COM_URL}/member/${encodeURIComponent(username)}`;
             const badgeHtml = formatBadge(status);
 
             let html = `<div class="calendar-wrapper">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="${avatar || CONFIG.DEFAULT_AVATAR}" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--cyan-300);" alt="${username}">
-                    <h3 style="margin: 10px 0 5px 0;"><a href="${CONFIG.CHESS_COM_URL}/member/${username}" target="_blank">${username}</a></h3>
+                    <img src="${safeAvatar}" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--cyan-300);" alt="${safeUsername}">
+                    <h3 style="margin: 10px 0 5px 0;"><a href="${profileUrl}" target="_blank" rel="noopener noreferrer">${safeUsername}</a></h3>
                     ${badgeHtml ? `<div style="margin-top: 5px;">${badgeHtml}</div>` : ''}
                 </div>
 
@@ -297,8 +315,8 @@
 
                 html += `<tr>
                     <td>
-                        <a href="${item.url}" target="_blank" style="color: var(--cyan-300); text-decoration: none; font-weight: 500;">
-                            ${item.tourName}
+                        <a href="${escapeHTML(safeHttpUrl(item.url))}" target="_blank" rel="noopener noreferrer" style="color: var(--cyan-300); text-decoration: none; font-weight: 500;">
+                            ${escapeHTML(item.tourName)}
                         </a>
                         <div style="font-size: 0.85em; color: var(--neutral-300); margin-top: 3px;">
                             ${formatDate(item.startTime)}
@@ -309,11 +327,11 @@
                     </td>
                     <td style="text-align: center; font-size: 0.9em;">
                         <div>${formatTimeControl(item.timeControl, item.timeClass)}</div>
-                        <div>${variantName} ${variantIcon}</div>
-                        <div>${item.format}</div>
+                        <div>${escapeHTML(variantName)} ${variantIcon}</div>
+                        <div>${escapeHTML(item.format)}</div>
                     </td>
                     <td style="text-align: center; color: var(--green-400); font-weight: bold; font-size: 1.05em;">
-                        ${item.points}
+                        ${escapeHTML(item.points)}
                     </td>
                 </tr>`;
             });
@@ -327,7 +345,8 @@
         },
 
         handleCustomVariantClick(setup) {
-            ModalManager.show('Thế cờ ban đầu', `<div class="calendar-wrapper" style="padding: 20px; color: var(--neutral-100); word-break: break-all;">Xem thế cờ: <a href="https://lichess.org/analysis/${setup}" target="_blank">${setup}</a></div>`);
+            const safeSetup = escapeHTML(setup);
+            ModalManager.show('Thế cờ ban đầu', `<div class="calendar-wrapper" style="padding: 20px; color: var(--neutral-100); word-break: break-all;">Xem thế cờ: <a href="https://lichess.org/analysis/${encodeURIComponent(setup)}" target="_blank" rel="noopener noreferrer">${safeSetup}</a></div>`);
         }
     };
 
@@ -413,14 +432,18 @@
             breakdown: [breakdownItem]
         });
 
-        return `<td class="player-cell clickable-player" data-username="${specialUsername}" data-points="${pts}" style="cursor: pointer;">
+        const safeUsername = escapeHTML(specialUsername);
+        const safeAvatar = escapeHTML(safeHttpUrl(p?.avatar, CONFIG.DEFAULT_AVATAR));
+        const profileUrl = `${CONFIG.CHESS_COM_URL}/member/${encodeURIComponent(specialUsername)}`;
+
+        return `<td class="player-cell clickable-player" data-username="${safeUsername}" data-points="${escapeHTML(pts)}" style="cursor: pointer;">
             <div class="post-user-component">
                 <div class="cc-avatar-component post-user-avatar">
-                    <img class="cc-avatar-img" src="${p?.avatar || CONFIG.DEFAULT_AVATAR}" height="50" width="50" alt="${specialUsername}">
+                    <img class="cc-avatar-img" src="${safeAvatar}" height="50" width="50" alt="${safeUsername}">
                 </div>
                 <div class="post-user-details">
                     <div class="user-tagline-component">
-                        <a class="user-username-component user-tagline-username" href="${CONFIG.CHESS_COM_URL}/member/${specialUsername}" target="_blank">${specialUsername}</a>
+                        <a class="user-username-component user-tagline-username" href="${profileUrl}" target="_blank" rel="noopener noreferrer">${safeUsername}</a>
                     </div>
                     <div class="post-user-status">
                         <span>${formatBadge(p?.status)}</span>
@@ -515,7 +538,9 @@
                     ? `<span class="tournament-format-badge tournament-format-arena"><i class="bx bx-trophy" aria-hidden="true"></i><span>Arena</span><span class="tournament-format-detail">${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}</span></span>`
                     : `<span class="tournament-format-badge tournament-format-swiss"><i class="bx bx-list-ol" aria-hidden="true"></i><span>Hệ Thụy Sĩ</span><span class="tournament-format-detail">${rds} vòng</span></span>`;
 
-                let row = `<td><a href="${data.url}" target="_blank">${data.name}</a></td>
+                const tournamentUrl = escapeHTML(safeHttpUrl(data.url, `${CONFIG.CHESS_COM_URL}/tournament/${encodeURIComponent(id)}`));
+                const tournamentName = escapeHTML(data.name || 'Unknown');
+                let row = `<td><a href="${tournamentUrl}" target="_blank" rel="noopener noreferrer">${tournamentName}</a></td>
                     <td>${formatDate(data.start_time || data.startTime)}</td>
                     <td>${formatTimeControl(parseTC(data.settings?.time_control || data.time_control || data.timeControl), data.settings?.time_class || data.time_class)}${formatVariantLink(v, s)}${fmtStr}</td>
                     <td>${data.settings?.registered_user_count || data.players_registered || data.players?.length || 0}</td>`;
