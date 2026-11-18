@@ -514,7 +514,7 @@ function loadFiltersFromURL() {
     if (params.has('type') && DOM.scheduleTypeGroup) {
         const selectedTypes = params.get('type').toLowerCase().split(/[\s+]+/);
         DOM.scheduleTypeGroup.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)').forEach(cb => {
-            cb.checked = selectedTypes.includes(cb.value.toLowerCase());
+            cb.checked = cb.dataset.internalFilter === 'true' || selectedTypes.includes(cb.value.toLowerCase());
         });
     }
 }
@@ -1089,9 +1089,8 @@ function ensureEventTypeFilters(events) {
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.value = type;
-        checkbox.checked = selectedFromURL
-            ? selectedFromURL.has(type)
-            : allExistingTypesSelected;
+        checkbox.checked = CONFIG.INTERNAL_EVENT_TYPES.includes(type) ||
+            (selectedFromURL ? selectedFromURL.has(type) : allExistingTypesSelected);
 
         const mark = document.createElement('span');
         mark.className = 'checkmark';
