@@ -905,19 +905,11 @@ function closeModal() {
 }
 
 function updateNavButtonStates() {
-    const vnToday = getVietnamNow();
-    const realYear = vnToday.getUTCFullYear();
-    const realMonth = vnToday.getUTCMonth();
-    const currentAbsoluteMonth = realYear * 12 + realMonth;
-    const displayAbsoluteMonth = STATE.displayYear * 12 + STATE.displayMonth;
-
-    const canPrevious = displayAbsoluteMonth > currentAbsoluteMonth - 60;
-
+    // Month navigation remains unrestricted in both directions.
     if (DOM.btnPrevMonth) {
-        DOM.btnPrevMonth.disabled = !canPrevious;
-        DOM.btnPrevMonth.style.opacity = canPrevious ? '1' : '0.3';
+        DOM.btnPrevMonth.disabled = false;
+        DOM.btnPrevMonth.style.opacity = '1';
     }
-
     if (DOM.btnNextMonth) {
         DOM.btnNextMonth.disabled = false;
         DOM.btnNextMonth.style.opacity = '1';
@@ -971,15 +963,6 @@ function renderActiveView() {
 }
 
 function changeMonth(offset) {
-    const vnToday = getVietnamNow();
-    const realYear = vnToday.getUTCFullYear();
-    const realMonth = vnToday.getUTCMonth();
-    const currentAbsoluteMonth = realYear * 12 + realMonth;
-    const displayAbsoluteMonth = STATE.displayYear * 12 + STATE.displayMonth;
-    const targetAbsoluteMonth = displayAbsoluteMonth + offset;
-
-    if (targetAbsoluteMonth < currentAbsoluteMonth - 60) return;
-
     STATE.displayMonth += offset;
     if (STATE.displayMonth < 0) {
         STATE.displayMonth = 11;
