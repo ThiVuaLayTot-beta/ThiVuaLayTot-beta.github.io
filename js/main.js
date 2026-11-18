@@ -4,6 +4,15 @@
 const menuBtn = document.getElementById("mobile-menu-btn");
 const mobileNav = document.getElementById("mobile-nav-menu");
 const dropdowns = document.querySelectorAll(".section.dropdown");
+
+// Handle image fallbacks without inline HTML event attributes.
+document.addEventListener("error", (event) => {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement) || !image.dataset.fallbackSrc ||
+        image.dataset.fallbackAttempted === "true") return;
+    image.dataset.fallbackAttempted = "true";
+    image.src = image.dataset.fallbackSrc;
+}, true);
 const isMobileNav = () => window.matchMedia("(max-width: 1024px)").matches;
 let dropdownCloseTimer = null;
 
