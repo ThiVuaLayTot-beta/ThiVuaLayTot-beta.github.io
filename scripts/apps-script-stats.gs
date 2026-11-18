@@ -1,5 +1,5 @@
 /**
- * Google Apps Script exporter for Thi Vua Lay Tot homepage stats.
+ * Google Apps Script exporter for Thí Vua Lấy Tốt homepage stats.
   * Deploy as a Web App (Execute as: Me, Who has access: Anyone)
    * and run installWeeklyStatsTrigger() once to schedule Monday 07:00 syncs.
     */
