@@ -603,7 +603,9 @@ function createEventIcon(tournament) {
 
     const img = document.createElement('img');
     img.src = safeUrl(tournament.logo, '/images/tvltlogo.png');
-    img.onerror = () => { img.onerror = null; img.src = '/images/tvltlogo.png'; };
+    img.addEventListener('error', () => {
+        img.src = '/images/tvltlogo.png';
+    }, { once: true });
     img.alt = '';
     icon.appendChild(img);
 
