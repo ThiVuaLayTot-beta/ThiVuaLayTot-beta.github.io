@@ -799,7 +799,6 @@ a[href*="youtube"]:hover { transform: scale(1.04) translateY(-2px) !important; b
   }
 }
 
-/* --- Tactical Mini Chessboard & Mobile Fixes --- */
 
 @media (max-width: 768px) {
   .hero-v2__actions {
