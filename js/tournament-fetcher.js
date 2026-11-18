@@ -81,7 +81,7 @@
         const img = createImg(CONFIG.CHESS_COM_URL + config.icon);
         
         if (setup) {
-            return `<br><a href="javascript:void(0)" class="custom-variant-link" data-setup="${escapeHTML(setup)}">${escapeHTML(config.name)} ${img}</a><br>`;
+            return `<br><a href="#" class="custom-variant-link" data-setup="${escapeHTML(setup)}">${escapeHTML(config.name)} ${img}</a><br>`;
         }
         return `<br><a href="${escapeHTML(safeHttpUrl(url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(config.name)} ${img}</a><br>`;
     }
@@ -584,6 +584,7 @@
 
             const link = e.target.closest('.custom-variant-link');
             if (link) {
+                e.preventDefault();
                 const setup = link.dataset.setup;
                 EventHandlers.handleCustomVariantClick(setup);
             }
