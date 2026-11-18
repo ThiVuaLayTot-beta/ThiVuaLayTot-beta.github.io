@@ -507,6 +507,7 @@
             );
 
             const tournamentsJson = escapeHTML(JSON.stringify(tournaments));
+            const safeMonthId = escapeHTML(monthId);
             const isAllFinished = totalCount > 0 && finishedCount === totalCount;
             const statusBadgeStyle = isAllFinished
                 ? 'background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4);'
@@ -515,10 +516,10 @@
             const statsHtml = `<span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">${totalCount} giải đấu <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span><div style="margin-top: 4px; white-space: nowrap;"><span class="user-badges-badge" style="${statusBadgeStyle} font-size: 0.82em; padding: 2px 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;"><i class="bx ${statusBadgeIcon}"></i>${finishedCount}/${totalCount} đã hoàn thành</span></div>`;
 
             let html = `<tr>
-                <td class="name-tour month-clickable" data-tournaments='${tournamentsJson}' data-month="${monthId}">
-                    <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">Tháng ${monthId} <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span>
+                <td class="name-tour month-clickable" data-tournaments='${tournamentsJson}' data-month="${safeMonthId}">
+                    <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">Tháng ${safeMonthId} <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span>
                 </td>
-                <td class="organization-day month-clickable" data-tournaments='${tournamentsJson}' data-month="${monthId}">
+                <td class="organization-day month-clickable" data-tournaments='${tournamentsJson}' data-month="${safeMonthId}">
                     ${statsHtml}
                 </td>
                 <td class="players">${Object.keys(playerScores).length}</td>`;
