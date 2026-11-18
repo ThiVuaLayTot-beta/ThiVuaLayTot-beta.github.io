@@ -15,14 +15,6 @@
         const input = document.getElementById("post-filter-input");
         if (!input) return;
 
-        document.querySelectorAll(".category-card__image[data-fallback-src]").forEach((image) => {
-            image.addEventListener("error", () => {
-                if (image.dataset.fallbackAttempted === "true") return;
-                image.dataset.fallbackAttempted = "true";
-                image.src = image.dataset.fallbackSrc;
-            }, { once: true });
-        });
-
         // Include curated cards appended through the category page content.
         const cards = Array.from(document.querySelectorAll(".category-card")).map((element) => ({
             element,
