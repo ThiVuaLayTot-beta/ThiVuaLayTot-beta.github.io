@@ -423,13 +423,14 @@ function getCurrentMonthEvents(filters = getFilterState()) {
 }
 
 function updateFilterControls(filters = getFilterState()) {
-    const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)') || []);
+    const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter):not([data-internal-filter])') || []);
+    const selectedVisibleTypes = allTypes.filter(checkbox => checkbox.checked);
     const hasActiveFilters = Boolean(filters.search || filters.onlyPrize ||
-        filters.types.length !== allTypes.length || STATE.statusFilter !== 'all');
+        selectedVisibleTypes.length !== allTypes.length || STATE.statusFilter !== 'all');
     if (DOM.resetFilters) DOM.resetFilters.hidden = !hasActiveFilters;
     if (DOM.categoryButton) {
         const categoryLabel = DOM.categoryButton.querySelector('[data-filter-label], .tour-dropdown-btn-content span');
-        const categoryText = `Thể loại (${filters.types.length}/${allTypes.length})`;
+        const categoryText = `Thể loại (${selectedVisibleTypes.length}/${allTypes.length})`;
         if (categoryLabel) categoryLabel.textContent = categoryText;
         DOM.categoryButton.setAttribute('aria-label', `${categoryText}. Mở bộ lọc thể loại`);
     }
@@ -1077,6 +1078,11 @@ function ensureEventTypeFilters(events) {
     unknownTypes.forEach(type => {
         const label = document.createElement('label');
         label.className = 'custom-checkbox-container';
+        if (CONFIG.INTERNAL_EVENT_TYPES.includes(type)) {
+            label.hidden = true;
+            label.dataset.internalFilter = 'true';
+            label.style.display = 'none';
+        }
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
