@@ -63,6 +63,21 @@
         }
     }
 
+    function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[character]);
+    }
+
+    function safeHttpUrl(value, fallback = '#') {
+        try {
+            const url = new URL(String(value ?? ''), window.location.origin);
+            return ['http:', 'https:'].includes(url.protocol) ? url.href : fallback;
+        } catch {
+            return fallback;
+        }
+    }
+
     function getRankBadge(rank) {
         const badges = {
             1: '🥇 Hạng 1',
@@ -72,7 +87,7 @@
             5: '🏅 Hạng 5',
             6: '⭐ Hạng 6'
         };
-        return badges[rank] || `Hạng ${rank}`;
+        return badges[rank] || `Hạng ${escapeHTML(rank)}`;
     }
 
     function formatTourStatus(status, isFinished) {
@@ -145,7 +160,7 @@
     }
 
     function createImg(src, w = 15) {
-        return `<img src="${src}" width="${w}" height="${w}" alt="" style="display: inline-block; vertical-align: middle;">`;
+        return `<img src="${escapeHTML(safeHttpUrl(src))}" width="${w}" height="${w}" alt="" style="display: inline-block; vertical-align: middle;">`;
     }
 
     const Cache = {
@@ -452,19 +467,22 @@
             };
 
             const badgeHtml = this.formatBadge(data.status);
+            const safeUsername = escapeHTML(data.username);
+            const safeAvatar = escapeHTML(safeHttpUrl(data.avatar, CONFIG.DEFAULT_AVATAR));
+            const profileUrl = `${CONFIG.CHESS_COM_URL}/member/${encodeURIComponent(data.username)}`;
 
-            return `<td class="player-cell clickable-player" data-month="${monthId || ''}" data-player='${JSON.stringify(player).replace(/'/g, "&apos;")}' data-avatar='${(data.avatar || CONFIG.DEFAULT_AVATAR).replace(/'/g, "&apos;")}' data-status='${data.status || "N/A"}' style="cursor: pointer;">
+            return `<td class="player-cell clickable-player" data-month="${escapeHTML(monthId || '')}" data-player='${escapeHTML(JSON.stringify(player))}' data-avatar='${safeAvatar}' data-status='${escapeHTML(data.status || "N/A")}' style="cursor: pointer;">
                 <div class="post-user-component">
                     <div class="cc-avatar-component post-user-avatar">
-                        <img class="cc-avatar-img" src="${data.avatar || CONFIG.DEFAULT_AVATAR}" height="50" width="50" alt="${data.username}">
+                        <img class="cc-avatar-img" src="${safeAvatar}" height="50" width="50" alt="${safeUsername}">
                     </div>
                     <div class="post-user-details">
                         <div class="user-tagline-component">
-                            <a class="user-username-component user-tagline-username" href="${CONFIG.CHESS_COM_URL}/member/${data.username}" target="_blank">${data.username}</a>
+                            <a class="user-username-component user-tagline-username" href="${profileUrl}" target="_blank" rel="noopener noreferrer">${safeUsername}</a>
                         </div>
                         <div class="post-user-status">
                             <span>${badgeHtml}</span>
-                            <span class="score-display" style="font-weight: bold;">${player.totalPoints} ĐIỂM</span>
+                            <span class="score-display" style="font-weight: bold;">${escapeHTML(player.totalPoints)} ĐIỂM</span>
                         </div>
                     </div>
                 </div>
@@ -488,7 +506,7 @@
                 topPlayers.map(p => RequestManager.fetch(`${API.CHESS_COM}/player/${p.username}`))
             );
 
-            const tournamentsJson = JSON.stringify(tournaments).replace(/'/g, "&apos;");
+            const tournamentsJson = escapeHTML(JSON.stringify(tournaments));
             const isAllFinished = totalCount > 0 && finishedCount === totalCount;
             const statusBadgeStyle = isAllFinished
                 ? 'background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4);'
@@ -535,16 +553,19 @@
     const EventHandlers = {
         handlePlayerClick(playerData, avatar, status, monthId) {
             const badgeHtml = Renderer.formatBadge(status);
+            const safeUsername = escapeHTML(playerData.username);
+            const safeAvatar = escapeHTML(safeHttpUrl(avatar, CONFIG.DEFAULT_AVATAR));
+            const profileUrl = `${CONFIG.CHESS_COM_URL}/member/${encodeURIComponent(playerData.username)}`;
             let html = `<div class="calendar-wrapper">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="${avatar || CONFIG.DEFAULT_AVATAR}" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--cyan-300);" alt="${playerData.username}">
-                    <h3 style="margin: 10px 0 5px 0;"><a href="${CONFIG.CHESS_COM_URL}/member/${playerData.username}" target="_blank">${playerData.username}</a></h3>
+                    <img src="${safeAvatar}" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--cyan-300);" alt="${safeUsername}">
+                    <h3 style="margin: 10px 0 5px 0;"><a href="${profileUrl}" target="_blank" rel="noopener noreferrer">${safeUsername}</a></h3>
                     ${badgeHtml ? `<div style="margin-top: 5px;">${badgeHtml}</div>` : ''}
                 </div>
 
                 <div style="margin-bottom: 25px;">
                     <h4 style="color: var(--cyan-300); margin: 0 0 10px 0; font-size: 1.05em; display: flex; align-items: center; gap: 6px;">
-                        <i class="bx bx-calendar"></i> Tổng kết Tháng ${monthId || ''}
+                        <i class="bx bx-calendar"></i> Tổng kết Tháng ${escapeHTML(monthId || '')}
                     </h4>
                     <table class="styled-table score-detail-table" style="width: 100%;">
                         <thead><tr><th>Giải đấu</th><th style="text-align: center;">Thể lệ</th><th style="text-align: center;">Điểm</th></tr></thead>
@@ -557,8 +578,8 @@
 
                 html += `<tr>
                     <td>
-                        <a href="${item.url}" target="_blank" style="color: var(--cyan-300); text-decoration: none; font-weight: 500;">
-                            ${item.tourName}
+                        <a href="${escapeHTML(safeHttpUrl(item.url))}" target="_blank" rel="noopener noreferrer" style="color: var(--cyan-300); text-decoration: none; font-weight: 500;">
+                            ${escapeHTML(item.tourName)}
                         </a>
                         <div style="font-size: 0.85em; color: var(--neutral-300); margin-top: 3px;">
                             ${formatDate(item.startTime)}
@@ -566,11 +587,11 @@
                     </td>
                     <td style="text-align: center; font-size: 0.9em;">
                         <div>${Renderer.timeFormat(item.timeControl, item.timeClass)}</div>
-                        <div style="margin-top: 4px;">${variantName} ${variantIcon}</div>
-                        <div>${item.format}</div>
+                        <div style="margin-top: 4px;">${escapeHTML(variantName)} ${variantIcon}</div>
+                        <div>${escapeHTML(item.format)}</div>
                     </td>
                     <td style="text-align: center; color: var(--green-400); font-weight: bold; font-size: 1.05em;">
-                        ${item.points}
+                        ${escapeHTML(item.points)}
                     </td>
                 </tr>`;
             });
@@ -581,7 +602,7 @@
                         <td style="font-weight: bold; color: var(--cyan-300);">TỔNG CỘNG THÁNG</td>
                         <td style="text-align: center; color: var(--blue-400);">${playerData.breakdown.length} giải</td>
                         <td style="text-align: center; color: var(--yellow-400); font-weight: bold; font-size: 1.15em;">
-                            ${playerData.totalPoints}
+                            ${escapeHTML(playerData.totalPoints)}
                         </td>
                     </tr>
                 </tfoot>
@@ -643,9 +664,9 @@
                 let variantHtml = '';
                 if (variantInfo) {
                     if (tour.setup) {
-                        variantHtml = ` <a href="javascript:void(0)" class="custom-variant-link" data-setup="${tour.setup}">${variantInfo.name}${createImg(variantInfo.icon)}</a>`;
+                        variantHtml = ` <a href="javascript:void(0)" class="custom-variant-link" data-setup="${escapeHTML(tour.setup)}">${escapeHTML(variantInfo.name)}${createImg(variantInfo.icon)}</a>`;
                     } else {
-                        variantHtml = ` <a href="${variantInfo.url}" target="_blank">${variantInfo.name} ${createImg(variantInfo.icon)}</a>`;
+                        variantHtml = ` <a href="${escapeHTML(safeHttpUrl(variantInfo.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(variantInfo.name)} ${createImg(variantInfo.icon)}</a>`;
                     }
                 }
 
@@ -653,11 +674,11 @@
                 const statusBadge = formatTourStatus(tour.status, tour.isFinished);
                 html += `<tr>
                     <td>
-                        <a href="${tour.url}" target="_blank">${tour.name}</a>
+                        <a href="${escapeHTML(safeHttpUrl(tour.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(tour.name)}</a>
                         <div style="margin-top: 4px;">${statusBadge}</div>
                     </td>
                     <td>${startTimeStr}</td>
-                    <td>${Renderer.timeFormat(tour.timeControl, tour.timeClass)}<br>${variantHtml}<br>${tour.format}</td>
+                    <td>${Renderer.timeFormat(tour.timeControl, tour.timeClass)}<br>${variantHtml}<br>${escapeHTML(tour.format)}</td>
                     <td style="text-align: center;">${tour.playersCount}</td>
                 </tr>`;
             });
@@ -667,7 +688,7 @@
         },
 
         handleCustomVariantClick(setup) {
-            ModalManager.show('Thế cờ ban đầu', `<div class="calendar-wrapper" style="padding: 20px; color: var(--neutral-100); word-break: break-all;">${setup}</div>`);
+            ModalManager.show('Thế cờ ban đầu', `<div class="calendar-wrapper" style="padding: 20px; color: var(--neutral-100); word-break: break-all;">${escapeHTML(setup)}</div>`);
         }
     };
 
