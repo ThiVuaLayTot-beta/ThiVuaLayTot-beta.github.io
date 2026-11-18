@@ -545,11 +545,25 @@ function initializeGlobalSearch() {
         }
     });
     document.addEventListener("keydown", (event) => {
-        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        const target = event.target;
+        const isEditingOutsideSearch = target instanceof HTMLElement &&
+            !modal.contains(target) &&
+            (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+
+        if (
+            (event.ctrlKey || event.metaKey) &&
+            !event.altKey &&
+            !event.shiftKey &&
+            event.key.toLowerCase() === "k"
+        ) {
+            if (isEditingOutsideSearch) return;
             event.preventDefault();
             if (modal.classList.contains("active")) closeModal();
             else openModal();
-        } else if (event.key === "Escape" && modal.classList.contains("active")) closeModal();
+        } else if (event.key === "Escape" && modal.classList.contains("active")) {
+            event.preventDefault();
+            closeModal();
+        }
     });
 }
 
