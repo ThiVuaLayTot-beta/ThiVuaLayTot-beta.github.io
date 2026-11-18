@@ -155,7 +155,7 @@ title: Trang chủ
            aria-label="Xem video giới thiệu TungJohn Playing Chess">
           <img
             src="https://i.ytimg.com/vi/E7RW7r4mJts/maxresdefault.jpg"
-            onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/E7RW7r4mJts/hqdefault.jpg';"
+            data-fallback-src="https://i.ytimg.com/vi/E7RW7r4mJts/hqdefault.jpg"
             alt="Khung hình video giới thiệu TungJohn Playing Chess"
             loading="lazy"
             decoding="async">
@@ -318,7 +318,7 @@ title: Trang chủ
                     {% for post in site.posts limit:3 %}
                     <article class="post-card">
                         <a class="post-card__image" href="{{ post.url }}" title="{{ post.title }}">
-                            <img src="{% if post.image %}{{ post.image }}{% else %}/images/{{ post.id | remove_first: '/' }}.png{% endif %}" onerror="this.onerror=null;this.src='/images/tvltlogo.png';" alt="{{ post.title }}" loading="lazy" decoding="async">
+                            <img src="{% if post.image %}{{ post.image }}{% else %}/images/{{ post.id | remove_first: '/' }}.png{% endif %}" data-fallback-src="/images/tvltlogo.png" alt="{{ post.title }}" loading="lazy" decoding="async">
                         </a>
                         <div class="post-card__body">
                             <div class="post-card__meta">
