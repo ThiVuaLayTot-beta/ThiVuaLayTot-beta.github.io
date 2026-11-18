@@ -100,9 +100,9 @@ schedule_css: /css/schedule.css
                         <i class="bx bx-chevron-down tour-dropdown-arrow" aria-hidden="true"></i>
                     </button>
                     <div class="tour-dropdown-menu" id="schedule-type-group" aria-label="Lọc theo thể loại">
-                        <label class="custom-checkbox-container"><input type="checkbox" value="tvlt" checked><span class="checkmark"></span> Thí Vua Lấy Tốt</label>
-                        <label class="custom-checkbox-container"><input type="checkbox" value="cttq" checked><span class="checkmark"></span> Chiến Trường Thí Quân</label>
-                        <label class="custom-checkbox-container"><input type="checkbox" value="cbtt" checked><span class="checkmark"></span> Cờ Bí Thí Tốt</label>
+                        <label class="custom-checkbox-container" hidden data-internal-filter="true" style="display:none"><input type="checkbox" value="tvlt" checked><span class="checkmark"></span> Thí Vua Lấy Tốt</label>
+                        <label class="custom-checkbox-container" hidden data-internal-filter="true" style="display:none"><input type="checkbox" value="cttq" checked><span class="checkmark"></span> Chiến Trường Thí Quân</label>
+                        <label class="custom-checkbox-container" hidden data-internal-filter="true" style="display:none"><input type="checkbox" value="cbtt" checked><span class="checkmark"></span> Cờ Bí Thí Tốt</label>
                         <label class="custom-checkbox-container"><input type="checkbox" id="schedule-prize-filter"><span class="checkmark"></span> 🏆 Chỉ có thưởng</label>
                         <label class="custom-checkbox-container"><input type="checkbox" value="multi-club-arena" checked><span class="checkmark"></span> Đấu trường đa CLB (Multi-Club Arena)</label>
                         <label class="custom-checkbox-container"><input type="checkbox" value="club-arena" checked><span class="checkmark"></span> Đấu trường Arena</label>
