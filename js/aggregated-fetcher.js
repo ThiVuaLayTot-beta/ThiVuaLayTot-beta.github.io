@@ -665,7 +665,7 @@
                 let variantHtml = '';
                 if (variantInfo) {
                     if (tour.setup) {
-                        variantHtml = ` <a href="javascript:void(0)" class="custom-variant-link" data-setup="${escapeHTML(tour.setup)}">${escapeHTML(variantInfo.name)}${createImg(variantInfo.icon)}</a>`;
+                        variantHtml = ` <a href="#" class="custom-variant-link" data-setup="${escapeHTML(tour.setup)}">${escapeHTML(variantInfo.name)}${createImg(variantInfo.icon)}</a>`;
                     } else {
                         variantHtml = ` <a href="${escapeHTML(safeHttpUrl(variantInfo.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(variantInfo.name)} ${createImg(variantInfo.icon)}</a>`;
                     }
@@ -739,6 +739,7 @@
                     }
                     const customLink = e.target.closest('.custom-variant-link');
                     if (customLink) {
+                        e.preventDefault();
                         EventHandlers.handleCustomVariantClick(customLink.dataset.setup);
                     }
                 });
