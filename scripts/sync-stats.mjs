@@ -80,7 +80,7 @@ async function fetchAppsScriptStats() { const url = process.env.APPS_SCRIPT_STAT
 async function main() {
 let prev = {};
 try { prev = JSON.parse(await readFile(STATS_PATH, 'utf8')); } catch {}
-const appsData = await fetchAppsScriptStats(); if (appsData) { const next = { youtube_subs: appsData.youtube_subs || prev.youtube_subs || '174K+', youtube_subs_raw: appsData.youtube_subs_raw || prev.youtube_subs_raw || 174000, chesscom_members: appsData.chesscom_members || prev.chesscom_members || '21K+', chesscom_members_raw: appsData.chesscom_members_raw || prev.chesscom_members_raw || 21000, prize_events: appsData.prize_events || prev.prize_events || '100+', prize_events_raw: appsData.prize_events_raw || prev.prize_events_raw || 100, updated_at: appsData.updated_at || new Date().toISOString(), source: appsData.source || 'google-apps-script' }; await writeFile(STATS_PATH, JSON.stringify(next, null, 2) + '\n', 'utf8'); console.log('Stats synced from Apps Script:', next); return; }
+const appsData = await fetchAppsScriptStats(); if (appsData) { const next = { youtube_subs: appsData.youtube_subs || prev.youtube_subs || '174K+', youtube_subs_raw: appsData.youtube_subs_raw || prev.youtube_subs_raw || 174000, chesscom_members: appsData.chesscom_members || prev.chesscom_members || '21K+', chesscom_members_raw: appsData.chesscom_members_raw || prev.chesscom_members_raw || 21000, prize_events: appsData.prize_events || prev.prize_events || '100+', prize_events_raw: appsData.prize_events_raw || prev.prize_events_raw || 100, updated_at: appsData.updated_at || new Date().toISOString(), source: appsData.source || 'google-apps-script' }; await writeFile(STATS_PATH, JSON.stringify(next, null, 2) + '\n', 'utf8'); console.info('Stats synced from Apps Script:', next); return; }
 
 
 const [ytRaw, chessRaw, eventsRaw] = await Promise.all([fetchYouTubeSubs(), fetchChessComMembers(), fetchPrizeEvents()]);
@@ -94,7 +94,7 @@ prize_events_raw: eventsRaw || prev.prize_events_raw || 100,
 updated_at: new Date().toISOString()
 };
 await writeFile(STATS_PATH, JSON.stringify(next, null, 2) + '\n', 'utf8');
-console.log('Synced stats:', next);
+console.info('Synced stats:', next);
 }
 
 main();
