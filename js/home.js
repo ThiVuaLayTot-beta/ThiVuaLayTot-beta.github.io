@@ -1,3 +1,12 @@
+// Handle image fallbacks without inline HTML event attributes.
+document.addEventListener("error", (event) => {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement) || !image.dataset.fallbackSrc ||
+        image.dataset.fallbackAttempted === "true") return;
+    image.dataset.fallbackAttempted = "true";
+    image.src = image.dataset.fallbackSrc;
+}, true);
+
 /* TVLT homepage interactions.
    Native IntersectionObserver and requestAnimationFrame replace the unused WOW.js library. */
 (() => {
