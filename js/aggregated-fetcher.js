@@ -588,7 +588,7 @@
                     <td style="text-align: center; font-size: 0.9em;">
                         <div>${Renderer.timeFormat(item.timeControl, item.timeClass)}</div>
                         <div style="margin-top: 4px;">${escapeHTML(variantName)} ${variantIcon}</div>
-                        <div>${escapeHTML(item.format)}</div>
+                        <div>${item.format}</div>
                     </td>
                     <td style="text-align: center; color: var(--green-400); font-weight: bold; font-size: 1.05em;">
                         ${escapeHTML(item.points)}
@@ -678,7 +678,7 @@
                         <div style="margin-top: 4px;">${statusBadge}</div>
                     </td>
                     <td>${startTimeStr}</td>
-                    <td>${Renderer.timeFormat(tour.timeControl, tour.timeClass)}<br>${variantHtml}<br>${escapeHTML(tour.format)}</td>
+                    <td>${Renderer.timeFormat(tour.timeControl, tour.timeClass)}<br>${variantHtml}<br>${tour.format}</td>
                     <td style="text-align: center;">${tour.playersCount}</td>
                 </tr>`;
             });
