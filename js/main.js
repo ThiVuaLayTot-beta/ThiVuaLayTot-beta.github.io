@@ -715,7 +715,7 @@ function initializeReadingUtilities() {
 /** Respect reduced motion while enhancing only visible homepage elements. */
 function initHomeInteractiveEffects() {
     document
-        .querySelectorAll(".event-card,.post-card,.partner-item,.hero-v2__card,.hero-v2__visual")
+        .querySelectorAll(".event-card,.post-card,.partner-item")
         .forEach((card) => {
             card.addEventListener("pointermove", (event) => {
                 const rect = card.getBoundingClientRect();

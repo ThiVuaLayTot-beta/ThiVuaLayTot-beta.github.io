@@ -230,14 +230,6 @@
   color: #fff;
 }
 
-.hero-v2__visual {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
 .section-kicker {
   display: flex;
   align-items: center;
@@ -570,9 +562,6 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .hero-v2__visual {
-    margin-top: 0.5rem;
-  }
 }
 
 @media (max-width: 991.98px) {
@@ -745,8 +734,7 @@
     opacity: 1;
     transform: none !important;
   }
-}/* Legacy 3D, spotlight and Nusa-era hover layer removed.
-   Current responsive hero and Bento interactions are defined below. */
+}/* Focused reveal effects for the current Ice Blue & Slate layout. */
 .reveal-on-scroll,
 [data-reveal] {
   opacity: 0;

@@ -5,8 +5,6 @@
   /* TYPOGRAPHY */
   --primary-font: Montserrat, ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol, "Noto Color Emoji";
-  --tab-font: "Open Sans Condensed", sans-serif;
-  --mono-font: "Courier New", monospace;
 
   /* Font Sizes - Modular Scale (1.125x) */
   --fs-xs: 0.75rem; /* 12px */
