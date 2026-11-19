@@ -80,7 +80,10 @@ const STATE = {
     displayYear: undefined,
     displayMonth: undefined,
     lastFocusedElement: null,
+    previousBodyOverflow: '',
     statusFilter: 'all',
+    hasUsableData: false,
+    refreshPromise: null,
 };
 
 function cacheDOMElements() {
@@ -356,18 +359,15 @@ function getExplicitEventStatus(tournament) {
 function getEventStatus(tournament) {
     const explicitStatus = getExplicitEventStatus(tournament);
 
-    // Trust explicit lifecycle states from Notion before falling back to dates.
-    if ([STATUS.ENDED, STATUS.TENTATIVE, STATUS.ONGOING].includes(explicitStatus)) {
-        return explicitStatus;
-    }
+    // Trust explicit terminal and tentative states; live/upcoming states still
+    // respect their time boundaries so stale API labels cannot keep an ended event active.
+    if ([STATUS.ENDED, STATUS.TENTATIVE].includes(explicitStatus)) return explicitStatus;
 
     const tentative = tournament?.isTentative;
     if (tentative === true || tentative === 'true' || tentative === STATUS.TENTATIVE || tentative === 'Tentative') {
         return STATUS.TENTATIVE;
     }
 
-    // A past start date alone does not prove that an event has ended.
-    // Treat it as ongoing until its configured fallback duration has elapsed.
     const now = Date.now();
     const start = getEventStartTime(tournament);
     const end = getEventEndTime(tournament);
@@ -728,8 +728,22 @@ function getEventStartTime(tournament) {
 }
 
 function getEventEndTime(tournament) {
-    const duration = tournament?.hasStartTime === false ? 24 * 60 * 60 * 1000 : CONFIG.EVENT_DURATION_MS;
-    return getEventStartTime(tournament) + duration;
+    const start = getEventStartTime(tournament);
+    const rawEnd = tournament?.endTime || tournament?.finishTime || tournament?.endDate;
+    const parsedEnd = parseEventDate(rawEnd);
+
+    if (parsedEnd) {
+        let end = parsedEnd.getTime();
+        // A date-only end value includes that entire Vietnam-local day.
+        if (!hasEventTime(rawEnd)) end += 24 * 60 * 60 * 1000;
+        if (end >= start) return end;
+    }
+
+    // Without an explicit end, timed events default to two hours; date-only events are all-day.
+    const duration = tournament?.hasStartTime === false
+        ? 24 * 60 * 60 * 1000
+        : CONFIG.EVENT_DURATION_MS;
+    return start + duration;
 }
 
 function renderEventCard(tournament, container) {
@@ -831,6 +845,7 @@ function openModal(tournament) {
 
     if (!DOM.eventModal.classList.contains('open')) {
         STATE.lastFocusedElement = document.activeElement;
+        STATE.previousBodyOverflow = document.body.style.overflow;
     }
     STATE.selectedEvent = tournament;
     const urls = getModalURLs(tournament);
@@ -879,12 +894,15 @@ function openModal(tournament) {
     DOM.modalLogoLink.href = safeUrl(urls.rulesPageUrl, '/events');
     DOM.modalLogoLink.rel = 'noopener noreferrer';
 
-    DOM.modalJoinBtn.href = joinUrl || '#';
-    DOM.modalJoinBtn.setAttribute('aria-disabled', String(!joinUrl));
-    DOM.modalJoinBtn.onclick = joinUrl ? null : event => {
-        event.preventDefault();
-        alert('Hiện chưa có link giải, hãy hỏi các quản trị viên hoặc người tổ chức giải này để tìm hiểu thêm!');
-    };
+    if (joinUrl) {
+        DOM.modalJoinBtn.href = joinUrl;
+        DOM.modalJoinBtn.removeAttribute('aria-disabled');
+        DOM.modalJoinBtn.tabIndex = 0;
+    } else {
+        DOM.modalJoinBtn.removeAttribute('href');
+        DOM.modalJoinBtn.setAttribute('aria-disabled', 'true');
+        DOM.modalJoinBtn.tabIndex = -1;
+    }
     DOM.modalRuleBtn.href = safeUrl(urls.newsUrl, '/events');
     DOM.modalResultsBtn.href = safeUrl(urls.resultUrl, '/events/tournaments');
 
@@ -898,7 +916,8 @@ function closeModal() {
     if (!DOM.eventModal?.classList.contains('open')) return;
     DOM.eventModal.classList.remove('open');
     DOM.eventModal.setAttribute('aria-hidden', 'true');
-    document.body.style.overflow = '';
+    document.body.style.overflow = STATE.previousBodyOverflow;
+    STATE.previousBodyOverflow = '';
     STATE.selectedEvent = null;
     STATE.lastFocusedElement?.focus?.();
     STATE.lastFocusedElement = null;
@@ -1088,11 +1107,13 @@ function normalizeTournament(record) {
     if (!record || typeof record !== 'object') return null;
 
     const rawStartTime = record.startTime;
+    const rawEndTime = record.endTime || record.finishTime || record.endDate;
     return {
         ...record,
         eventName: String(record.eventName || '').trim(),
         hasStartTime: typeof record.hasStartTime === 'boolean' ? record.hasStartTime : hasEventTime(rawStartTime),
         startTime: normalizeEventDate(rawStartTime),
+        endTime: normalizeEventDate(rawEndTime),
         eventType: String(record.eventType || '').trim().toLowerCase().replace(/\s+/g, '-') || 'other',
         status: String(record.status || '').trim(),
         organizerLinks: Array.isArray(record.organizerLinks) ? record.organizerLinks : [],
@@ -1108,28 +1129,39 @@ function setDisplay(element, value) {
     if (element) element.style.display = value;
 }
 
-/** Fetches the schedule and validates the response shape; throws a user-readable Error. */
-async function fetchScheduleData() {
-    const response = await fetch(CONFIG.API_URL);
-    if (!response.ok) throw new Error(`Mã phản hồi từ máy chủ: ${response.status}`);
+/**
+ * Keep the transport behind one adapter so a future Notion-backed source can
+ * replace it without changing schedule normalization, filtering or rendering.
+ */
+const scheduleDataAdapter = {
+    async fetch() {
+        const response = await fetch(CONFIG.API_URL, {
+            headers: { Accept: 'application/json' }
+        });
+        if (!response.ok) throw new Error(`Mã phản hồi từ máy chủ: ${response.status}`);
 
-    const text = await response.text();
-    let data;
-    try {
-        data = JSON.parse(text);
-    } catch {
-        throw new Error(text.trim().startsWith('<')
-            ? 'Máy chủ Google Apps Script trả về trang HTML thay vì dữ liệu JSON. Có thể do dịch vụ tạm thời bị giới hạn hoặc bảo trì. Vui lòng thử lại sau ít phút.'
-            : 'Dữ liệu phản hồi từ máy chủ không đúng định dạng JSON.');
-    }
+        const text = await response.text();
+        let data;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            throw new Error(text.trim().startsWith('<')
+                ? 'Máy chủ Google Apps Script trả về trang HTML thay vì dữ liệu JSON. Có thể do dịch vụ tạm thời bị giới hạn hoặc bảo trì. Vui lòng thử lại sau ít phút.'
+                : 'Dữ liệu phản hồi từ máy chủ không đúng định dạng JSON.');
+        }
 
-    if (data?.status === 'error') {
-        throw new Error(data.message || 'Google Apps Script trả về lỗi khi lấy dữ liệu Notion.');
+        if (data?.status === 'error') {
+            throw new Error(data.message || 'Nguồn dữ liệu lịch trả về lỗi.');
+        }
+        if (!Array.isArray(data?.events)) {
+            throw new Error('JSON API không đúng cấu trúc: cần có thuộc tính "events" là một mảng.');
+        }
+        return data;
     }
-    if (!Array.isArray(data?.events)) {
-        throw new Error('JSON API không đúng cấu trúc: cần có thuộc tính "events" là một mảng.');
-    }
-    return data;
+};
+
+function fetchScheduleData() {
+    return scheduleDataAdapter.fetch();
 }
 
 /** "Last updated" timestamp from the API (Vietnam time when no zone is given); falls back to now. */
@@ -1140,7 +1172,154 @@ function parseLastUpdated(data) {
     return Number.isNaN(date.getTime()) ? new Date() : date;
 }
 
+function setScheduleState(state) {
+    setDisplay(DOM.loadingEl, state === 'loading' ? 'block' : 'none');
+    setDisplay(DOM.errorEl, state === 'error' ? 'block' : 'none');
+    setDisplay(DOM.emptyEl, state === 'empty' ? 'block' : 'none');
+    setDisplay(document.getElementById('schedule-skeleton'), state === 'loading' ? 'block' : 'none');
+
+    if (state === 'loading' || state === 'error' || state === 'empty') {
+        setDisplay(DOM.calendarWrapper, 'none');
+        setDisplay(DOM.listWrapper, 'none');
+    }
+}
+
+function setLastUpdated(data) {
+    if (!DOM.lastUpdatedEl) return;
+    DOM.lastUpdatedEl.textContent = parseLastUpdated(data).toLocaleString('vi-VN', {
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+}
+
+function applyScheduleData(data) {
+    const tournaments = data.events
+        .map(normalizeTournament)
+        .filter(tournament => tournament && parseEventDate(tournament.startTime));
+    if (data.events.length && !tournaments.length) {
+        throw new Error(`Nguồn dữ liệu trả về ${data.events.length} sự kiện nhưng không có ngày bắt đầu hợp lệ.`);
+    }
+
+    STATE.tournaments = tournaments;
+    ensureEventTypeFilters(STATE.tournaments);
+    setLastUpdated(data);
+    STATE.hasUsableData = true;
+}
+
+const SCHEDULE_CACHE_KEY = 'tvlt_schedule_cache_v1';
+const SCHEDULE_CACHE_TTL_MS = 5 * 60 * 1000;
+const SCHEDULE_CACHE_MAX_STALE_MS = 24 * 60 * 60 * 1000;
+
+function readScheduleCache() {
+    try {
+        const cached = JSON.parse(localStorage.getItem(SCHEDULE_CACHE_KEY) || 'null');
+        if (!cached || cached.version !== 1 || !Array.isArray(cached.data?.events)) return null;
+        if (Date.now() - cached.savedAt > SCHEDULE_CACHE_MAX_STALE_MS) return null;
+        return cached;
+    } catch {
+        return null;
+    }
+}
+
+function writeScheduleCache(data) {
+    try {
+        localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify({
+            version: 1,
+            savedAt: Date.now(),
+            data
+        }));
+    } catch {
+        // Storage restrictions or quota limits must not block schedule rendering.
+    }
+}
+
+function showScheduleError(error) {
+    setScheduleState('error');
+    if (!DOM.errorEl) return;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'error';
+    const message = document.createElement('p');
+    message.textContent = `Không thể tải lịch sự kiện: ${error.message}`;
+    const hint = document.createElement('p');
+    hint.className = 'error-hint';
+    hint.textContent = 'Bạn có thể thử tải lại hoặc báo lỗi trong diễn đàn của CLB.';
+    const forum = document.createElement('a');
+    forum.href = FORUM_URL;
+    forum.target = '_blank';
+    forum.rel = 'noopener noreferrer';
+    forum.textContent = 'Mở diễn đàn';
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'schedule-retry-btn';
+    retry.textContent = 'Thử lại';
+    retry.addEventListener('click', () => loadTournaments(), { once: true });
+    hint.append(' ', forum);
+    wrapper.append(message, hint, retry);
+    DOM.errorEl.replaceChildren(wrapper);
+}
+
+async function refreshScheduleData({ background = false } = {}) {
+    if (STATE.refreshPromise) return STATE.refreshPromise;
+    if (!background) setScheduleState('loading');
+
+    STATE.refreshPromise = (async () => {
+        try {
+            const data = await fetchScheduleData();
+            applyScheduleData(data);
+            writeScheduleCache(data);
+
+            if (STATE.tournaments.length) {
+                setScheduleState('ready');
+                showSchedule();
+            } else {
+                setScheduleState('empty');
+            }
+        } catch (error) {
+            if (STATE.hasUsableData) {
+                // Keep the last usable calendar visible while a refresh is unavailable.
+                setScheduleState(STATE.tournaments.length ? 'ready' : 'empty');
+                return;
+            }
+            showScheduleError(error);
+        } finally {
+            STATE.refreshPromise = null;
+        }
+    })();
+
+    return STATE.refreshPromise;
+}
+
+async function loadTournaments() {
+    const cached = readScheduleCache();
+    if (cached) {
+        try {
+            applyScheduleData(cached.data);
+            if (STATE.tournaments.length) {
+                setScheduleState('ready');
+                showSchedule();
+            } else {
+                setScheduleState('empty');
+            }
+
+            const cacheIsFresh = Date.now() - cached.savedAt <= SCHEDULE_CACHE_TTL_MS;
+            if (!cacheIsFresh && DOM.lastUpdatedEl) {
+                DOM.lastUpdatedEl.textContent += ' · đang dùng dữ liệu lưu tạm';
+            }
+            // Render immediately from cache; refresh the source in the background.
+            void refreshScheduleData({ background: true });
+            return;
+        } catch {
+            try { localStorage.removeItem(SCHEDULE_CACHE_KEY); } catch { /* storage unavailable */ }
+            STATE.hasUsableData = false;
+        }
+    }
+
+    await refreshScheduleData({ background: false });
+}
+
 function showSchedule() {
+    setScheduleState('ready');
     setDisplay(DOM.viewSwitcherContainer, 'inline-flex');
     setDisplay(DOM.scheduleFilters, 'grid');
     STATE.currentView = 'calendar';
