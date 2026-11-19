@@ -582,6 +582,60 @@ function groupEventsByDay(filters) {
     return byDay;
 }
 
+let activeScheduleTooltip = null;
+
+function getScheduleTooltipElement() {
+    let tooltip = document.getElementById('schedule-event-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'schedule-event-tooltip';
+        tooltip.className = 'schedule-event-tooltip';
+        tooltip.setAttribute('role', 'tooltip');
+        tooltip.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(tooltip);
+    }
+    return tooltip;
+}
+
+function showScheduleTooltip(icon) {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const tooltip = getScheduleTooltipElement();
+    tooltip.textContent = icon.dataset.tooltip || '';
+    tooltip.style.maxWidth = `min(250px, calc(100vw - 24px))`;
+    tooltip.style.left = '0px';
+    tooltip.style.top = '0px';
+    tooltip.hidden = false;
+    tooltip.setAttribute('aria-hidden', 'false');
+    tooltip.classList.add('is-visible');
+    icon.setAttribute('aria-describedby', tooltip.id);
+    activeScheduleTooltip = icon;
+
+    const anchor = icon.getBoundingClientRect();
+    const bounds = tooltip.getBoundingClientRect();
+    const margin = 12;
+    const maxLeft = Math.max(margin, window.innerWidth - bounds.width - margin);
+    const left = Math.max(margin, Math.min(anchor.left + anchor.width / 2 - bounds.width / 2, maxLeft));
+    let top = anchor.top - bounds.height - 8;
+    if (top < margin) {
+        top = Math.min(window.innerHeight - bounds.height - margin, anchor.bottom + 8);
+    }
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${Math.max(margin, top)}px`;
+}
+
+function hideScheduleTooltip() {
+    const tooltip = document.getElementById('schedule-event-tooltip');
+    if (activeScheduleTooltip) activeScheduleTooltip.removeAttribute('aria-describedby');
+    activeScheduleTooltip = null;
+    if (!tooltip) return;
+    tooltip.classList.remove('is-visible');
+    tooltip.setAttribute('aria-hidden', 'true');
+    tooltip.hidden = true;
+}
+
+document.addEventListener('scroll', hideScheduleTooltip, true);
+window.addEventListener('resize', hideScheduleTooltip, { passive: true });
+
 function createEventIcon(tournament) {
     const parts = getVietnamDateParts(tournament.startTime);
     const status = getEventStatus(tournament);
@@ -604,6 +658,12 @@ function createEventIcon(tournament) {
     const tooltip = `${eventName}\n${timeLabel} · ${status}\n${tournament.eventRules || 'Chưa có thông tin thể lệ'}`;
     icon.dataset.tooltip = tooltip;
     icon.title = tooltip;
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        icon.addEventListener('pointerenter', () => showScheduleTooltip(icon));
+        icon.addEventListener('pointerleave', hideScheduleTooltip);
+        icon.addEventListener('focus', () => showScheduleTooltip(icon));
+        icon.addEventListener('blur', hideScheduleTooltip);
+    }
 
     const img = document.createElement('img');
     img.src = safeUrl(tournament.logo, '/images/tvltlogo.png');
@@ -1295,7 +1355,7 @@ async function refreshScheduleData({ background = false } = {}) {
     return STATE.refreshPromise;
 }
 
-async function loadTournaments({ force = false } = {}) {
+async function loadTournaments() {
     const cached = readScheduleCache();
     if (cached) {
         try {
@@ -1306,11 +1366,16 @@ async function loadTournaments({ force = false } = {}) {
             } else {
                 setScheduleState('empty');
             }
-            // Revalidate both fresh and stale cache in the background.
+
+            const cacheIsFresh = Date.now() - cached.savedAt <= SCHEDULE_CACHE_TTL_MS;
+            if (!cacheIsFresh && DOM.lastUpdatedEl) {
+                DOM.lastUpdatedEl.textContent += ' · đang dùng dữ liệu lưu tạm';
+            }
+            // Render cached data immediately, then revalidate without blocking the calendar.
             void refreshScheduleData({ background: true });
             return;
         } catch {
-            localStorage.removeItem(SCHEDULE_CACHE_KEY);
+            try { localStorage.removeItem(SCHEDULE_CACHE_KEY); } catch { /* storage may be unavailable */ }
             STATE.hasUsableData = false;
         }
     }

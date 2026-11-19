@@ -129,7 +129,6 @@ schedule_css: /css/schedule.css
         </div>
         <div id="calendar-wrapper" style="display: none;">
             <table id="calendar-table">
-                <caption class="visually-hidden">Lịch sự kiện theo ngày trong tháng đang chọn</caption>
                 <thead><tr>
                     <th scope="col" title="Thứ Hai">Thứ 2</th><th scope="col" title="Thứ Ba">Thứ 3</th><th scope="col" title="Thứ Tư">Thứ 4</th>
                     <th scope="col" title="Thứ Năm">Thứ 5</th><th scope="col" title="Thứ Sáu">Thứ 6</th><th scope="col" title="Thứ Bảy">Thứ 7</th><th scope="col" title="Chủ Nhật">Chủ nhật</th>
@@ -171,14 +170,14 @@ schedule_css: /css/schedule.css
 <div id="eventModal" class="cc-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-name">
     <div class="cc-modal-dialog" role="document" tabindex="-1">
         <div class="cc-modal-banner-section">
-            <img id="modal-banner" src="/images/events/dau-truong-thi-vua.svg" alt="Biểu ngữ giải đấu" width="1280" height="720">
+            <img id="modal-banner" src="/" alt="Banner">
         </div>
         <button type="button" class="cc-modal-close" aria-label="Đóng cửa sổ">×</button>
         <div class="cc-modal-content-wrapper">
             <div class="cc-modal-header-row">
                 <div class="cc-modal-logo-box">
-                    <a id="modal-logo-link" href="/events" target="_blank" rel="noopener noreferrer" title="Xem trang thể lệ của giải đấu">
-                        <img src="/images/tvltlogo.png" alt="Logo câu lạc bộ" id="modal-logo" width="80" height="80">
+                    <a id="modal-logo-link" href="#" target="_blank" title="Xem trang thể lệ của giải đấu">
+                        <img src="/images/tvltlogo.png" alt="Logo" id="modal-logo">
                     </a>
                 </div>
                 <div class="cc-modal-title-section" style="flex: 1;">
@@ -214,9 +213,9 @@ schedule_css: /css/schedule.css
             </div>
         </div>
         <div class="btn-group">
-            <a id="modal-join" aria-disabled="true" tabindex="-1" class="btn btn-primary"><span class="bx bx-user-plus"></span> Tham gia</a>
-            <a id="modal-rule" href="/events" target="_blank" rel="noopener noreferrer" class="btn btn-secondary"><span class="bx bx-task"></span> Thể lệ</a>
-            <a id="modal-results" href="/events/tournaments" target="_blank" rel="noopener noreferrer" class="btn btn-secondary"><span class="bx bx-trophy"></span> Kết quả</a>
+            <a id="modal-join" href="#" target="_blank" class="btn btn-primary" rel="noopener noreferrer"><span class="bx bx-user-plus"></span> Tham gia</a>
+            <a id="modal-rule" href="#" target="_blank" class="btn btn-secondary" rel="noopener noreferrer"><span class="bx bx-task"></span> Thể lệ</a>
+            <a id="modal-results" href="#" target="_blank" class="btn btn-secondary" rel="noopener noreferrer"><span class="bx bx-trophy"></span> Kết quả</a>
         </div>
     </div>
 </div>
