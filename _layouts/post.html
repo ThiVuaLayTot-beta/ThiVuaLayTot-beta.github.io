@@ -13,11 +13,11 @@
     <div id="section-page">
         <div class="container">
             <div id="post">
-                <ul class="breadcrumb">
+                <nav aria-label="Breadcrumb"><ul class="breadcrumb">
                     <li><a href="/"><span class="bx bx-home-alt-2"></span>Trang chủ</a></li>
                     <li><a href="/blog">Bài viết</a></li>
-                    <li>{{ page.title }}</li>
-                </ul>
+                    <li aria-current="page">{{ page.title }}</li>
+                </ul></nav>
                 <div class="information" style="text-align: center">
                     <img src="{% if page.image %}{{ page.image }}{% else %}/images/{{ page.id | remove_first: '/' }}.png{% endif %}" data-fallback-src="/images/tvltlogo.png" alt="{{ page.title }}" class="post-banner" loading="eager" fetchpriority="high" decoding="async" width="1200" height="630">
                     <h1 class="page-title">{{ page.title }}</h1>

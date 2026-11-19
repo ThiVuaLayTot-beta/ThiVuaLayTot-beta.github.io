@@ -12,11 +12,11 @@
 
     <div id="section-page">
         <div class="container">
-            <ul class="breadcrumb">
+            <nav aria-label="Breadcrumb"><ul class="breadcrumb">
                 <li><a href="/"><span class="bx bx-home-alt-2"></span>Trang chủ</a></li>
                 <li><a href="/events/tournaments">Giải đấu</a></li>
-                <li>{{ page.title }}</li>
-            </ul>
+                <li aria-current="page">{{ page.title }}</li>
+            </ul></nav>
             {{ content }}
             <br>
             <button id="back-to-top" title="Quay lại đầu trang"><span class="bx bxs-to-top"></span></button>

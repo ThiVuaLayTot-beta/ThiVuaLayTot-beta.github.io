@@ -12,18 +12,18 @@
 
     <div id="section-page">
         <div class="container">
-            <ul class="breadcrumb">
+            <nav aria-label="Breadcrumb"><ul class="breadcrumb">
                 <li><a href="/"><span class="bx bx-home-alt-2"></span>Trang chủ</a></li>
                 <li><a href="/blog">Danh mục</a></li>
-                <li>{{ page.title }}</li>
-            </ul>
+                <li aria-current="page">{{ page.title }}</li>
+            </ul></nav>
             <header>
                 <h1 class="page-title">{{ page.title }}</h1>
                 <p class="page-decription">{{ page.description }} <a href="https://thivualaytot.github.io/atom.xml"><span class="bx bx-rss" title="Atom RSS"></span></a></p>
             </header>
 
             <div class="category-filter-container">
-                <input type="search" id="post-filter-input" aria-label="Lọc danh sách bài viết" placeholder="Lọc bài viết theo tiêu đề hoặc mô tả..." class="control-input search-input" style="width: 100%; margin-bottom: 20px;">
+                <label for="post-filter-input" class="visually-hidden">Lọc bài viết theo tiêu đề hoặc từ khóa</label><input type="search" id="post-filter-input" aria-label="Lọc danh sách bài viết" placeholder="Lọc bài viết theo tiêu đề hoặc mô tả..." class="control-input search-input" style="width: 100%; margin-bottom: 20px;">
             </div>
             <nav class="nav-tabs" aria-label="Danh mục bài viết">
                 <a href="/blog" {% if page.category == "blog" %}class="active" aria-current="page"{% endif %}>
