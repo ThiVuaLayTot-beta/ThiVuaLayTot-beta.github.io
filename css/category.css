@@ -267,11 +267,7 @@
 }
 
 .category-empty-message {
-  margin: 18px 0;
-  padding: 20px;
-  border: 1px dashed rgba(125, 211, 252, .24);
-  border-radius: var(--radius-card);
-  color: var(--color-text-secondary);
+  margin: 18px 0; background: var(--surface-glass); border: 1px dashed var(--border-architectural); border-radius: var(--radius-card, 18px); padding: var(--space-xl, 2rem) var(--space-lg, 1.5rem); color: var(--text-secondary, #E2E8F0);
   text-align: center
 }
 
