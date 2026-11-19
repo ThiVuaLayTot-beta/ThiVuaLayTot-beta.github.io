@@ -129,6 +129,7 @@ schedule_css: /css/schedule.css
         </div>
         <div id="calendar-wrapper" style="display: none;">
             <table id="calendar-table">
+                <caption class="visually-hidden">Lịch sự kiện theo ngày trong tháng đang chọn</caption>
                 <thead><tr>
                     <th scope="col" title="Thứ Hai">Thứ 2</th><th scope="col" title="Thứ Ba">Thứ 3</th><th scope="col" title="Thứ Tư">Thứ 4</th>
                     <th scope="col" title="Thứ Năm">Thứ 5</th><th scope="col" title="Thứ Sáu">Thứ 6</th><th scope="col" title="Thứ Bảy">Thứ 7</th><th scope="col" title="Chủ Nhật">Chủ nhật</th>
