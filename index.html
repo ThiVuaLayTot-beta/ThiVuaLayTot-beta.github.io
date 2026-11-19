@@ -49,15 +49,15 @@ title: Trang chủ
     <aside class="hero-bento-dock" aria-label="Thông tin cộng đồng và kết nối">
       <section class="bento-card bento-card--stats" data-stats-api="" aria-label="Quy mô cộng đồng">
         <div class="bento-stat">
-      <strong id="stat-youtube-subs">{{ site.data.stats.youtube_subs }}</strong>
+      <strong id="stat-youtube-subs">{{ site.data.stats.youtube_subs | default: "174K+" }}</strong>
           <span>người theo dõi YouTube</span>
         </div>
         <div class="bento-stat">
-                <strong id="stat-chesscom-members">{{ site.data.stats.chesscom_members }}</strong>
+                <strong id="stat-chesscom-members">{{ site.data.stats.chesscom_members | default: "21K+" }}</strong>
           <span>thành viên Chess.com</span>
         </div>
         <div class="bento-stat">
-          <strong id="stat-prize-events">{{ site.data.stats.prize_events }}</strong>
+          <strong id="stat-prize-events">{{ site.data.stats.prize_events | default: "110+" }}</strong>
           <span>sự kiện có thưởng đã tổ chức</span>
         </div>
       </section>
@@ -155,8 +155,6 @@ title: Trang chủ
            aria-label="Xem video giới thiệu TungJohn Playing Chess">
           <img
             src="https://i.ytimg.com/vi/E7RW7r4mJts/maxresdefault.jpg"
-            width="1280"
-            height="720"
             data-fallback-src="https://i.ytimg.com/vi/E7RW7r4mJts/hqdefault.jpg"
             alt="Khung hình video giới thiệu TungJohn Playing Chess"
             loading="lazy"

@@ -1742,12 +1742,3 @@ button:disabled, input:disabled, select:disabled, textarea:disabled, .btn:disabl
   outline-offset: 3px;
   box-shadow: 0 0 0 4px rgba(56, 189, 248, .18);
 }
-
-@media (max-width: 1024px) {
-  .nav-menu .nav-search-btn {
-    flex-basis: 44px;
-    width: 44px;
-    min-width: 44px;
-    height: 44px;
-  }
-}

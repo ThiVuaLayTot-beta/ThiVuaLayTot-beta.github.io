@@ -3072,3 +3072,22 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
   .event-icon,
   .event-list-card { transition: none !important; animation: none !important; }
 }
+
+.schedule-retry-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 0 18px;
+  border: 1px solid rgba(125, 211, 252, .44);
+  border-radius: 10px;
+  background: rgba(56, 189, 248, .14);
+  color: #e0f2fe;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.schedule-retry-btn:hover { background: rgba(56, 189, 248, .22); }
+.schedule-retry-btn:focus-visible { outline: 3px solid var(--accent-ice); outline-offset: 3px; }
+.btn-group a[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
