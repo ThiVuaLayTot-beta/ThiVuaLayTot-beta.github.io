@@ -389,7 +389,27 @@ function initializeGlobalSearch() {
     const results = document.getElementById("global-search-results");
     if (!modal || !closeButton || !input || !results) return;
 
-    let searchTimer = null;
+    const staticPages = [
+        { title: "Trang chủ", link: "/", summary: "Website CLB Thí Vua Lấy Tốt." },
+        { title: "Lịch sự kiện", link: "/schedule", summary: "Lịch các giải đấu và sự kiện sắp tới." },
+        {
+            title: "Các giải đấu và sự kiện",
+            link: "/events",
+            summary: "Thông tin các hệ thống giải đấu của CLB.",
+        },
+        {
+            title: "Các giải đấu đã tổ chức",
+            link: "/events/tournaments",
+            summary: "Lịch sử và kết quả các giải đấu.",
+        },
+        { title: "Bài viết", link: "/blog", summary: "Tất cả bài viết và chia sẻ của cộng đồng." },
+        { title: "Kiến thức cờ vua", link: "/chess", summary: "Kiến thức, chiến thuật và hướng dẫn cờ vua." },
+        { title: "Tin tức và thông báo", link: "/news", summary: "Tin tức và thông báo của CLB." },
+        { title: "Đội ngũ quản trị", link: "/leaders", summary: "Thông tin ban quản trị câu lạc bộ." },
+        { title: "Mạng xã hội", link: "/social", summary: "Các kênh cộng đồng chính thức." },
+        { title: "Thư viện video", link: "/video", summary: "Video cờ vua của TungJohn Playing Chess." },
+        { title: "Liên hệ", link: "/contact", summary: "Liên hệ và đóng góp cho CLB." },
+    ];
     let index = [];
     let indexReady = false;
     let indexPromise = null;
@@ -422,13 +442,16 @@ function initializeGlobalSearch() {
         const matches = index
             .map((item) => {
                 // normalise each field once (not on every keystroke)
-                const text = item.normalized;
+                const text = (item.normalized ??= {
+                    title: removeVietnameseTones(item.title),
+                    summary: removeVietnameseTones(item.summary),
+                    content: removeVietnameseTones(item.content),
+                });
                 let score = 0;
                 if (text.title.startsWith(normalized)) score += 5;
                 else if (hasAll(text.title)) score += 4;
                 if (hasAll(text.summary)) score += 2;
                 if (hasAll(text.content)) score += 1;
-                if (hasAll(text.tags) || hasAll(text.category)) score += 2;
                 return { item, score };
             })
             .filter((result) => result.score > 0)
@@ -447,7 +470,6 @@ function initializeGlobalSearch() {
             const summary = document.createElement("p");
             const description = item.summary || item.content || "";
             summary.textContent = description.length > 140 ? description.slice(0, 137) + "…" : description;
-            link.setAttribute("role", "listitem");
             link.append(title, summary);
             results.appendChild(link);
         });
@@ -471,21 +493,16 @@ function initializeGlobalSearch() {
                         link: String(entry.url || entry.link || "").trim(),
                         summary: String(entry.summary || ""),
                         content: String(entry.content || ""),
-                        category: String(entry.category || ""),
-                        tags: Array.isArray(entry.tags) ? entry.tags.map(String).join(" ") : String(entry.tags || ""),
                     }))
                     .filter((item) => item.title && item.link);
-                // Build normalized fields once when the generated Jekyll index is loaded.
-                index = posts.map((item) => ({
-                    ...item,
-                    normalized: {
-                        title: removeVietnameseTones(item.title),
-                        summary: removeVietnameseTones(item.summary),
-                        content: removeVietnameseTones(item.content),
-                        category: removeVietnameseTones(item.category),
-                        tags: removeVietnameseTones(item.tags),
-                    },
-                }));
+                const seen = new Set(posts.map((item) => item.link));
+                staticPages.forEach((page) => {
+                    if (!seen.has(page.link)) {
+                        posts.push({ ...page, content: "" });
+                        seen.add(page.link);
+                    }
+                });
+                index = posts;
                 indexReady = true;
                 renderResults(input.value);
                 return index;
@@ -507,7 +524,6 @@ function initializeGlobalSearch() {
         loadIndex();
     }
     function closeModal() {
-        window.clearTimeout(searchTimer);
         modal.classList.remove("active");
         modal.setAttribute("aria-hidden", "true");
         document.body.style.overflow = previousOverflow;
@@ -517,27 +533,7 @@ function initializeGlobalSearch() {
     }
     trigger.addEventListener("click", openModal);
     closeButton.addEventListener("click", closeModal);
-    input.addEventListener("input", (event) => {
-        window.clearTimeout(searchTimer);
-        const query = event.target.value;
-        searchTimer = window.setTimeout(() => renderResults(query), 140);
-    });
-    input.addEventListener("keydown", (event) => {
-        if (event.key !== "ArrowDown") return;
-        const firstResult = results.querySelector(".search-result-item");
-        if (!firstResult) return;
-        event.preventDefault();
-        firstResult.focus();
-    });
-    results.addEventListener("keydown", (event) => {
-        if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
-        const links = Array.from(results.querySelectorAll(".search-result-item"));
-        const current = links.indexOf(document.activeElement);
-        const next = event.key === "ArrowDown" ? Math.min(current + 1, links.length - 1) : current - 1;
-        event.preventDefault();
-        if (next < 0) input.focus();
-        else links[next]?.focus();
-    });
+    input.addEventListener("input", (event) => renderResults(event.target.value));
     modal.addEventListener("click", (event) => {
         if (event.target === modal) closeModal();
     });
