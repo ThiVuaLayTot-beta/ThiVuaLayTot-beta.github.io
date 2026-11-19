@@ -1045,12 +1045,12 @@
 
 .home-page > .hero-v2 .social-row--hero a {
   display: inline-flex;
-  flex: 0 0 42px;
+  flex: 0 0 44px;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  min-width: 42px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   border: 1px solid rgba(148, 163, 184, .18);
   border-radius: 50%;
   background: rgba(30, 41, 59, .72);

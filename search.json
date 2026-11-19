@@ -6,7 +6,7 @@ layout: null
   {% for page in site.pages %}
     {% assign page_url = page.url | default: "" %}
     {% assign page_title = page.title | default: "" %}
-    {% unless page_title == "" or page_url contains "404" or page_url contains "search.json" or page_url contains "atom.xml" or page_url contains "feed.xml" or page_url contains "sitemap.xml" or page_url contains "robots.txt" %}
+    {% unless page_title == "" or page_url contains "404" or page_url contains "search.json" or page_url contains "atom.xml" or page_url contains "feed.xml" or page_url contains "sitemap.xml" or page_url contains "robots.txt" or page_url contains "/assets/" or page_url contains "/images/" or page_url contains ".css" or page_url contains ".js" or page_url contains ".png" or page_url contains ".jpg" or page_url contains ".jpeg" or page_url contains ".gif" or page_url contains ".webp" or page_url contains ".svg" or page_url contains ".ico" or page_url contains ".woff" or page_url contains ".woff2" or page_url contains ".ttf" or page_url contains ".pdf" %}
       {% unless first_entry %},{% endunless %}
       {
         "title": {{ page_title | jsonify }},
