@@ -1735,3 +1735,10 @@ button:disabled, input:disabled, select:disabled, textarea:disabled, .btn:disabl
 .btn, .btn-primary, .btn-secondary { border-radius: var(--radius-pill, 999px); }
 .category-card, .list-item-people, .social-card, .contact-card, .tournament-card, .post-card, .related-post-card { transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease; }
 .category-card:hover, .list-item-people:hover, .social-card:hover, .contact-card:hover, .tournament-card:hover, .post-card:hover, .related-post-card:hover { transform: translateY(-4px); border-color: var(--border-ice-hover, rgba(56, 189, 248, 0.42)); }
+
+/* Consistent, high-contrast keyboard focus across shared controls. */
+:where(a, button, input, select, textarea, summary, [role="button"], [tabindex]):focus-visible {
+  outline: 3px solid var(--accent-ice);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, .18);
+}

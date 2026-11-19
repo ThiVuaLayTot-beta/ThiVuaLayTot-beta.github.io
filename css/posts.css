@@ -105,10 +105,10 @@
 .post-toc {
     border: 1px solid rgba(148, 163, 184, .2);
     border-radius: 16px;
-    background: rgba(15, 23, 42, .72);
+    background: var(--surface-card);
     box-shadow: 0 12px 28px rgba(2, 8, 23, .16);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }
 
 .post-toc > strong { color: #bae6fd; }
