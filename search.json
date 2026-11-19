@@ -2,15 +2,35 @@
 layout: null
 ---
 [
+  {% assign first_entry = true %}
+  {% for page in site.pages %}
+    {% assign page_url = page.url | default: "" %}
+    {% assign page_title = page.title | default: "" %}
+    {% unless page_title == "" or page_url contains "404" or page_url contains "search.json" or page_url contains "atom.xml" or page_url contains "feed.xml" or page_url contains "sitemap.xml" or page_url contains "robots.txt" %}
+      {% unless first_entry %},{% endunless %}
+      {
+        "title": {{ page_title | jsonify }},
+        "url": {{ page_url | relative_url | jsonify }},
+        "type": "page",
+        "category": {{ page.category | default: "Trang" | jsonify }},
+        "tags": {{ page.tags | default: empty | jsonify }},
+        "summary": {{ page.description | default: page.excerpt | strip_html | strip_newlines | jsonify }},
+        "content": {{ page.content | default: "" | strip_html | strip_newlines | truncate: 1200 | jsonify }}
+      }
+      {% assign first_entry = false %}
+    {% endunless %}
+  {% endfor %}
   {% for post in site.posts %}
-  {
-    "title": {{ post.title | jsonify }},
-    "url": {{ post.url | relative_url | jsonify }},
-    "link": {{ post.url | relative_url | jsonify }},
-    "date": {{ post.date | date: "%d/%m/%Y" | jsonify }},
-    "category": {{ post.category | default: post.categories.first | default: "Bài viết" | jsonify }},
-    "summary": {{ post.excerpt | strip_html | strip_newlines | jsonify }},
-    "content": {{ post.content | strip_html | strip_newlines | jsonify }}
-  }{% if forloop.last == false %},{% endif %}
+    {% unless first_entry %},{% endunless %}
+    {
+      "title": {{ post.title | jsonify }},
+      "url": {{ post.url | relative_url | jsonify }},
+      "type": "post",
+      "category": {{ post.category | default: post.categories.first | default: "Bài viết" | jsonify }},
+      "tags": {{ post.tags | default: empty | jsonify }},
+      "summary": {{ post.description | default: post.excerpt | strip_html | strip_newlines | jsonify }},
+      "content": {{ post.content | strip_html | strip_newlines | truncate: 5000 | jsonify }}
+    }
+    {% assign first_entry = false %}
   {% endfor %}
 ]
