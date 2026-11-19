@@ -56,6 +56,7 @@ schedule_css: /css/schedule.css
                     <button type="button" class="month-nav-btn" id="btn-next-month" title="Tháng sau" aria-label="Xem tháng sau">
                         <i class="bx bx-chevron-right" aria-hidden="true"></i>
                     </button>
+                    <button type="button" id="btn-today" class="schedule-today-btn" aria-label="Quay về tháng hiện tại">Hôm nay</button>
                 </div>
                 <div id="view-switcher-container" class="segmented-control" style="display: none;" role="group" aria-label="Kiểu hiển thị">
                     <button type="button" id="btn-view-calendar" class="segment-btn" title="Xem dạng lịch" aria-pressed="false">

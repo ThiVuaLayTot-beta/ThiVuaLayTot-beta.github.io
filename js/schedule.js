@@ -102,6 +102,7 @@ function cacheDOMElements() {
     DOM.monthYear = document.getElementById('month-year');
     DOM.btnPrevMonth = document.getElementById('btn-prev-month');
     DOM.btnNextMonth = document.getElementById('btn-next-month');
+    DOM.btnToday = document.getElementById('btn-today');
     DOM.resultsSummary = document.getElementById('schedule-results-summary');
     DOM.resetFilters = document.getElementById('schedule-reset-filters');
     DOM.categoryButton = document.getElementById('schedule-category-button');
@@ -1039,6 +1040,13 @@ function renderActiveView() {
     }
 }
 
+function goToToday() {
+    const today = getVietnamNow();
+    STATE.displayYear = today.getUTCFullYear();
+    STATE.displayMonth = today.getUTCMonth();
+    renderActiveView();
+}
+
 function changeMonth(offset) {
     STATE.displayMonth += offset;
     if (STATE.displayMonth < 0) {
@@ -1451,6 +1459,7 @@ function initializeEventListeners() {
     if (DOM.categoryButton) DOM.categoryButton.addEventListener('click', () => toggleTourDropdown('schedule-category-dropdown'));
     if (DOM.btnPrevMonth) DOM.btnPrevMonth.addEventListener('click', () => changeMonth(-1));
     if (DOM.btnNextMonth) DOM.btnNextMonth.addEventListener('click', () => changeMonth(1));
+    if (DOM.btnToday) DOM.btnToday.addEventListener('click', goToToday);
     if (DOM.btnViewCalendar) DOM.btnViewCalendar.addEventListener('click', () => switchView('calendar'));
     if (DOM.btnViewList) DOM.btnViewList.addEventListener('click', () => switchView('list'));
     if (DOM.modalCloseBtn) DOM.modalCloseBtn.addEventListener('click', closeModal);
