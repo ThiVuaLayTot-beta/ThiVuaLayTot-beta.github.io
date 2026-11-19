@@ -578,6 +578,57 @@ function groupEventsByDay(filters) {
     return byDay;
 }
 
+let activeScheduleTooltip = null;
+
+function getScheduleTooltipElement() {
+    let tooltip = document.getElementById('schedule-event-tooltip');
+    if (!tooltip) {
+        tooltip = document.createElement('div');
+        tooltip.id = 'schedule-event-tooltip';
+        tooltip.className = 'schedule-event-tooltip';
+        tooltip.setAttribute('role', 'tooltip');
+        tooltip.setAttribute('aria-hidden', 'true');
+        document.body.appendChild(tooltip);
+    }
+    return tooltip;
+}
+
+function showScheduleTooltip(icon) {
+    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const tooltip = getScheduleTooltipElement();
+    tooltip.textContent = icon.dataset.tooltip || '';
+    tooltip.style.left = '0px';
+    tooltip.style.top = '0px';
+    tooltip.hidden = false;
+    tooltip.setAttribute('aria-hidden', 'false');
+    tooltip.classList.add('is-visible');
+    icon.setAttribute('aria-describedby', tooltip.id);
+    activeScheduleTooltip = icon;
+
+    const anchor = icon.getBoundingClientRect();
+    const bounds = tooltip.getBoundingClientRect();
+    const margin = 12;
+    const maxLeft = Math.max(margin, window.innerWidth - bounds.width - margin);
+    const left = Math.max(margin, Math.min(anchor.left + anchor.width / 2 - bounds.width / 2, maxLeft));
+    let top = anchor.top - bounds.height - 8;
+    if (top < margin) top = Math.min(window.innerHeight - bounds.height - margin, anchor.bottom + 8);
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${Math.max(margin, top)}px`;
+}
+
+function hideScheduleTooltip() {
+    const tooltip = document.getElementById('schedule-event-tooltip');
+    activeScheduleTooltip?.removeAttribute('aria-describedby');
+    activeScheduleTooltip = null;
+    if (!tooltip) return;
+    tooltip.classList.remove('is-visible');
+    tooltip.setAttribute('aria-hidden', 'true');
+    tooltip.hidden = true;
+}
+
+document.addEventListener('scroll', hideScheduleTooltip, true);
+window.addEventListener('resize', hideScheduleTooltip, { passive: true });
+
 function createEventIcon(tournament) {
     const parts = getVietnamDateParts(tournament.startTime);
     const status = getEventStatus(tournament);
@@ -600,6 +651,12 @@ function createEventIcon(tournament) {
     const tooltip = `${eventName}\n${timeLabel} · ${status}\n${tournament.eventRules || 'Chưa có thông tin thể lệ'}`;
     icon.dataset.tooltip = tooltip;
     icon.title = tooltip;
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        icon.addEventListener('pointerenter', () => showScheduleTooltip(icon));
+        icon.addEventListener('pointerleave', hideScheduleTooltip);
+        icon.addEventListener('focus', () => showScheduleTooltip(icon));
+        icon.addEventListener('blur', hideScheduleTooltip);
+    }
 
     const img = document.createElement('img');
     img.src = safeUrl(tournament.logo, '/images/tvltlogo.png');
@@ -841,6 +898,7 @@ function getModalURLs(tournament) {
 }
 
 function openModal(tournament) {
+    hideScheduleTooltip();
     if (!DOM.eventModal || !tournament) return;
 
     if (!DOM.eventModal.classList.contains('open')) {

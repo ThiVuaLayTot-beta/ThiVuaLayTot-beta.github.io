@@ -258,13 +258,11 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .schedule-skeleton-weekdays span{padding:8px 2px;color:#94a3b8;text-align:center;font-size:.75rem;font-weight:700}
 .schedule-skeleton-cell{display:block;min-height:82px;border:1px solid rgba(148,163,184,.1);border-radius:7px;background:linear-gradient(100deg,rgba(30,41,59,.42) 20%,rgba(71,85,105,.3) 38%,rgba(30,41,59,.42) 60%);background-size:220% 100%;animation:scheduleShimmer 1.5s ease-in-out infinite}
 @keyframes scheduleShimmer{to{background-position-x:-220%}}
-.event-icon[data-tooltip]::before{position:absolute;z-index:30;bottom:calc(100% + 9px);left:50%;width:min(250px,70vw);padding:10px 12px;border:1px solid rgba(125,211,252,.35);border-radius:9px;background:rgba(8,15,31,.97);box-shadow:0 10px 24px rgba(0,0,0,.32);color:#e2e8f0;content:attr(data-tooltip);font-size:.76rem;font-weight:500;line-height:1.5;text-align:left;white-space:pre-line;pointer-events:none;opacity:0;visibility:hidden;transform:translate(-50%,4px);transition:opacity 120ms ease,transform 120ms ease,visibility 120ms ease}
-.event-icon:hover::before,.event-icon:focus-visible::before{opacity:1;visibility:visible;transform:translate(-50%,0)}
 #calendar-table td[data-date]{cursor:pointer}
 @media(max-width:768px){
 .schedule-status-filters{gap:6px}.schedule-status-filters button{flex:1 1 calc(50% - 6px)}
 .schedule-skeleton{padding:7px}.schedule-skeleton-weekdays,.schedule-skeleton-grid{gap:4px}.schedule-skeleton-cell{min-height:50px}
-.event-icon[data-tooltip]::before{display:none} .calendar-table td, #calendar-table td { min-height: 44px; }
+ .calendar-table td, #calendar-table td { min-height: 44px; }
 }
 @media(prefers-reduced-motion:reduce){.schedule-skeleton-cell{animation:none}.schedule-guide>summary::after,.schedule-status-filters button,.event-icon[data-tooltip]::before{transition:none}}
 
@@ -3091,3 +3089,37 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .schedule-retry-btn:hover { background: rgba(56, 189, 248, .22); }
 .schedule-retry-btn:focus-visible { outline: 3px solid var(--accent-ice); outline-offset: 3px; }
 .btn-group a[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+
+/* Viewport-positioned event hints stay clear of the horizontally scrollable calendar. */
+.schedule-event-tooltip {
+  position: fixed;
+  z-index: 3000;
+  display: none;
+  width: max-content;
+  max-width: min(250px, calc(100vw - 24px));
+  padding: 10px 12px;
+  border: 1px solid rgba(125, 211, 252, .35);
+  border-radius: 10px;
+  background: #0b1425;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .42);
+  color: #e2e8f0;
+  font-size: .76rem;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: pre-line;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(3px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.schedule-event-tooltip.is-visible { display: block; opacity: 1; transform: none; }
+.schedule-skeleton-weekdays,
+.schedule-skeleton-weekdays span { height: 38px !important; }
+.schedule-skeleton-cell { min-height: 100px !important; }
+@media (max-width: 768px) {
+  .schedule-skeleton-cell { min-height: 64px !important; }
+  .schedule-event-tooltip { display: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .schedule-event-tooltip { transition: none; }
+}
