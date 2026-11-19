@@ -3123,6 +3123,15 @@ body .schedule-results #loading .schedule-skeleton-weekdays span { height: 38px;
   }
 }
 
+/* Keep each month control in a defined track; no implicit grid columns. */
+.schedule-explorer .month-nav-wrapper {
+    grid-template-columns: 44px minmax(0, 1fr) 44px auto;
+}
+.schedule-explorer .month-nav-wrapper > #btn-prev-month { grid-column: 1; }
+.schedule-explorer .month-nav-wrapper > .month-display { grid-column: 2; }
+.schedule-explorer .month-nav-wrapper > #btn-next-month { grid-column: 3; }
+.schedule-explorer .month-nav-wrapper > #btn-today { grid-column: 4; }
+
 /* A quiet secondary action beside the month navigator. */
 .schedule-explorer .schedule-today-btn {
     display: inline-flex;
@@ -3154,11 +3163,13 @@ body .schedule-results #loading .schedule-skeleton-weekdays span { height: 38px;
 @media (max-width: 820px) {
     .schedule-explorer .month-nav-wrapper {
         grid-template-columns: 40px minmax(0, 1fr) 40px auto;
+        gap: 8px;
     }
 }
 @media (max-width: 640px) {
     .schedule-explorer .month-nav-wrapper {
         grid-template-columns: 38px minmax(0, 1fr) 38px auto;
+        gap: 7px;
     }
 }
 @media (max-width: 380px) {
