@@ -1076,7 +1076,7 @@
 }
 
 .home-page > .hero-v2 a:focus-visible {
-  outline: 2px solid var(--accent-ice-soft);
+  outline: 3px solid var(--accent-ice-soft);
   outline-offset: 3px;
 }
 

@@ -1272,7 +1272,8 @@ function readScheduleCache() {
     try {
         const cached = JSON.parse(localStorage.getItem(SCHEDULE_CACHE_KEY) || 'null');
         if (!cached || cached.version !== 1 || !Array.isArray(cached.data?.events)) return null;
-        if (Date.now() - cached.savedAt > SCHEDULE_CACHE_MAX_STALE_MS) return null;
+        const age = Date.now() - Number(cached.savedAt);
+        if (!Number.isFinite(age) || age < 0 || age > SCHEDULE_CACHE_MAX_STALE_MS) return null;
         return cached;
     } catch {
         return null;
@@ -1389,37 +1390,6 @@ function showSchedule() {
     renderActiveView();
 
     DOM.calendarWrapper?.classList.add('schedule-entrance');
-}
-
-async function loadTournaments() {
-    try {
-        const data = await fetchScheduleData();
-
-        if (DOM.lastUpdatedEl) {
-            DOM.lastUpdatedEl.innerText = parseLastUpdated(data).toLocaleString('vi-VN', {
-                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
-            });
-        }
-
-        STATE.tournaments = data.events.map(normalizeTournament).filter(tournament => tournament && parseEventDate(tournament.startTime));
-        ensureEventTypeFilters(STATE.tournaments);
-
-        if (data.events.length > 0 && STATE.tournaments.length === 0) {
-            throw new Error(`API trả về ${data.events.length} sự kiện nhưng không có trường "startTime" hợp lệ. Hãy kiểm tra định dạng ngày trong JSON Apps Script.`);
-        }
-
-        setDisplay(DOM.loadingEl, 'none');
-        setDisplay(document.getElementById('schedule-skeleton'), 'none');
-
-        if (STATE.tournaments.length === 0) setDisplay(DOM.emptyEl, 'block');
-        else showSchedule();
-    } catch (error) {
-        console.error('Error:', error);
-        setDisplay(DOM.loadingEl, 'none');
-        if (!DOM.errorEl) return;
-        setDisplay(DOM.errorEl, 'block');
-        DOM.errorEl.innerHTML = `<div class="error"><i class="bx bx-error-circle"></i> Lỗi: ${escapeHTML(error.message)}<br><span class="error-hint">Nếu gặp sự cố, vui lòng báo cáo trong <a href="${FORUM_URL}" target="_blank" rel="noopener">diễn đàn (forum)</a> hoặc liên hệ <a href="/leaders#admin3">M-DinhHoangViet</a>.</span></div>`;
-    }
 }
 
 function trapModalFocus(event) {

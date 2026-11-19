@@ -1411,7 +1411,7 @@ footer .bottom-details .bottom_text {
 .nav-search-btn{display:inline-flex;align-items:center;justify-content:center;flex:0 0 38px;width:38px;height:38px;margin-left:8px;padding:0;border:1px solid rgba(125,211,252,.2);border-radius:50%;background:rgba(56,189,248,.06);color:#bae6fd;font-size:1.15rem;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
 
 @media(max-width:1024px){
-.nav-menu .nav-search-btn{align-self:flex-end;flex:0 0 38px;width:38px;min-width:38px;height:38px;margin:6px 2px 0 auto;padding:0;border-radius:50%}
+.nav-menu .nav-search-btn{align-self:flex-end;flex:0 0 44px;width:44px;min-width:44px;height:44px;margin:6px 2px 0 auto;padding:0;border-radius:50%}
 .nav-menu .nav-search-btn::after{content:none}
 }
 
@@ -1576,10 +1576,10 @@ body {
 
                                                                                               #open-search-btn,
                                                                                                 .nav-search-btn {
-                                                                                                    width: 38px !important;
-                                                                                                        height: 38px !important;
-                                                                                                            min-width: 38px !important;
-                                                                                                                min-height: 38px !important;
+                                                                                                    width: 44px !important;
+                                                                                                        height: 44px !important;
+                                                                                                            min-width: 44px !important;
+                                                                                                                min-height: 44px !important;
                                                                                                                     padding: 0 !important;
                                                                                                                         display: inline-flex !important;
                                                                                                                             align-items: center !important;
@@ -1753,4 +1753,39 @@ button:disabled, input:disabled, select:disabled, textarea:disabled, .btn:disabl
   outline: 3px solid var(--accent-ice);
   outline-offset: 3px;
   box-shadow: 0 0 0 4px rgba(56, 189, 248, .18);
+}
+
+/* The mobile search control keeps a full 44px hit target after legacy overrides. */
+@media (max-width: 1024px) {
+  .nav-menu .nav-search-btn,
+  #open-search-btn {
+    flex-basis: 44px;
+    width: 44px;
+    min-width: 44px;
+    height: 44px;
+    min-height: 44px;
+  }
+}
+@media (max-width: 768px) {
+  .page-title::before,
+  .page-title,
+  .page-decription,
+  .breadcrumb,
+  .list-item-people,
+  .social-card,
+  .social-card-group,
+  .social-link-item,
+  .contact-card,
+  .contact-method,
+  .contact-donation,
+  .video-card,
+  .card-list .card,
+  .about-card,
+  .bento-card,
+  .post-contents,
+  .tournament-card,
+  .event-winner-card {
+    animation: none;
+    transition: none;
+  }
 }

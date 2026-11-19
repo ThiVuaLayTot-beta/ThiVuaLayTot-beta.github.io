@@ -3123,3 +3123,15 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 @media (prefers-reduced-motion: reduce) {
   .schedule-event-tooltip { transition: none; }
 }
+
+/* Keep the loading calendar's horizontal footprint aligned with the real table. */
+@media (max-width: 1024px) {
+  #loading {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  #loading .schedule-skeleton {
+    min-width: 868px;
+  }
+}
