@@ -543,6 +543,16 @@ hr {
   display: none;
 }
 
+@media (min-width: 1025px) {
+  .nav-cta--mobile {
+    position: absolute;
+    top: 50%;
+    right: clamp(16px, 3vw, 42px);
+    display: inline-flex;
+    transform: translateY(-50%);
+  }
+}
+
 @media (max-width: 1024px) {
   .page-header {
     grid-template-columns: minmax(0, 1fr) auto;
@@ -673,10 +683,12 @@ hr {
   }
 
   .nav-cta--mobile {
+    position: static;
     display: flex;
     justify-content: center;
     width: 100%;
     margin-top: 5px;
+    transform: none;
   }
 
   .nav-menu::-webkit-scrollbar {
