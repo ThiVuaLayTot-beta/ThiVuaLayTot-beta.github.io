@@ -18,7 +18,7 @@ schedule_css: /css/schedule.css
             <div class="schedule-guide-grid">
                 <div class="schedule-guide-item">
                     <span class="schedule-guide-step">01</span>
-                    <div><strong>Xem thông tin giải</strong><p>Chọn ngày hoặc biểu tượng giải đấu để mở thông tin chi tiết và đường dẫn tham gia.</p></div>
+                    <div><strong>Xem thông tin giải</strong><p>Chọn biểu tượng giải đấu để mở thông tin chi tiết và đường dẫn tham gia.</p></div>
                 </div>
                 <div class="schedule-guide-item">
                     <span class="schedule-guide-step">02</span>
