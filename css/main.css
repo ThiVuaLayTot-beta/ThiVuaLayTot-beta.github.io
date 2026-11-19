@@ -1525,11 +1525,11 @@ footer .bottom-details .bottom_text {
 }
 
 /* Mobile & Tablet UI/UX Overhaul for Navbar & Global Layout */
-html, body {
-  overflow-x: hidden !important;
-    max-width: 100vw;
-    }
-
+html,
+body {
+  overflow-x: clip;
+  max-width: 100%;
+}
     @media (max-width: 768px) {
       .page-header {
           height: 60px !important;

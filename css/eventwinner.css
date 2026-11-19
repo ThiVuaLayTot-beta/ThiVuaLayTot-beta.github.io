@@ -1,6 +1,6 @@
 @import url("./variables.css");
 
-.table { position: relative; width: 100%; max-width: inherit; max-height: 75vh; margin: var(--space-2xl) 0; overflow: auto; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, rgba(10, 15, 26, .9), rgba(15, 25, 45, .8)); box-shadow: var(--shadow-xl); }
+.table { position: relative; width: 100%; max-width: inherit; max-height: 75vh; margin: var(--space-2xl) 0; overflow: auto; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--border-radius-lg); background: linear-gradient(135deg, rgba(10, 15, 26, .9), rgba(15, 25, 45, .8)); box-shadow: var(--shadow-xl); }
 .styled-table { width: 100%; border-collapse: collapse; border: var(--border-width-base) solid rgba(56, 189, 248, .2); border-radius: var(--border-radius-lg); background: rgba(12, 20, 38, .95); font-size: var(--fs-sm); }
 .styled-table thead { position: sticky; top: 0; z-index: 10; }
 .styled-table th, .styled-table td { padding: var(--space-md); border-bottom: var(--border-width-thin) solid rgba(56, 189, 248, .15); text-align: left; overflow: hidden; text-overflow: ellipsis; }
@@ -114,8 +114,8 @@
   .winner { min-width: 12.5rem; }
   .styled-table th, .styled-table td { padding: var(--space-md); font-size: var(--fs-xs); }
 }
-
 @media (max-width: 768px) {
+  .table { overflow-x: auto; -webkit-overflow-scrolling: touch; box-shadow: inset -12px 0 16px -12px rgba(56, 189, 248, .25), var(--shadow-xl); }
   .tour-top-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
   .tour-dropdown-btn, .tour-select-btn { padding: 10px 14px; font-size: 13px; border-radius: var(--border-radius-md); }
   .tour-dropdown-btn-content { gap: var(--space-xs); }

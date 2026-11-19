@@ -264,7 +264,7 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 @media(max-width:768px){
 .schedule-status-filters{gap:6px}.schedule-status-filters button{flex:1 1 calc(50% - 6px)}
 .schedule-skeleton{padding:7px}.schedule-skeleton-weekdays,.schedule-skeleton-grid{gap:4px}.schedule-skeleton-cell{min-height:50px}
-.event-icon[data-tooltip]::before{display:none}
+.event-icon[data-tooltip]::before{display:none} .calendar-table td, #calendar-table td { min-height: 44px; }
 }
 @media(prefers-reduced-motion:reduce){.schedule-skeleton-cell{animation:none}.schedule-guide>summary::after,.schedule-status-filters button,.event-icon[data-tooltip]::before{transition:none}}
 
