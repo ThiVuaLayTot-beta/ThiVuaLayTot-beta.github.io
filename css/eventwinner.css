@@ -15,7 +15,7 @@
 .styled-table a { color: var(--color-primary-light); font-weight: var(--fw-semibold); text-decoration: none; }
 .styled-table a:hover { color: var(--color-accent); text-shadow: 0 0 12px rgba(96, 165, 250, .4); }
 .name-tour { min-width: 15em; width: 33vw; color: var(--neutral-100); font-weight: var(--fw-semibold); text-transform: capitalize; }
-.organization-day { min-width: 8rem; color: var(--neutral-200); font-family: var(--mono-font); }
+.organization-day { min-width: 8rem; color: var(--neutral-200); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .rules { min-width: 13.5rem; color: var(--neutral-200); }
 .players { min-width: 3rem; color: var(--neutral-100); font-weight: var(--fw-semibold); text-align: center; }
 .winner { min-width: 14rem; text-align: center; }
