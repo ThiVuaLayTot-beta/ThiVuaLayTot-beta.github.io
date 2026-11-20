@@ -50,8 +50,8 @@
             </header>
 
             <div class="category-filter-container">
-                <label for="post-filter-input" class="visually-hidden">Lọc bài viết theo tiêu đề hoặc từ khóa</label><label for="post-filter-input" class="visually-hidden">Lọc bài viết theo tiêu đề hoặc từ khóa</label>
-                <input type="search" id="post-filter-input" aria-label="Lọc danh sách bài viết" aria-describedby="category-filter-status" placeholder="Lọc bài viết theo tiêu đề hoặc mô tả..." class="control-input search-input" style="width: 100%; margin-bottom: 12px;">
+                <label for="post-filter-input" class="visually-hidden">Lọc bài viết theo tiêu đề hoặc từ khóa</label>
+                <input type="search" id="post-filter-input" aria-describedby="category-filter-status placeholder="Lọc bài viết theo tiêu đề hoặc mô tả..." class="control-input search-input" style="width: 100%; margin-bottom: 12px;">
                 <p id="category-filter-status" class="category-filter-status" role="status" aria-live="polite"></p>
             </div>
             <nav class="nav-tabs" aria-label="Danh mục bài viết">
@@ -82,7 +82,7 @@
 
                 {% for post in category_posts %}
                 <article class="category-card">
-                    <a href="{{ post.url }}" title="{{ post.title }}"><img src="{% if post.image %}{{ post.image }}{% else %}/images/{{ post.id | remove_first: '/' }}.png{% endif %}" data-fallback-src="/images/tvltlogo.png" alt="{{ post.title | escape }}" class="category-card__image" width="640" height="360" loading="lazy" decoding="async"></a>
+                    <a href="{{ post.url }}" tabindex="-1" aria-hidden="true"><img src="{% if post.image %}{{ post.image }}{% else %}/images/{{ post.id | remove_first: '/' }}.png{% endif %}" data-fallback-src="/images/tvltlogo.png" alt="" class="category-card__image" width="640" height="360" loading="lazy" decoding="async"></a>
                     <div class="category-card__content">
                         <div class="post_in4">
                             <div class="category-card__detail">
@@ -93,7 +93,7 @@
                         <a href="{{ post.url }}"><h4 class="category-card__title">{{ post.title }}</h4></a>
                         <i class="category-card__description">{{ post.description }}</i>
                         <div class="category-card__footer">
-                            <a href="/{{ post.category }}"class="category-card__tag"><span class="bx bx-purchase-tag-alt"></span> {{ post.tags }}</a>
+                            <a href="/{{ post.category }}" class="category-card__tag"><span class="bx bx-purchase-tag-alt"></span> {{ post.tags }}</a>
                             <a class="category-card__link" href="{{ post.url }}">Xem chi tiết <span aria-hidden="true">→</span></a>
                         </div>
                     </div>
@@ -102,7 +102,7 @@
             </section>
             <br>
             {{ content }}
-            <button id="back-to-top" title="Quay lại đầu trang"><span class="bx bxs-to-top"></span></button>
+            <button type="button" id="back-to-top" title="Quay lại đầu trang" aria-label="Quay lại đầu trang"><span class="bx bxs-to-top" aria-hidden="true"></span></button>
         </div>
     </div>
 

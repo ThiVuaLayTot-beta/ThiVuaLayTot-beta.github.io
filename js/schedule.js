@@ -83,6 +83,7 @@ const STATE = {
     previousBodyOverflow: '',
     statusFilter: 'all',
     hasUsableData: false,
+    hasShownSchedule: false,
     refreshPromise: null,
 };
 
@@ -1233,7 +1234,7 @@ function fetchScheduleData() {
 /** "Last updated" timestamp from the API (Vietnam time when no zone is given); falls back to now. */
 function parseLastUpdated(data) {
     let value = String(data.lastUpdated || data.events[0]?.timestamp || '').trim().replace(' ', 'T');
-    if (value && !value.includes('+') && !value.includes('Z')) value += '+07:00';
+    if (value && !/(Z|[+-]\d{2}:?\d{2})$/i.test(value)) value += '+07:00';
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? new Date() : date;
 }
@@ -1337,8 +1338,13 @@ async function refreshScheduleData({ background = false } = {}) {
             writeScheduleCache(data);
 
             if (STATE.tournaments.length) {
-                setScheduleState('ready');
-                showSchedule();
+                if (background && STATE.hasShownSchedule) {
+                    // Keep the visitor's month, view and filters; just redraw with fresh data.
+                    setScheduleState('ready');
+                    renderActiveView();
+                } else {
+                    showSchedule();
+                }
             } else {
                 setScheduleState('empty');
             }
@@ -1386,6 +1392,7 @@ async function loadTournaments() {
 }
 
 function showSchedule() {
+    STATE.hasShownSchedule = true;
     setScheduleState('ready');
     setDisplay(DOM.viewSwitcherContainer, 'inline-flex');
     setDisplay(DOM.scheduleFilters, 'grid');

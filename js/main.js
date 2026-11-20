@@ -178,7 +178,12 @@ document.addEventListener("keydown", event => {
     }
 });
 
+let lastViewportWidth = window.innerWidth;
 window.addEventListener("resize", () => {
+    // Mobile browsers fire "resize" when the URL bar shows/hides while scrolling;
+    // only react to real width changes so open menus are not closed mid-scroll.
+    if (window.innerWidth === lastViewportWidth) return;
+    lastViewportWidth = window.innerWidth;
     closeDropdowns();
     if (!isMobileNav()) closeMobileNav();
 });
@@ -294,6 +299,7 @@ window.addEventListener("scroll", () => {
  */
 function handleScrollEffects() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    updateScrollProgressBar();
 
     if (backToTopBtn) if(scrollTop > 100) { backToTopBtn.classList.add("show"); } else { backToTopBtn.classList.remove("show"); }
 
@@ -325,7 +331,6 @@ if (backToTopBtn) {
 /**
  * Scroll progress indicator
  */
-let progressFramePending = false;
 function updateScrollProgressBar() {
     const bar = document.getElementById("scroll-progress-bar");
     if (!bar) return;
@@ -334,18 +339,6 @@ function updateScrollProgressBar() {
     const progress = maxScroll > 0 ? Math.min(100, Math.max(0, (current / maxScroll) * 100)) : 0;
     bar.style.width = `${progress}%`;
 }
-window.addEventListener(
-    "scroll",
-    () => {
-        if (progressFramePending) return;
-        progressFramePending = true;
-        window.requestAnimationFrame(() => {
-            updateScrollProgressBar();
-            progressFramePending = false;
-        });
-    },
-    { passive: true },
-);
 window.addEventListener("resize", updateScrollProgressBar, { passive: true });
 
 /** Normalize Vietnamese text once for the entire site. */
@@ -378,6 +371,7 @@ function initializeGlobalSearch() {
                     </div>
                     <button type="button" id="close-search-modal" class="close-search-btn" aria-label="Đóng tìm kiếm"><span class="bx bx-x" aria-hidden="true"></span></button>
                 </div>
+                <p id="global-search-status" class="visually-hidden" role="status" aria-live="polite"></p>
                 <div id="global-search-results" class="search-modal-results" role="list" aria-label="Kết quả tìm kiếm"></div>
             </section>
         </div>`,
@@ -387,6 +381,7 @@ function initializeGlobalSearch() {
     const closeButton = document.getElementById("close-search-modal");
     const input = document.getElementById("global-search-input");
     const results = document.getElementById("global-search-results");
+    const statusEl = document.getElementById("global-search-status");
     if (!modal || !closeButton || !input || !results) return;
 
     let searchTimer = null;
@@ -401,6 +396,7 @@ function initializeGlobalSearch() {
         p.className = "search-no-results";
         p.textContent = message;
         results.appendChild(p);
+        if (statusEl) statusEl.textContent = message;
     }
     function renderResults(query) {
         const normalized = removeVietnameseTones(query);
@@ -438,7 +434,10 @@ function initializeGlobalSearch() {
             showMessage("Không tìm thấy kết quả phù hợp.");
             return;
         }
+        if (statusEl) statusEl.textContent = `${matches.length} kết quả phù hợp.`;
         matches.forEach(({ item }) => {
+            const row = document.createElement("div");
+            row.setAttribute("role", "listitem");
             const link = document.createElement("a");
             link.className = "search-result-item";
             link.href = item.link;
@@ -447,9 +446,9 @@ function initializeGlobalSearch() {
             const summary = document.createElement("p");
             const description = item.summary || item.content || "";
             summary.textContent = description.length > 140 ? description.slice(0, 137) + "…" : description;
-            link.setAttribute("role", "listitem");
             link.append(title, summary);
-            results.appendChild(link);
+            row.appendChild(link);
+            results.appendChild(row);
         });
     }
     function loadIndex() {
@@ -499,6 +498,7 @@ function initializeGlobalSearch() {
         return indexPromise;
     }
     function openModal() {
+        if (mobileNav?.classList.contains("active")) closeMobileNav();
         previousOverflow = document.body.style.overflow;
         document.body.style.overflow = "hidden";
         modal.classList.add("active");
@@ -513,6 +513,7 @@ function initializeGlobalSearch() {
         document.body.style.overflow = previousOverflow;
         input.value = "";
         results.textContent = "";
+        if (statusEl) statusEl.textContent = "";
         trigger.focus();
     }
     trigger.addEventListener("click", openModal);
@@ -793,4 +794,80 @@ function initSubpageInteractiveEffects() {
 }
 if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initSubpageInteractiveEffects, { once: true });
 else initSubpageInteractiveEffects();
-async function initHomepageStatsSync() { const card = document.querySelector(".bento-card--stats"); const ytEl = document.getElementById("stat-youtube-subs"); const ccEl = document.getElementById("stat-chesscom-members"); const peEl = document.getElementById("stat-prize-events"); if (!ccEl && !ytEl && !peEl) return; const statsApiUrl = card ? (card.getAttribute("data-stats-api") || "").trim() : ""; const KEY = "tvlt_homepage_stats_cache_v1"; const TTL = 7 * 24 * 60 * 60 * 1000; const applyStats = (s) => { if (!s) return; if (ytEl && s.youtubeSubs) ytEl.textContent = s.youtubeSubs; if (ccEl && s.chesscomMembers) ccEl.textContent = s.chesscomMembers; if (peEl && s.prizeEvents) peEl.textContent = s.prizeEvents; }; try { const raw = localStorage.getItem(KEY); if (raw) { const cached = JSON.parse(raw); if (cached && Date.now() - cached.updatedAt < TTL) { if (statsApiUrl ? (cached.source === "apps-script" && (cached.youtubeSubs || cached.chesscomMembers || cached.prizeEvents)) : cached.chesscomMembers) { applyStats(cached); return; } } } } catch (e) {} if (statsApiUrl) { try { const res = await fetch(statsApiUrl); if (res.ok) { const data = await res.json(); const next = { youtubeSubs: data.youtube_subs || "", chesscomMembers: data.chesscom_members || "", prizeEvents: data.prize_events || "", source: "apps-script", updatedAt: Date.now() }; if (next.youtubeSubs || next.chesscomMembers || next.prizeEvents) { applyStats(next); try { localStorage.setItem(KEY, JSON.stringify(next)); } catch (e) {} return; } } } catch (e) {} } if (!ccEl) return; try { const res = await fetch("https://" + "api.chess.com" + "/pub/club/thi-vua-lay-tot-tungjohn-playing-chess"); if (!res.ok) return; const data = await res.json(); if (typeof data.members_count === "number" && data.members_count > 0) { const formatted = data.members_count >= 1000 ? `${Math.floor(data.members_count / 1000)}K+` : String(data.members_count); ccEl.textContent = formatted; try { localStorage.setItem(KEY, JSON.stringify({ chesscomMembers: formatted, source: "chesscom-api", updatedAt: Date.now() })); } catch (e) {} } } catch (e) {} } if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initHomepageStatsSync, { once: true }); else initHomepageStatsSync();
+async function initHomepageStatsSync() {
+    const card = document.querySelector(".bento-card--stats");
+    const ytEl = document.getElementById("stat-youtube-subs");
+    const ccEl = document.getElementById("stat-chesscom-members");
+    const peEl = document.getElementById("stat-prize-events");
+    if (!ytEl && !ccEl && !peEl) return;
+
+    const statsApiUrl = (card?.getAttribute("data-stats-api") || "").trim();
+    // Build-time snapshot (_data/stats.json); a cache older than it must not override it.
+    const builtAt = Date.parse(card?.getAttribute("data-updated-at") || "") || 0;
+    const CACHE_KEY = "tvlt_homepage_stats_cache_v1";
+    const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+    const setStat = (element, value) => {
+        if (!element || !value) return;
+        element.dataset.finalValue = value; // lets home.js count-up end on the fresh value
+        element.textContent = value;
+    };
+    const applyStats = (stats) => {
+        if (!stats) return;
+        setStat(ytEl, stats.youtubeSubs);
+        setStat(ccEl, stats.chesscomMembers);
+        setStat(peEl, stats.prizeEvents);
+    };
+    const saveCache = (value) => {
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(value)); } catch (error) { /* storage unavailable */ }
+    };
+
+    try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+        const isFresh = cached && Date.now() - cached.updatedAt < CACHE_TTL_MS && cached.updatedAt > builtAt;
+        if (isFresh) {
+            const usable = statsApiUrl
+                ? cached.source === "apps-script" && (cached.youtubeSubs || cached.chesscomMembers || cached.prizeEvents)
+                : cached.chesscomMembers;
+            if (usable) {
+                applyStats(cached);
+                return;
+            }
+        }
+    } catch (error) { /* ignore corrupt cache */ }
+
+    if (statsApiUrl) {
+        try {
+            const response = await fetch(statsApiUrl);
+            if (response.ok) {
+                const data = await response.json();
+                const next = {
+                    youtubeSubs: data.youtube_subs || "",
+                    chesscomMembers: data.chesscom_members || "",
+                    prizeEvents: data.prize_events || "",
+                    source: "apps-script",
+                    updatedAt: Date.now(),
+                };
+                if (next.youtubeSubs || next.chesscomMembers || next.prizeEvents) {
+                    applyStats(next);
+                    saveCache(next);
+                    return;
+                }
+            }
+        } catch (error) { /* fall through to Chess.com */ }
+    }
+
+    if (!ccEl) return;
+    try {
+        const response = await fetch("https://api.chess.com/pub/club/thi-vua-lay-tot-tungjohn-playing-chess");
+        if (!response.ok) return;
+        const data = await response.json();
+        if (typeof data.members_count === "number" && data.members_count > 0) {
+            const formatted = data.members_count >= 1000 ? `${Math.floor(data.members_count / 1000)}K+` : String(data.members_count);
+            setStat(ccEl, formatted);
+            saveCache({ chesscomMembers: formatted, source: "chesscom-api", updatedAt: Date.now() });
+        }
+    } catch (error) { /* keep build-time value */ }
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initHomepageStatsSync, { once: true });
+else initHomepageStatsSync();

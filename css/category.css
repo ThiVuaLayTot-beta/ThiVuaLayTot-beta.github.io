@@ -262,7 +262,7 @@
   box-shadow: 0 0 0 3px rgba(56, 189, 248, .25)
 }
 
-.category-grid .category-card[hidden] {
+.category-card[hidden] {
   display: none;
 }
 

@@ -1,6 +1,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{%- assign seo_description = page.description | default: "Thí Vua Lấy Tốt — TungJohn Playing Chess: cộng đồng cờ vua trực tuyến, giải đấu hàng tuần có thưởng trên Chess.com và Lichess." | strip_html | strip_newlines | escape %}
+<meta name="description" content="{{ seo_description }}">
+<link rel="canonical" href="{{ page.url | replace: 'index.html', '' | absolute_url }}">
+<meta name="theme-color" content="#060911">
+<meta property="og:site_name" content="Thí Vua Lấy Tốt">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ page.title | escape }} - CLB Thí Vua Lấy Tốt">
+<meta property="og:description" content="{{ seo_description }}">
+<meta property="og:url" content="{{ page.url | replace: 'index.html', '' | absolute_url }}">
+<meta property="og:image" content="{{ '/images/tvltlogo.png' | absolute_url }}">
 <link rel="stylesheet" href="https://w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="/css/variables.css">
 <link rel="stylesheet" href="/css/main.css">
 <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">

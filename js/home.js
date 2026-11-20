@@ -51,7 +51,7 @@ document.addEventListener("error", (event) => {
     const finish = () => {
       window.clearTimeout(state.timer);
       if (state.frame) window.cancelAnimationFrame(state.frame);
-      element.textContent = state.finalText;
+      element.textContent = element.dataset.finalValue || state.finalText;
       runningCounters.delete(element);
     };
 
