@@ -30,7 +30,7 @@ schedule_css: /css/schedule.css
                 </div>
                 <div class="schedule-guide-item">
                     <span class="schedule-guide-step">04</span>
-                    <div><strong>Đổi cách xem</strong><p>Chuyển giữa <b>Lịch</b>, <b>Danh sách</b> và <b>Timeline</b>; dùng mũi tên hoặc bấm vào tháng/năm để chọn nhanh thời gian cần xem.</p></div>
+                    <div><strong>Đổi cách xem</strong><p>Chuyển giữa <b>Lịch</b> và <b>Timeline</b>; dùng mũi tên hoặc mở ô thả xuống tháng/năm để chọn nhanh thời gian cần xem.</p></div>
                 </div>
             </div>
         </div>
@@ -49,10 +49,10 @@ schedule_css: /css/schedule.css
                     <div class="month-display">
                         <span class="month-display-label">THÁNG</span>
                         <div class="month-display-value">
-                            <button type="button" id="btn-month-picker" class="month-picker-btn" aria-haspopup="dialog" aria-expanded="false" aria-controls="month-picker-popover" aria-label="Chọn tháng và năm">
-                                <span class="month-title" id="month-title"><span class="month-box">11</span><span class="year-box">2026</span></span>
-                                <i class="bx bx-chevron-down month-picker-chevron" aria-hidden="true"></i>
-                            </button>
+                            <span class="month-title" id="month-title">
+                                <button type="button" id="btn-month-select" class="month-box month-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="schedule-select-menu" aria-label="Chọn tháng"><span id="month-select-label">11</span><i class="bx bx-chevron-down month-select-chevron" aria-hidden="true"></i></button>
+                                <button type="button" id="btn-year-select" class="year-box month-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="schedule-select-menu" aria-label="Chọn năm"><span id="year-select-label">2026</span><i class="bx bx-chevron-down month-select-chevron" aria-hidden="true"></i></button>
+                            </span>
                             <span class="month-year" id="month-year"></span>
                         </div>
                         <span class="visually-hidden" id="month-live" role="status" aria-live="polite"></span>
@@ -64,9 +64,6 @@ schedule_css: /css/schedule.css
                 <div id="view-switcher-container" class="segmented-control" style="display: none;" role="group" aria-label="Kiểu hiển thị">
                     <button type="button" id="btn-view-calendar" class="segment-btn" title="Xem dạng lịch" aria-pressed="false">
                         <i class="bx bx-calendar" aria-hidden="true"></i><span>Lịch</span>
-                    </button>
-                    <button type="button" id="btn-view-list" class="segment-btn" title="Xem dạng danh sách" aria-pressed="false">
-                        <i class="bx bx-list-ul" aria-hidden="true"></i><span>Danh sách</span>
                     </button>
                     <button type="button" id="btn-view-timeline" class="segment-btn" title="Xem dạng timeline" aria-pressed="false">
                         <i class="bx bx-git-commit" aria-hidden="true"></i><span>Timeline</span>
@@ -144,7 +141,6 @@ schedule_css: /css/schedule.css
                 <tbody id="calendar-body"></tbody>
             </table>
         </div>
-        <div id="list-wrapper" style="display: none;"><div id="list-container" class="events-list-grid"></div></div>
         <div id="timeline-wrapper" style="display: none;"><div id="timeline-container" class="schedule-timeline-wrap"></div></div>
         <p class="schedule-updated schedule-results-updated">
             <i class="bx bx-refresh" aria-hidden="true"></i>

@@ -96,22 +96,22 @@ function cacheDOMElements() {
     DOM.viewSwitcherContainer = document.getElementById('view-switcher-container');
     DOM.scheduleFilters = document.getElementById('schedule-filters');
     DOM.calendarWrapper = document.getElementById('calendar-wrapper');
-    DOM.listWrapper = document.getElementById('list-wrapper');
     DOM.timelineWrapper = document.getElementById('timeline-wrapper');
     DOM.timelineContainer = document.getElementById('timeline-container');
     DOM.calendarBody = document.getElementById('calendar-body');
-    DOM.listContainer = document.getElementById('list-container');
     DOM.monthTitle = document.getElementById('month-title');
     DOM.monthYear = document.getElementById('month-year');
     DOM.btnPrevMonth = document.getElementById('btn-prev-month');
     DOM.btnNextMonth = document.getElementById('btn-next-month');
-    DOM.btnMonthPicker = document.getElementById('btn-month-picker');
+    DOM.btnMonthSelect = document.getElementById('btn-month-select');
+    DOM.btnYearSelect = document.getElementById('btn-year-select');
+    DOM.monthLabel = document.getElementById('month-select-label');
+    DOM.yearLabel = document.getElementById('year-select-label');
     DOM.monthLive = document.getElementById('month-live');
     DOM.resultsSummary = document.getElementById('schedule-results-summary');
     DOM.resetFilters = document.getElementById('schedule-reset-filters');
     DOM.categoryButton = document.getElementById('schedule-category-button');
     DOM.btnViewCalendar = document.getElementById('btn-view-calendar');
-    DOM.btnViewList = document.getElementById('btn-view-list');
     DOM.btnViewTimeline = document.getElementById('btn-view-timeline');
     DOM.scheduleSearch = document.getElementById('schedule-search');
     DOM.schedulePrizeFilter = document.getElementById('schedule-prize-filter');
@@ -365,8 +365,7 @@ function getExplicitEventStatus(tournament) {
 function getEventStatus(tournament) {
     const explicitStatus = getExplicitEventStatus(tournament);
 
-    // Trust explicit terminal and tentative states; live/upcoming states still
-    // respect their time boundaries so stale API labels cannot keep an ended event active.
+    // Explicit terminal/tentative states are authoritative.
     if ([STATUS.ENDED, STATUS.TENTATIVE].includes(explicitStatus)) return explicitStatus;
 
     const tentative = tournament?.isTentative;
@@ -376,11 +375,16 @@ function getEventStatus(tournament) {
 
     const now = Date.now();
     const start = getEventStartTime(tournament);
-    const end = getEventEndTime(tournament);
 
-    if (start > now) return explicitStatus || STATUS.UPCOMING;
-    if (end > now) return STATUS.ONGOING;
-    return STATUS.ENDED;
+    // A future start date wins over a stale "ongoing" API label.
+    if (start > now) return STATUS.UPCOMING;
+
+    const explicitEnd = getExplicitEventEnd(tournament);
+    // The default two-hour duration is only a display fallback; it must not
+    // terminate an event explicitly marked as ongoing.
+    if (explicitStatus === STATUS.ONGOING && explicitEnd === null) return STATUS.ONGOING;
+
+    return getEventEndTime(tournament) > now ? STATUS.ONGOING : STATUS.ENDED;
 }
 
 function isTentativeEvent(tournament) {
@@ -415,7 +419,7 @@ function getMappedOrganizer(rawOrganizer, organizerLinks = []) {
             } catch {
                 return label;
             }
-        }).join('');
+        }).join(' · ');
     }
 
     return ORGANIZER_MAP[rawOrganizer] || parseMarkdownLinks(rawOrganizer) || 'Quản trị viên';
@@ -445,23 +449,11 @@ function updateFilterControls(filters = getFilterState()) {
 function updateResultsSummary() {
     if (!DOM.resultsSummary || STATE.displayYear === undefined) return;
 
-    if (STATE.currentView === 'list') {
-        const events = getListViewEvents(STATE.displayYear, STATE.displayMonth, getFilterState());
-        const earlierOngoingCount = events.filter(tournament => {
-            const parts = getVietnamDateParts(tournament.startTime);
-            return (parts.year !== STATE.displayYear || parts.month !== STATE.displayMonth) &&
-                getEventStatus(tournament) === STATUS.ONGOING;
-        }).length;
-        const monthLabel = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
-        const extraLabel = earlierOngoingCount
-            ? `, bao gồm ${earlierOngoingCount} giải đang diễn ra ngoài tháng đang xem`
-            : '';
-        DOM.resultsSummary.textContent = `Đang hiển thị ${events.length} sự kiện${extraLabel} (tháng ${monthLabel}).`;
-        return;
-    }
-
     const count = getCurrentMonthEvents().length;
-    DOM.resultsSummary.textContent = `Đang hiển thị ${count} sự kiện trong ${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}.`;
+    const monthLabel = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
+    const carryOver = STATE.currentView === 'timeline' ? getTimelineCarryOverEvents().length : 0;
+    const extra = carryOver ? `, cùng ${carryOver} giải đang diễn ra từ trước` : '';
+    DOM.resultsSummary.textContent = `Đang hiển thị ${count} sự kiện trong ${monthLabel}${extra}.`;
 }
 
 function resetFilters() {
@@ -722,155 +714,31 @@ function getSortedEvents() {
         .map(item => item.t);
 }
 
-function renderListView() {
-    if (!DOM.listContainer) return;
-    DOM.listContainer.innerHTML = '';
-
-    const events = getListViewEvents(STATE.displayYear, STATE.displayMonth, getFilterState());
-
-    if (events.length === 0) {
-        DOM.listContainer.innerHTML = `
-            <div class="empty-list-message">
-                <i class="bx bx-calendar-x"></i>
-                <p>Không có sự kiện nào khớp với bộ lọc hiện tại</p>
-            </div>`;
-        return;
-    }
-
-    events.forEach(tournament => renderEventCard(tournament, DOM.listContainer));
-}
-
-function getListViewEvents(year, month, filters) {
-    const events = STATE.tournaments
-        .filter(tournament => {
-            const parts = getVietnamDateParts(tournament.startTime);
-            const belongsToMonth = parts.year === year && parts.month === month;
-            const isOngoing = getEventStatus(tournament) === STATUS.ONGOING;
-            return belongsToMonth || isOngoing;
-        })
-        .filter(tournament => matchesFilters(tournament, filters));
-
-    const statusPriority = {
-        [STATUS.ONGOING]: 0,
-        [STATUS.UPCOMING]: 1,
-        [STATUS.TENTATIVE]: 2,
-        [STATUS.ENDED]: 3
-    };
-
-    return events.sort((a, b) => {
-        const statusA = getEventStatus(a);
-        const statusB = getEventStatus(b);
-        const statusDifference = (statusPriority[statusA] ?? 99) -
-            (statusPriority[statusB] ?? 99);
-        if (statusDifference !== 0) return statusDifference;
-
-        const startA = getEventStartTime(a);
-        const startB = getEventStartTime(b);
-
-        if (statusA === STATUS.ENDED) {
-            // Keep the most recently finished events easiest to find.
-            const recencyDifference = startB - startA;
-            if (recencyDifference !== 0) return recencyDifference;
-        } else if (statusA === STATUS.ONGOING) {
-            // Surface ongoing events that are closest to finishing first.
-            const endingDifference = getEventEndTime(a) - getEventEndTime(b);
-            if (endingDifference !== 0) return endingDifference;
-        } else {
-            // Confirmed upcoming and tentative events follow chronological order.
-            const startDifference = startA - startB;
-            if (startDifference !== 0) return startDifference;
-        }
-
-        // Prize category only breaks ties after status and timing are comparable.
-        return Number(isPrizeEvent(b)) - Number(isPrizeEvent(a));
-    });
-}
-
 function getEventStartTime(tournament) {
     return parseEventDate(tournament?.startTime)?.getTime() || 0;
 }
 
-function getEventEndTime(tournament) {
+function getExplicitEventEnd(tournament) {
     const start = getEventStartTime(tournament);
     const rawEnd = tournament?.endTime || tournament?.finishTime || tournament?.endDate;
     const parsedEnd = parseEventDate(rawEnd);
+    if (!parsedEnd) return null;
 
-    if (parsedEnd) {
-        let end = parsedEnd.getTime();
-        // A date-only end value includes that entire Vietnam-local day.
-        if (!hasEventTime(rawEnd)) end += 24 * 60 * 60 * 1000;
-        if (end >= start) return end;
-    }
+    let end = parsedEnd.getTime();
+    // A date-only end value includes that entire Vietnam-local day.
+    if (!hasEventTime(rawEnd)) end += 24 * 60 * 60 * 1000;
+    return end >= start ? end : null;
+}
+
+function getEventEndTime(tournament) {
+    const explicitEnd = getExplicitEventEnd(tournament);
+    if (explicitEnd !== null) return explicitEnd;
 
     // Without an explicit end, timed events default to two hours; date-only events are all-day.
     const duration = tournament?.hasStartTime === false
         ? 24 * 60 * 60 * 1000
         : CONFIG.EVENT_DURATION_MS;
-    return start + duration;
-}
-
-function renderEventCard(tournament, container) {
-    const card = document.createElement('div');
-    card.className = 'event-list-card';
-    const isCoThuong = isPrizeEvent(tournament);
-    const isTentative = isTentativeEvent(tournament);
-    const isEnded = isEndedEvent(tournament);
-    if (isEnded) card.classList.add('is-ended');
-    const categoryHTML = getEventBadgesHTML(tournament);
-    const tParts = getVietnamDateParts(tournament.startTime);
-    const dayVn = getDayOfWeekVn(tournament.startTime);
-    const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
-    const dateLabel = `${dayPrefix}${dayVn}, ${padZero(tParts.date)} thg ${padZero(tParts.month + 1)}, ${tParts.year}`;
-    let formattedTime = tournament.hasStartTime
-        ? `${dateLabel} lúc ${padZero(tParts.hours)}h${padZero(tParts.minutes)}`
-        : dateLabel;
-    if (isTentative) formattedTime = `Dự kiến: ${formattedTime}`;
-    const mappedOrganizer = getMappedOrganizer(tournament.organizer || '', tournament.organizerLinks);
-    card.innerHTML = `
-        <div class="event-card-header">
-            <div class="event-card-logo">
-                <img src="${escapeHTML(safeUrl(tournament.logo, '/images/tvltlogo.png'))}" alt="" data-fallback-src="/images/tvltlogo.png">
-            </div>
-            <div class="event-card-title-group">
-                <div class="event-card-badges">${categoryHTML}</div>
-                <h3 class="event-card-title">${escapeHTML(tournament.eventName || 'Tournament')}</h3>
-            </div>
-        </div>
-        <div class="event-card-details">
-            <div class="event-card-detail-item">
-                <i class="bx bx-calendar"></i>
-                <span><strong>Thời gian:</strong> ${formattedTime}</span>
-            </div>
-            <div class="event-card-detail-item">
-                <i class="bx bx-grid-alt"></i>
-                <span><strong>Thể lệ:</strong> ${parseMarkdownLinks(tournament.eventRules || 'Chưa có thông tin')}</span>
-            </div>
-            <div class="event-card-detail-item">
-                <i class="bx bxs-chess"></i>
-                <span><strong>Ván đấu:</strong> ${getGameRulesWithIcon(linkifyChessTerms(parseMarkdownLinks(tournament.gameRules || 'Chưa có thông tin')))}</span>
-            </div>
-            <div class="event-card-detail-item">
-                <i class="bx bxs-user-check"></i>
-                <span><strong>Tổ chức:</strong> ${mappedOrganizer}</span>
-            </div>
-        </div>
-        <div class="event-card-footer">
-            <button class="btn btn-secondary card-detail-btn"><i class="bx bx-info-circle"></i> Chi tiết</button>
-        </div>
-    `;
-
-    card.querySelector('.card-detail-btn').onclick = (e) => {
-        e.stopPropagation();
-        openModal(tournament);
-    };
-    
-    card.querySelectorAll('.event-card-detail-item a').forEach(link => {
-        link.addEventListener('click', event => event.stopPropagation());
-    });
-
-    card.onclick = () => openModal(tournament);
-    
-    container.appendChild(card);
+    return getEventStartTime(tournament) + duration;
 }
 
 function getDefaultResultUrl(type) {
@@ -1002,7 +870,6 @@ function updateNavButtonStates() {
 function updateViewSwitcherButtons() {
     [
         ['calendar', DOM.btnViewCalendar],
-        ['list', DOM.btnViewList],
         ['timeline', DOM.btnViewTimeline]
     ].forEach(([view, button]) => {
         if (!button) return;
@@ -1018,17 +885,17 @@ function updateMonthHeading() {
     const key = `${monthStr}-${yearStr}`;
     if (DOM.monthTitle && DOM.monthTitle.dataset.monthKey !== key) {
         DOM.monthTitle.dataset.monthKey = key;
-        DOM.monthTitle.innerHTML = `<span class="month-box">${monthStr}</span><span class="year-box">${yearStr}</span>`;
-        const label = `Tháng ${STATE.displayMonth + 1} năm ${yearStr}`;
-        DOM.btnMonthPicker?.setAttribute('aria-label', `Chọn tháng và năm. Đang xem ${label}`);
-        if (DOM.monthLive) DOM.monthLive.textContent = `Đang xem ${label}`;
+        if (DOM.monthLabel) DOM.monthLabel.textContent = monthStr;
+        if (DOM.yearLabel) DOM.yearLabel.textContent = yearStr;
+        DOM.btnMonthSelect?.setAttribute('aria-label', `Chọn tháng. Đang xem tháng ${STATE.displayMonth + 1}`);
+        DOM.btnYearSelect?.setAttribute('aria-label', `Chọn năm. Đang xem năm ${yearStr}`);
+        if (DOM.monthLive) DOM.monthLive.textContent = `Đang xem tháng ${STATE.displayMonth + 1} năm ${yearStr}`;
     }
     if (DOM.monthYear) DOM.monthYear.textContent = '';
 }
 
 function renderActiveView() {
     if (DOM.calendarWrapper) DOM.calendarWrapper.style.display = 'none';
-    if (DOM.listWrapper) DOM.listWrapper.style.display = 'none';
     if (DOM.timelineWrapper) DOM.timelineWrapper.style.display = 'none';
     if (DOM.emptyEl) DOM.emptyEl.style.display = 'none';
     updateStatusFilterButtons();
@@ -1043,19 +910,15 @@ function renderActiveView() {
     updateFilterControls();
     updateResultsSummary();
 
-    if (STATE.currentView === 'list') {
-        if (DOM.listWrapper) DOM.listWrapper.style.display = 'block';
-        renderListView();
-        return;
-    }
-
     const isTimeline = STATE.currentView === 'timeline';
     const wrapper = isTimeline ? DOM.timelineWrapper : DOM.calendarWrapper;
     if (wrapper) wrapper.style.display = 'block';
     if (isTimeline) renderTimeline();
     else renderCalendar();
 
-    if (DOM.emptyEl && getCurrentMonthEvents().length === 0) {
+    const hasVisibleEvents = getCurrentMonthEvents().length > 0 ||
+        (isTimeline && getTimelineCarryOverEvents().length > 0);
+    if (DOM.emptyEl && !hasVisibleEvents) {
         const message = DOM.emptyEl.querySelector('p');
         if (message) message.textContent = 'Không có sự kiện nào khớp với các bộ lọc trong tháng này.';
         DOM.emptyEl.style.display = 'block';
@@ -1075,180 +938,241 @@ function changeMonth(offset) {
 }
 
 function switchView(view) {
-    if (!['calendar', 'list', 'timeline'].includes(view)) return;
+    if (!['calendar', 'timeline'].includes(view)) return;
     STATE.currentView = view;
     updateViewSwitcherButtons();
     renderActiveView();
 }
 
-/* ---------- Month / year picker ---------- */
-const MONTH_PICKER = { popover: null, year: 0, isOpen: false };
-const MONTH_PICKER_MIN_YEAR = 1900;
-const MONTH_PICKER_MAX_YEAR = 2100;
+/* ---------- Month / year dropdowns ---------- */
+const SELECT_MENU = { el: null, kind: '', trigger: null, isOpen: false };
+const SELECT_MIN_YEAR = 1900;
+const SELECT_MAX_YEAR = 2100;
 
-function buildMonthPicker() {
-    if (MONTH_PICKER.popover) return MONTH_PICKER.popover;
+function getSelectTrigger(kind) {
+    return kind === 'month' ? DOM.btnMonthSelect : DOM.btnYearSelect;
+}
 
-    const popover = document.createElement('div');
-    popover.id = 'month-picker-popover';
-    popover.className = 'month-picker-popover';
-    popover.setAttribute('role', 'dialog');
-    popover.setAttribute('aria-label', 'Chọn tháng và năm');
-    popover.hidden = true;
-    popover.innerHTML = `
-        <div class="month-picker-year">
-            <button type="button" class="month-picker-year-btn" data-year-step="-1" aria-label="Năm trước"><i class="bx bx-chevron-left" aria-hidden="true"></i></button>
-            <strong class="month-picker-year-label" aria-live="polite"></strong>
-            <button type="button" class="month-picker-year-btn" data-year-step="1" aria-label="Năm sau"><i class="bx bx-chevron-right" aria-hidden="true"></i></button>
-        </div>
-        <div class="month-picker-grid" role="group" aria-label="Chọn tháng"></div>`;
-    document.body.appendChild(popover);
+function buildSelectMenu() {
+    if (SELECT_MENU.el) return SELECT_MENU.el;
 
-    popover.addEventListener('click', event => {
-        const stepButton = event.target.closest('[data-year-step]');
-        if (stepButton) {
-            setMonthPickerYear(MONTH_PICKER.year + Number(stepButton.dataset.yearStep));
+    const menu = document.createElement('div');
+    menu.id = 'schedule-select-menu';
+    menu.className = 'schedule-select-menu';
+    menu.setAttribute('role', 'listbox');
+    menu.hidden = true;
+    document.body.appendChild(menu);
+
+    menu.addEventListener('click', event => {
+        const option = event.target.closest('[data-value]');
+        if (option) selectFromMenu(SELECT_MENU.kind, Number(option.dataset.value));
+    });
+    menu.addEventListener('keydown', event => {
+        const options = Array.from(menu.querySelectorAll('[role="option"]'));
+        const index = options.indexOf(document.activeElement);
+        let next = null;
+        if (event.key === 'ArrowDown') next = index + 1;
+        else if (event.key === 'ArrowUp') next = index - 1;
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = options.length - 1;
+        else if (event.key === 'Tab') {
+            moveFocusFromSelectMenu(event);
             return;
         }
-        const monthButton = event.target.closest('[data-month]');
-        if (monthButton) selectMonthFromPicker(MONTH_PICKER.year, Number(monthButton.dataset.month));
-    });
-
-    popover.addEventListener('keydown', event => {
-        const grid = popover.querySelector('.month-picker-grid');
-        const buttons = Array.from(grid.querySelectorAll('[data-month]'));
-        const index = buttons.indexOf(document.activeElement);
-        if (index === -1) return;
-        const moves = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -4, ArrowDown: 4 };
-        let next = null;
-        if (event.key in moves) next = index + moves[event.key];
-        else if (event.key === 'Home') next = 0;
-        else if (event.key === 'End') next = buttons.length - 1;
-        if (next === null) return;
+        if (next === null || !options.length) return;
         event.preventDefault();
-        buttons[Math.min(Math.max(next, 0), buttons.length - 1)].focus();
+        const nextIndex = Math.min(Math.max(next, 0), options.length - 1);
+        options.forEach((option, optionIndex) => {
+            option.tabIndex = optionIndex === nextIndex ? 0 : -1;
+        });
+        options[nextIndex]?.focus();
     });
 
-    MONTH_PICKER.popover = popover;
-    return popover;
+    SELECT_MENU.el = menu;
+    return menu;
 }
 
-function renderMonthPickerGrid() {
-    const popover = MONTH_PICKER.popover;
-    if (!popover) return;
-
-    const year = MONTH_PICKER.year;
+function getSelectOptions(kind) {
     const today = getVietnamNow();
-    const monthsWithEvents = new Set();
+    if (kind === 'month') {
+        const monthsWithEvents = new Set();
+        STATE.tournaments.forEach(tournament => {
+            const parts = getVietnamDateParts(tournament.startTime);
+            if (parts.year === STATE.displayYear) monthsWithEvents.add(parts.month);
+        });
+        return CONFIG.MONTH_NAMES.map((name, month) => ({
+            value: month,
+            label: name,
+            selected: month === STATE.displayMonth,
+            current: STATE.displayYear === today.getUTCFullYear() && month === today.getUTCMonth(),
+            hasEvents: monthsWithEvents.has(month),
+            aria: `${name}`
+        }));
+    }
+
+    const yearsWithEvents = new Set();
+    let min = Math.min(today.getUTCFullYear() - 1, STATE.displayYear);
+    let max = Math.max(today.getUTCFullYear() + 2, STATE.displayYear);
     STATE.tournaments.forEach(tournament => {
-        const parts = getVietnamDateParts(tournament.startTime);
-        if (parts.year === year) monthsWithEvents.add(parts.month);
+        const year = getVietnamDateParts(tournament.startTime).year;
+        if (year <= 1970) return;
+        yearsWithEvents.add(year);
+        min = Math.min(min, year);
+        max = Math.max(max, year);
     });
-
-    popover.querySelector('.month-picker-year-label').textContent = String(year);
-    popover.querySelector('[data-year-step="-1"]').disabled = year <= MONTH_PICKER_MIN_YEAR;
-    popover.querySelector('[data-year-step="1"]').disabled = year >= MONTH_PICKER_MAX_YEAR;
-
-    const fragment = document.createDocumentFragment();
-    CONFIG.MONTH_NAMES.forEach((name, month) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'month-picker-month';
-        button.dataset.month = String(month);
-        const isSelected = year === STATE.displayYear && month === STATE.displayMonth;
-        const isCurrent = year === today.getUTCFullYear() && month === today.getUTCMonth();
-        const hasEvents = monthsWithEvents.has(month);
-        button.classList.toggle('is-selected', isSelected);
-        button.classList.toggle('is-current', isCurrent);
-        button.classList.toggle('has-events', hasEvents);
-        button.setAttribute('aria-pressed', String(isSelected));
-        button.setAttribute('aria-label', `${name} năm ${year}${isCurrent ? ', tháng hiện tại' : ''}${hasEvents ? ', có sự kiện' : ''}`);
-        button.textContent = `T${month + 1}`;
-        fragment.appendChild(button);
+    min = Math.max(min, SELECT_MIN_YEAR);
+    max = Math.min(max, SELECT_MAX_YEAR);
+    return Array.from({ length: max - min + 1 }, (_, index) => {
+        const year = min + index;
+        return {
+            value: year,
+            label: String(year),
+            selected: year === STATE.displayYear,
+            current: year === today.getUTCFullYear(),
+            hasEvents: yearsWithEvents.has(year),
+            aria: `Năm ${year}`
+        };
     });
-    popover.querySelector('.month-picker-grid').replaceChildren(fragment);
 }
 
-function setMonthPickerYear(year) {
-    MONTH_PICKER.year = Math.min(Math.max(year, MONTH_PICKER_MIN_YEAR), MONTH_PICKER_MAX_YEAR);
-    renderMonthPickerGrid();
-}
-
-function positionMonthPicker() {
-    const popover = MONTH_PICKER.popover;
-    const trigger = DOM.btnMonthPicker;
-    if (!popover || !trigger || popover.hidden) return;
+function positionSelectMenu() {
+    const menu = SELECT_MENU.el;
+    const trigger = SELECT_MENU.trigger;
+    if (!menu || !trigger || menu.hidden) return;
 
     const margin = 8;
     const rect = trigger.getBoundingClientRect();
-    const width = popover.offsetWidth;
-    const height = popover.offsetHeight;
+    menu.style.minWidth = `${Math.max(rect.width, 132)}px`;
+    const width = menu.offsetWidth;
+    const height = menu.offsetHeight;
     const viewportWidth = document.documentElement.clientWidth;
-    const left = Math.min(
-        Math.max(rect.left + rect.width / 2 - width / 2, margin),
-        Math.max(margin, viewportWidth - width - margin)
-    );
+    const left = Math.min(Math.max(rect.left, margin), Math.max(margin, viewportWidth - width - margin));
     const roomBelow = window.innerHeight - rect.bottom - margin;
-    const top = roomBelow >= height || rect.top < height + margin
-        ? rect.bottom + margin
-        : rect.top - height - margin;
+    const preferredTop = roomBelow >= height || rect.top < height + margin
+        ? rect.bottom + 6
+        : rect.top - height - 6;
+    const maxTop = Math.max(margin, window.innerHeight - height - margin);
+    const top = Math.min(Math.max(margin, preferredTop), maxTop);
 
-    popover.style.left = `${left}px`;
-    popover.style.top = `${Math.max(margin, top)}px`;
+    menu.style.left = `${left}px`;
+    menu.style.top = `${top}px`;
 }
 
-function openMonthPicker() {
-    if (!DOM.btnMonthPicker || STATE.displayYear === undefined) return;
-    const popover = buildMonthPicker();
-    MONTH_PICKER.year = STATE.displayYear;
-    renderMonthPickerGrid();
-    popover.hidden = false;
-    MONTH_PICKER.isOpen = true;
-    DOM.btnMonthPicker.setAttribute('aria-expanded', 'true');
-    positionMonthPicker();
-    popover.querySelector('.month-picker-month.is-selected, .month-picker-month')?.focus();
+function openSelectMenu(kind) {
+    const trigger = getSelectTrigger(kind);
+    if (!trigger || STATE.displayYear === undefined) return;
+
+    closeSelectMenu();
+    const menu = buildSelectMenu();
+    menu.dataset.kind = kind;
+    menu.setAttribute('aria-label', kind === 'month' ? 'Chọn tháng' : 'Chọn năm');
+
+    const fragment = document.createDocumentFragment();
+    getSelectOptions(kind).forEach(option => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'schedule-select-option';
+        button.dataset.value = String(option.value);
+        button.setAttribute('role', 'option');
+        button.setAttribute('aria-selected', String(option.selected));
+        button.tabIndex = option.selected ? 0 : -1;
+        button.classList.toggle('is-current', option.current);
+        button.setAttribute('aria-label', `${option.aria}${option.current ? ', hiện tại' : ''}${option.hasEvents ? ', có sự kiện' : ''}`);
+
+        const text = document.createElement('span');
+        text.textContent = option.label;
+        button.appendChild(text);
+        if (option.hasEvents) {
+            const dot = document.createElement('span');
+            dot.className = 'schedule-select-dot';
+            dot.setAttribute('aria-hidden', 'true');
+            button.appendChild(dot);
+        }
+        fragment.appendChild(button);
+    });
+    menu.replaceChildren(fragment);
+
+    SELECT_MENU.kind = kind;
+    SELECT_MENU.trigger = trigger;
+    SELECT_MENU.isOpen = true;
+    trigger.setAttribute('aria-expanded', 'true');
+    menu.hidden = false;
+    positionSelectMenu();
+
+    const selected = menu.querySelector('[aria-selected="true"]') || menu.querySelector('[role="option"]');
+    selected?.focus({ preventScroll: true });
+    selected?.scrollIntoView?.({ block: 'nearest' });
 }
 
-function closeMonthPicker({ restoreFocus = false } = {}) {
-    if (!MONTH_PICKER.isOpen) return;
-    MONTH_PICKER.isOpen = false;
-    if (MONTH_PICKER.popover) MONTH_PICKER.popover.hidden = true;
-    DOM.btnMonthPicker?.setAttribute('aria-expanded', 'false');
-    if (restoreFocus) DOM.btnMonthPicker?.focus();
+function closeSelectMenu({ restoreFocus = false } = {}) {
+    if (!SELECT_MENU.isOpen) return;
+    const trigger = SELECT_MENU.trigger;
+    SELECT_MENU.isOpen = false;
+    if (SELECT_MENU.el) SELECT_MENU.el.hidden = true;
+    trigger?.setAttribute('aria-expanded', 'false');
+    SELECT_MENU.trigger = null;
+    if (restoreFocus) trigger?.focus();
 }
 
-function selectMonthFromPicker(year, month) {
-    if (year < MONTH_PICKER_MIN_YEAR || year > MONTH_PICKER_MAX_YEAR || month < 0 || month > 11) return;
-    STATE.displayYear = year;
-    STATE.displayMonth = month;
-    closeMonthPicker({ restoreFocus: true });
+function moveFocusFromSelectMenu(event) {
+    const trigger = SELECT_MENU.trigger;
+    event.preventDefault();
+    closeSelectMenu();
+    if (!trigger) return;
+
+    const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const focusable = Array.from(document.querySelectorAll(focusableSelector)).filter(element =>
+        !element.closest('#schedule-select-menu, [hidden], [aria-hidden="true"]') &&
+        element.getClientRects().length > 0
+    );
+    const index = focusable.indexOf(trigger);
+    if (index < 0) {
+        trigger.focus();
+        return;
+    }
+
+    const direction = event.shiftKey ? -1 : 1;
+    const next = focusable[index + direction] ||
+        (direction > 0 ? focusable[0] : focusable[focusable.length - 1]);
+    next?.focus();
+}
+
+function selectFromMenu(kind, value) {
+    if (!Number.isInteger(value)) return;
+    if (kind === 'month' && value >= 0 && value <= 11) STATE.displayMonth = value;
+    else if (kind === 'year' && value >= SELECT_MIN_YEAR && value <= SELECT_MAX_YEAR) STATE.displayYear = value;
+    else return;
+    closeSelectMenu({ restoreFocus: true });
     renderActiveView();
 }
 
-function initializeMonthPicker() {
-    if (!DOM.btnMonthPicker) return;
-    buildMonthPicker();
-
-    DOM.btnMonthPicker.addEventListener('click', () => {
-        if (MONTH_PICKER.isOpen) closeMonthPicker();
-        else openMonthPicker();
+function initializeSelectMenus() {
+    const menu = buildSelectMenu();
+    [['month', DOM.btnMonthSelect], ['year', DOM.btnYearSelect]].forEach(([kind, trigger]) => {
+        if (!trigger) return;
+        trigger.setAttribute('aria-controls', menu.id);
+        trigger.addEventListener('click', () => {
+            if (SELECT_MENU.isOpen && SELECT_MENU.trigger === trigger) closeSelectMenu();
+            else openSelectMenu(kind);
+        });
+        trigger.addEventListener('keydown', event => {
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                openSelectMenu(kind);
+            }
+        });
     });
+
+    const isInsideSelect = target =>
+        SELECT_MENU.el?.contains(target) || DOM.btnMonthSelect?.contains(target) || DOM.btnYearSelect?.contains(target);
     document.addEventListener('click', event => {
-        if (!MONTH_PICKER.isOpen) return;
-        if (MONTH_PICKER.popover?.contains(event.target) || DOM.btnMonthPicker.contains(event.target)) return;
-        closeMonthPicker();
+        if (SELECT_MENU.isOpen && !isInsideSelect(event.target)) closeSelectMenu();
     });
     document.addEventListener('focusin', event => {
-        if (!MONTH_PICKER.isOpen) return;
-        if (MONTH_PICKER.popover?.contains(event.target) || DOM.btnMonthPicker.contains(event.target)) return;
-        closeMonthPicker();
+        if (SELECT_MENU.isOpen && !isInsideSelect(event.target)) closeSelectMenu();
     });
-    window.addEventListener('resize', () => {
-        if (MONTH_PICKER.isOpen) positionMonthPicker();
-    }, { passive: true });
-    window.addEventListener('scroll', () => {
-        if (MONTH_PICKER.isOpen) positionMonthPicker();
-    }, { passive: true });
+    window.addEventListener('resize', () => { if (SELECT_MENU.isOpen) positionSelectMenu(); }, { passive: true });
+    window.addEventListener('scroll', () => { if (SELECT_MENU.isOpen) positionSelectMenu(); }, { passive: true });
 }
 
 /* ---------- Timeline view ---------- */
@@ -1259,69 +1183,189 @@ const TIMELINE_STATUS_CLASS = Object.freeze({
     [STATUS.ENDED]: 'is-ended'
 });
 
-function plainText(value) {
-    return String(value ?? '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\s+/g, ' ').trim();
+function formatEventDateLabel(tournament) {
+    const parts = getVietnamDateParts(tournament.startTime);
+    const dayVn = getDayOfWeekVn(tournament.startTime);
+    const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
+    const dateLabel = `${dayPrefix}${dayVn}, ${padZero(parts.date)} thg ${padZero(parts.month + 1)}, ${parts.year}`;
+    return tournament.hasStartTime ? `${dateLabel} lúc ${padZero(parts.hours)}h${padZero(parts.minutes)}` : dateLabel;
 }
 
-function createTimelineEvent(tournament) {
+// Short "đến ..." text, only when the data really contains an end time/date.
+function formatEventEndLabel(tournament) {
+    if (getExplicitEventEnd(tournament) === null) return '';
+
+    const rawEnd = tournament.endTime || tournament.finishTime || tournament.endDate;
+    const startParts = getVietnamDateParts(tournament.startTime);
+    const endParts = getVietnamDateParts(rawEnd);
+    const timed = hasEventTime(rawEnd);
+    const timeText = `${padZero(endParts.hours)}h${padZero(endParts.minutes)}`;
+    const sameDay = startParts.year === endParts.year &&
+        startParts.month === endParts.month &&
+        startParts.date === endParts.date;
+
+    if (sameDay) {
+        if (timed) return `đến ${timeText}`;
+        return tournament.hasStartTime ? 'đến hết ngày' : '';
+    }
+
+    const yearSuffix = endParts.year !== startParts.year ? `/${endParts.year}` : '';
+    const dateText = `${padZero(endParts.date)}/${padZero(endParts.month + 1)}${yearSuffix}`;
+    return `đến ${timed ? `${timeText} ` : ''}${dateText}`;
+}
+
+function getTimelineCarryOverEvents(filters = getFilterState()) {
+    const today = getVietnamNow();
+    if (STATE.displayYear !== today.getUTCFullYear() || STATE.displayMonth !== today.getUTCMonth()) return [];
+    return getSortedEvents().filter(tournament => {
+        const parts = getVietnamDateParts(tournament.startTime);
+        const startsEarlier = parts.year < STATE.displayYear ||
+            (parts.year === STATE.displayYear && parts.month < STATE.displayMonth);
+        return startsEarlier && getEventStatus(tournament) === STATUS.ONGOING && matchesFilters(tournament, filters);
+    });
+}
+
+function createTimelineEvent(tournament, { carryOver = false } = {}) {
     const parts = getVietnamDateParts(tournament.startTime);
     const status = getEventStatus(tournament);
+    const isEnded = status === STATUS.ENDED;
+    const joinUrl = safeUrl(tournament.joinLink);
+
     const item = document.createElement('li');
     item.className = `timeline-event ${TIMELINE_STATUS_CLASS[status] || ''}`.trim();
 
     const time = document.createElement('span');
     time.className = 'timeline-event-time';
-    time.textContent = tournament.hasStartTime ? `${padZero(parts.hours)}h${padZero(parts.minutes)}` : 'Cả ngày';
+    const timeMain = document.createElement('strong');
+    timeMain.textContent = tournament.hasStartTime ? `${padZero(parts.hours)}h${padZero(parts.minutes)}` : 'Cả ngày';
+    time.appendChild(timeMain);
+    const endLabel = formatEventEndLabel(tournament);
+    const timeNote = carryOver ? `Từ ${padZero(parts.date)}/${padZero(parts.month + 1)}` : (endLabel.startsWith('đến') ? endLabel : '');
+    if (timeNote) {
+        const small = document.createElement('small');
+        small.textContent = timeNote;
+        time.appendChild(small);
+    }
 
     const node = document.createElement('span');
     node.className = 'timeline-node';
     node.setAttribute('aria-hidden', 'true');
 
-    const card = document.createElement('button');
-    card.type = 'button';
-    card.className = 'timeline-event-card';
+    const card = document.createElement('article');
+    card.className = 'timeline-card';
 
+    const head = document.createElement('header');
+    head.className = 'timeline-card-head';
     const logo = document.createElement('img');
-    logo.className = 'timeline-event-logo';
+    logo.className = 'timeline-card-logo';
     logo.alt = '';
-    logo.width = 40;
-    logo.height = 40;
+    logo.width = 48;
+    logo.height = 48;
     logo.loading = 'lazy';
     logo.decoding = 'async';
     setSafeImageSource(logo, tournament.logo, '/images/tvltlogo.png');
-
-    const body = document.createElement('span');
-    body.className = 'timeline-event-body';
-    const badges = document.createElement('span');
-    badges.className = 'timeline-event-badges';
+    const titleGroup = document.createElement('div');
+    titleGroup.className = 'timeline-card-title-group';
+    const badges = document.createElement('div');
+    badges.className = 'timeline-card-badges';
     badges.innerHTML = getEventBadgesHTML(tournament);
-
-    const title = document.createElement('strong');
-    title.className = 'timeline-event-title';
+    const title = document.createElement('h3');
+    title.className = 'timeline-card-title';
     title.textContent = tournament.eventName || 'Tournament';
-    body.append(badges, title);
+    titleGroup.append(badges, title);
+    head.append(logo, titleGroup);
 
-    const rules = plainText(tournament.gameRules);
-    if (rules) {
-        const meta = document.createElement('span');
-        meta.className = 'timeline-event-meta';
-        meta.textContent = rules.length > 90 ? `${rules.slice(0, 87)}…` : rules;
-        body.appendChild(meta);
+    const timeText = `${formatEventDateLabel(tournament)}${endLabel ? ` ${endLabel}` : ''}`;
+    const whenText = isTentativeEvent(tournament) ? `Dự kiến: ${timeText}` : timeText;
+    const details = document.createElement('div');
+    details.className = 'timeline-card-details';
+    details.innerHTML = `
+        <div class="event-card-detail-item"><i class="bx bx-calendar" aria-hidden="true"></i><span><strong>Thời gian:</strong> ${escapeHTML(whenText)}</span></div>
+        <div class="event-card-detail-item"><i class="bx bx-grid-alt" aria-hidden="true"></i><span><strong>Thể lệ:</strong> ${parseMarkdownLinks(tournament.eventRules || 'Chưa có thông tin')}</span></div>
+        <div class="event-card-detail-item"><i class="bx bxs-chess" aria-hidden="true"></i><span><strong>Ván đấu:</strong> ${getGameRulesWithIcon(linkifyChessTerms(parseMarkdownLinks(tournament.gameRules || 'Chưa có thông tin')))}</span></div>
+        <div class="event-card-detail-item"><i class="bx bxs-user-check" aria-hidden="true"></i><span><strong>Tổ chức:</strong> ${getMappedOrganizer(tournament.organizer || '', tournament.organizerLinks)}</span></div>`;
+
+    const footer = document.createElement('footer');
+    footer.className = 'timeline-card-footer';
+    const detailBtn = document.createElement('button');
+    detailBtn.type = 'button';
+    detailBtn.className = 'btn btn-secondary timeline-card-btn';
+    detailBtn.innerHTML = '<i class="bx bx-info-circle" aria-hidden="true"></i> Chi tiết';
+    detailBtn.addEventListener('click', () => openModal(tournament));
+    footer.appendChild(detailBtn);
+    if (joinUrl && !isEnded) {
+        const joinLink = document.createElement('a');
+        joinLink.className = 'btn btn-primary timeline-card-btn';
+        joinLink.href = joinUrl;
+        joinLink.target = '_blank';
+        joinLink.rel = 'noopener noreferrer';
+        joinLink.innerHTML = '<i class="bx bx-link-external" aria-hidden="true"></i> Tham gia';
+        footer.appendChild(joinLink);
     }
 
-    const chevron = document.createElement('i');
-    chevron.className = 'bx bx-chevron-right timeline-event-chevron';
-    chevron.setAttribute('aria-hidden', 'true');
-    card.append(logo, body, chevron);
-    card.addEventListener('click', () => openModal(tournament));
+    card.append(head, details, footer);
+    card.addEventListener('click', event => {
+        if (event.target.closest('a, button')) return;
+        openModal(tournament);
+    });
     item.append(time, node, card);
     return item;
 }
 
+function createTimelineDay({ key, parts, today, todayKey, events, carryOver = false }) {
+    const dayItem = document.createElement('li');
+    dayItem.className = 'timeline-day';
+    const head = document.createElement('div');
+    head.className = 'timeline-day-head';
+    const number = document.createElement('span');
+    number.className = 'timeline-day-num';
+    const meta = document.createElement('span');
+    meta.className = 'timeline-day-meta';
+    const heading = document.createElement('strong');
+    const sub = document.createElement('small');
+
+    if (carryOver) {
+        dayItem.classList.add('timeline-day--ongoing');
+        number.innerHTML = '<i class="bx bx-play-circle" aria-hidden="true"></i>';
+        heading.textContent = 'Đang diễn ra';
+        sub.textContent = 'Bắt đầu từ trước tháng này';
+    } else {
+        const isToday = key === todayKey;
+        const isPast = Date.UTC(parts.year, parts.month, parts.date) <
+            Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+        dayItem.classList.toggle('is-today', isToday);
+        dayItem.classList.toggle('is-past', isPast);
+        const dayName = getDayOfWeekVn(`${parts.year}-${padZero(parts.month + 1)}-${padZero(parts.date)}`);
+        number.textContent = padZero(parts.date);
+        heading.textContent = dayName === 'Chủ Nhật' ? dayName : `Thứ ${dayName}`;
+        sub.textContent = `thg ${padZero(parts.month + 1)}, ${parts.year}`;
+        if (isToday) {
+            const chip = document.createElement('span');
+            chip.className = 'timeline-today-chip';
+            chip.textContent = 'Hôm nay';
+            meta.append(heading, sub);
+            head.append(number, meta, chip);
+        }
+    }
+    if (!head.childElementCount) {
+        meta.append(heading, sub);
+        head.append(number, meta);
+    }
+
+    const eventList = document.createElement('ul');
+    eventList.className = 'timeline-events';
+    events.forEach(tournament => eventList.appendChild(createTimelineEvent(tournament, { carryOver })));
+    dayItem.append(head, eventList);
+    return dayItem;
+}
+
 function renderTimeline() {
     if (!DOM.timelineContainer) return;
-    const events = getCurrentMonthEvents();
-    if (!events.length) {
+
+    const filters = getFilterState();
+    const events = getCurrentMonthEvents(filters);
+    const carryOverEvents = getTimelineCarryOverEvents(filters);
+    if (!events.length && !carryOverEvents.length) {
         DOM.timelineContainer.replaceChildren();
         return;
     }
@@ -1332,53 +1376,17 @@ function renderTimeline() {
     events.forEach(tournament => {
         const parts = getVietnamDateParts(tournament.startTime);
         const key = dateKeyOf(parts.year, parts.month, parts.date);
-        if (!groups.has(key)) groups.set(key, { parts, events: [] });
+        if (!groups.has(key)) groups.set(key, { key, parts, events: [] });
         groups.get(key).events.push(tournament);
     });
 
     const list = document.createElement('ol');
     list.className = 'schedule-timeline';
     list.setAttribute('aria-label', `Timeline sự kiện ${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`);
-
-    groups.forEach(({ parts, events: dayEvents }, key) => {
-        const dayItem = document.createElement('li');
-        dayItem.className = 'timeline-day';
-        const isToday = key === todayKey;
-        const isPast = Date.UTC(parts.year, parts.month, parts.date) <
-            Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
-        dayItem.classList.toggle('is-today', isToday);
-        dayItem.classList.toggle('is-past', isPast);
-
-        const dayName = getDayOfWeekVn(`${parts.year}-${padZero(parts.month + 1)}-${padZero(parts.date)}`);
-        const head = document.createElement('div');
-        head.className = 'timeline-day-head';
-        const number = document.createElement('span');
-        number.className = 'timeline-day-num';
-        number.textContent = padZero(parts.date);
-
-        const meta = document.createElement('span');
-        meta.className = 'timeline-day-meta';
-        const weekday = document.createElement('strong');
-        weekday.textContent = dayName === 'Chủ Nhật' ? dayName : `Thứ ${dayName}`;
-        const monthYear = document.createElement('small');
-        monthYear.textContent = `thg ${padZero(parts.month + 1)}, ${parts.year}`;
-        meta.append(weekday, monthYear);
-        head.append(number, meta);
-
-        if (isToday) {
-            const chip = document.createElement('span');
-            chip.className = 'timeline-today-chip';
-            chip.textContent = 'Hôm nay';
-            head.appendChild(chip);
-        }
-
-        const eventList = document.createElement('ul');
-        eventList.className = 'timeline-events';
-        dayEvents.forEach(tournament => eventList.appendChild(createTimelineEvent(tournament)));
-        dayItem.append(head, eventList);
-        list.appendChild(dayItem);
-    });
-
+    if (carryOverEvents.length) {
+        list.appendChild(createTimelineDay({ events: carryOverEvents, carryOver: true, today, todayKey }));
+    }
+    groups.forEach(group => list.appendChild(createTimelineDay({ ...group, today, todayKey })));
     DOM.timelineContainer.replaceChildren(list);
 }
 
@@ -1562,7 +1570,6 @@ function setScheduleState(state) {
 
     if (state === 'loading' || state === 'error' || state === 'empty') {
         setDisplay(DOM.calendarWrapper, 'none');
-        setDisplay(DOM.listWrapper, 'none');
         setDisplay(DOM.timelineWrapper, 'none');
     }
 }
@@ -1751,8 +1758,8 @@ function trapModalFocus(event) {
 function initializeEventListeners() {
     window.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
-            if (MONTH_PICKER.isOpen) {
-                closeMonthPicker({ restoreFocus: true });
+            if (SELECT_MENU.isOpen) {
+                closeSelectMenu({ restoreFocus: true });
             } else if (DOM.eventModal?.classList.contains('open')) {
                 closeModal();
             } else {
@@ -1785,9 +1792,8 @@ function initializeEventListeners() {
     if (DOM.btnPrevMonth) DOM.btnPrevMonth.addEventListener('click', () => changeMonth(-1));
     if (DOM.btnNextMonth) DOM.btnNextMonth.addEventListener('click', () => changeMonth(1));
     if (DOM.btnViewCalendar) DOM.btnViewCalendar.addEventListener('click', () => switchView('calendar'));
-    if (DOM.btnViewList) DOM.btnViewList.addEventListener('click', () => switchView('list'));
     if (DOM.btnViewTimeline) DOM.btnViewTimeline.addEventListener('click', () => switchView('timeline'));
-    initializeMonthPicker();
+    initializeSelectMenus();
     if (DOM.modalCloseBtn) DOM.modalCloseBtn.addEventListener('click', closeModal);
     if (DOM.statusFilters instanceof HTMLSelectElement) {
         DOM.statusFilters.addEventListener('change', () => setStatusFilter(DOM.statusFilters.value));
