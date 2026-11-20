@@ -97,18 +97,22 @@ function cacheDOMElements() {
     DOM.scheduleFilters = document.getElementById('schedule-filters');
     DOM.calendarWrapper = document.getElementById('calendar-wrapper');
     DOM.listWrapper = document.getElementById('list-wrapper');
+    DOM.timelineWrapper = document.getElementById('timeline-wrapper');
+    DOM.timelineContainer = document.getElementById('timeline-container');
     DOM.calendarBody = document.getElementById('calendar-body');
     DOM.listContainer = document.getElementById('list-container');
     DOM.monthTitle = document.getElementById('month-title');
     DOM.monthYear = document.getElementById('month-year');
     DOM.btnPrevMonth = document.getElementById('btn-prev-month');
     DOM.btnNextMonth = document.getElementById('btn-next-month');
-    DOM.btnToday = document.getElementById('btn-today');
+    DOM.btnMonthPicker = document.getElementById('btn-month-picker');
+    DOM.monthLive = document.getElementById('month-live');
     DOM.resultsSummary = document.getElementById('schedule-results-summary');
     DOM.resetFilters = document.getElementById('schedule-reset-filters');
     DOM.categoryButton = document.getElementById('schedule-category-button');
     DOM.btnViewCalendar = document.getElementById('btn-view-calendar');
     DOM.btnViewList = document.getElementById('btn-view-list');
+    DOM.btnViewTimeline = document.getElementById('btn-view-timeline');
     DOM.scheduleSearch = document.getElementById('schedule-search');
     DOM.schedulePrizeFilter = document.getElementById('schedule-prize-filter');
     DOM.scheduleTypeGroup = document.getElementById('schedule-type-group');
@@ -996,24 +1000,36 @@ function updateNavButtonStates() {
 }
 
 function updateViewSwitcherButtons() {
-    if (DOM.btnViewCalendar && DOM.btnViewList) {
-        if (STATE.currentView === 'calendar') {
-            DOM.btnViewCalendar.classList.add('active');
-            DOM.btnViewCalendar.setAttribute('aria-pressed', 'true');
-            DOM.btnViewList.classList.remove('active');
-            DOM.btnViewList.setAttribute('aria-pressed', 'false');
-        } else {
-            DOM.btnViewList.classList.add('active');
-            DOM.btnViewList.setAttribute('aria-pressed', 'true');
-            DOM.btnViewCalendar.classList.remove('active');
-            DOM.btnViewCalendar.setAttribute('aria-pressed', 'false');
-        }
+    [
+        ['calendar', DOM.btnViewCalendar],
+        ['list', DOM.btnViewList],
+        ['timeline', DOM.btnViewTimeline]
+    ].forEach(([view, button]) => {
+        if (!button) return;
+        const isActive = STATE.currentView === view;
+        button.classList.toggle('active', isActive);
+        button.setAttribute('aria-pressed', String(isActive));
+    });
+}
+
+function updateMonthHeading() {
+    const monthStr = padZero(STATE.displayMonth + 1);
+    const yearStr = String(STATE.displayYear);
+    const key = `${monthStr}-${yearStr}`;
+    if (DOM.monthTitle && DOM.monthTitle.dataset.monthKey !== key) {
+        DOM.monthTitle.dataset.monthKey = key;
+        DOM.monthTitle.innerHTML = `<span class="month-box">${monthStr}</span><span class="year-box">${yearStr}</span>`;
+        const label = `Tháng ${STATE.displayMonth + 1} năm ${yearStr}`;
+        DOM.btnMonthPicker?.setAttribute('aria-label', `Chọn tháng và năm. Đang xem ${label}`);
+        if (DOM.monthLive) DOM.monthLive.textContent = `Đang xem ${label}`;
     }
+    if (DOM.monthYear) DOM.monthYear.textContent = '';
 }
 
 function renderActiveView() {
     if (DOM.calendarWrapper) DOM.calendarWrapper.style.display = 'none';
     if (DOM.listWrapper) DOM.listWrapper.style.display = 'none';
+    if (DOM.timelineWrapper) DOM.timelineWrapper.style.display = 'none';
     if (DOM.emptyEl) DOM.emptyEl.style.display = 'none';
     updateStatusFilterButtons();
 
@@ -1021,31 +1037,29 @@ function renderActiveView() {
         if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
         return;
     }
-    if (DOM.monthTitle) { const monthStr = padZero(STATE.displayMonth + 1); const yearStr = String(STATE.displayYear); const key = `${monthStr}-${yearStr}`; if (DOM.monthTitle.dataset.monthKey !== key) { DOM.monthTitle.dataset.monthKey = key; DOM.monthTitle.innerHTML = `<span class="month-box">${monthStr}</span><span class="year-box">${yearStr}</span>`; } }
-    if (DOM.monthYear) DOM.monthYear.textContent = '';
+
+    updateMonthHeading();
     updateNavButtonStates();
     updateFilterControls();
     updateResultsSummary();
-    if (STATE.currentView === 'calendar') {
-        if (DOM.calendarWrapper) DOM.calendarWrapper.style.display = 'block';
-        renderCalendar();
-        const visibleEvents = getCurrentMonthEvents().length;
-        if (DOM.emptyEl && visibleEvents === 0) {
-            const message = DOM.emptyEl.querySelector('p');
-            if (message) message.textContent = 'Không có sự kiện nào khớp với các bộ lọc trong tháng này.';
-            DOM.emptyEl.style.display = 'block';
-        }
-    } else {
+
+    if (STATE.currentView === 'list') {
         if (DOM.listWrapper) DOM.listWrapper.style.display = 'block';
         renderListView();
+        return;
     }
-}
 
-function goToToday() {
-    const today = getVietnamNow();
-    STATE.displayYear = today.getUTCFullYear();
-    STATE.displayMonth = today.getUTCMonth();
-    renderActiveView();
+    const isTimeline = STATE.currentView === 'timeline';
+    const wrapper = isTimeline ? DOM.timelineWrapper : DOM.calendarWrapper;
+    if (wrapper) wrapper.style.display = 'block';
+    if (isTimeline) renderTimeline();
+    else renderCalendar();
+
+    if (DOM.emptyEl && getCurrentMonthEvents().length === 0) {
+        const message = DOM.emptyEl.querySelector('p');
+        if (message) message.textContent = 'Không có sự kiện nào khớp với các bộ lọc trong tháng này.';
+        DOM.emptyEl.style.display = 'block';
+    }
 }
 
 function changeMonth(offset) {
@@ -1061,10 +1075,311 @@ function changeMonth(offset) {
 }
 
 function switchView(view) {
-    if (!['calendar', 'list'].includes(view)) return;
+    if (!['calendar', 'list', 'timeline'].includes(view)) return;
     STATE.currentView = view;
     updateViewSwitcherButtons();
     renderActiveView();
+}
+
+/* ---------- Month / year picker ---------- */
+const MONTH_PICKER = { popover: null, year: 0, isOpen: false };
+const MONTH_PICKER_MIN_YEAR = 1900;
+const MONTH_PICKER_MAX_YEAR = 2100;
+
+function buildMonthPicker() {
+    if (MONTH_PICKER.popover) return MONTH_PICKER.popover;
+
+    const popover = document.createElement('div');
+    popover.id = 'month-picker-popover';
+    popover.className = 'month-picker-popover';
+    popover.setAttribute('role', 'dialog');
+    popover.setAttribute('aria-label', 'Chọn tháng và năm');
+    popover.hidden = true;
+    popover.innerHTML = `
+        <div class="month-picker-year">
+            <button type="button" class="month-picker-year-btn" data-year-step="-1" aria-label="Năm trước"><i class="bx bx-chevron-left" aria-hidden="true"></i></button>
+            <strong class="month-picker-year-label" aria-live="polite"></strong>
+            <button type="button" class="month-picker-year-btn" data-year-step="1" aria-label="Năm sau"><i class="bx bx-chevron-right" aria-hidden="true"></i></button>
+        </div>
+        <div class="month-picker-grid" role="group" aria-label="Chọn tháng"></div>`;
+    document.body.appendChild(popover);
+
+    popover.addEventListener('click', event => {
+        const stepButton = event.target.closest('[data-year-step]');
+        if (stepButton) {
+            setMonthPickerYear(MONTH_PICKER.year + Number(stepButton.dataset.yearStep));
+            return;
+        }
+        const monthButton = event.target.closest('[data-month]');
+        if (monthButton) selectMonthFromPicker(MONTH_PICKER.year, Number(monthButton.dataset.month));
+    });
+
+    popover.addEventListener('keydown', event => {
+        const grid = popover.querySelector('.month-picker-grid');
+        const buttons = Array.from(grid.querySelectorAll('[data-month]'));
+        const index = buttons.indexOf(document.activeElement);
+        if (index === -1) return;
+        const moves = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -4, ArrowDown: 4 };
+        let next = null;
+        if (event.key in moves) next = index + moves[event.key];
+        else if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = buttons.length - 1;
+        if (next === null) return;
+        event.preventDefault();
+        buttons[Math.min(Math.max(next, 0), buttons.length - 1)].focus();
+    });
+
+    MONTH_PICKER.popover = popover;
+    return popover;
+}
+
+function renderMonthPickerGrid() {
+    const popover = MONTH_PICKER.popover;
+    if (!popover) return;
+
+    const year = MONTH_PICKER.year;
+    const today = getVietnamNow();
+    const monthsWithEvents = new Set();
+    STATE.tournaments.forEach(tournament => {
+        const parts = getVietnamDateParts(tournament.startTime);
+        if (parts.year === year) monthsWithEvents.add(parts.month);
+    });
+
+    popover.querySelector('.month-picker-year-label').textContent = String(year);
+    popover.querySelector('[data-year-step="-1"]').disabled = year <= MONTH_PICKER_MIN_YEAR;
+    popover.querySelector('[data-year-step="1"]').disabled = year >= MONTH_PICKER_MAX_YEAR;
+
+    const fragment = document.createDocumentFragment();
+    CONFIG.MONTH_NAMES.forEach((name, month) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'month-picker-month';
+        button.dataset.month = String(month);
+        const isSelected = year === STATE.displayYear && month === STATE.displayMonth;
+        const isCurrent = year === today.getUTCFullYear() && month === today.getUTCMonth();
+        const hasEvents = monthsWithEvents.has(month);
+        button.classList.toggle('is-selected', isSelected);
+        button.classList.toggle('is-current', isCurrent);
+        button.classList.toggle('has-events', hasEvents);
+        button.setAttribute('aria-pressed', String(isSelected));
+        button.setAttribute('aria-label', `${name} năm ${year}${isCurrent ? ', tháng hiện tại' : ''}${hasEvents ? ', có sự kiện' : ''}`);
+        button.textContent = `T${month + 1}`;
+        fragment.appendChild(button);
+    });
+    popover.querySelector('.month-picker-grid').replaceChildren(fragment);
+}
+
+function setMonthPickerYear(year) {
+    MONTH_PICKER.year = Math.min(Math.max(year, MONTH_PICKER_MIN_YEAR), MONTH_PICKER_MAX_YEAR);
+    renderMonthPickerGrid();
+}
+
+function positionMonthPicker() {
+    const popover = MONTH_PICKER.popover;
+    const trigger = DOM.btnMonthPicker;
+    if (!popover || !trigger || popover.hidden) return;
+
+    const margin = 8;
+    const rect = trigger.getBoundingClientRect();
+    const width = popover.offsetWidth;
+    const height = popover.offsetHeight;
+    const viewportWidth = document.documentElement.clientWidth;
+    const left = Math.min(
+        Math.max(rect.left + rect.width / 2 - width / 2, margin),
+        Math.max(margin, viewportWidth - width - margin)
+    );
+    const roomBelow = window.innerHeight - rect.bottom - margin;
+    const top = roomBelow >= height || rect.top < height + margin
+        ? rect.bottom + margin
+        : rect.top - height - margin;
+
+    popover.style.left = `${left}px`;
+    popover.style.top = `${Math.max(margin, top)}px`;
+}
+
+function openMonthPicker() {
+    if (!DOM.btnMonthPicker || STATE.displayYear === undefined) return;
+    const popover = buildMonthPicker();
+    MONTH_PICKER.year = STATE.displayYear;
+    renderMonthPickerGrid();
+    popover.hidden = false;
+    MONTH_PICKER.isOpen = true;
+    DOM.btnMonthPicker.setAttribute('aria-expanded', 'true');
+    positionMonthPicker();
+    popover.querySelector('.month-picker-month.is-selected, .month-picker-month')?.focus();
+}
+
+function closeMonthPicker({ restoreFocus = false } = {}) {
+    if (!MONTH_PICKER.isOpen) return;
+    MONTH_PICKER.isOpen = false;
+    if (MONTH_PICKER.popover) MONTH_PICKER.popover.hidden = true;
+    DOM.btnMonthPicker?.setAttribute('aria-expanded', 'false');
+    if (restoreFocus) DOM.btnMonthPicker?.focus();
+}
+
+function selectMonthFromPicker(year, month) {
+    if (year < MONTH_PICKER_MIN_YEAR || year > MONTH_PICKER_MAX_YEAR || month < 0 || month > 11) return;
+    STATE.displayYear = year;
+    STATE.displayMonth = month;
+    closeMonthPicker({ restoreFocus: true });
+    renderActiveView();
+}
+
+function initializeMonthPicker() {
+    if (!DOM.btnMonthPicker) return;
+    buildMonthPicker();
+
+    DOM.btnMonthPicker.addEventListener('click', () => {
+        if (MONTH_PICKER.isOpen) closeMonthPicker();
+        else openMonthPicker();
+    });
+    document.addEventListener('click', event => {
+        if (!MONTH_PICKER.isOpen) return;
+        if (MONTH_PICKER.popover?.contains(event.target) || DOM.btnMonthPicker.contains(event.target)) return;
+        closeMonthPicker();
+    });
+    document.addEventListener('focusin', event => {
+        if (!MONTH_PICKER.isOpen) return;
+        if (MONTH_PICKER.popover?.contains(event.target) || DOM.btnMonthPicker.contains(event.target)) return;
+        closeMonthPicker();
+    });
+    window.addEventListener('resize', () => {
+        if (MONTH_PICKER.isOpen) positionMonthPicker();
+    }, { passive: true });
+    window.addEventListener('scroll', () => {
+        if (MONTH_PICKER.isOpen) positionMonthPicker();
+    }, { passive: true });
+}
+
+/* ---------- Timeline view ---------- */
+const TIMELINE_STATUS_CLASS = Object.freeze({
+    [STATUS.ONGOING]: 'is-ongoing',
+    [STATUS.UPCOMING]: 'is-upcoming',
+    [STATUS.TENTATIVE]: 'is-tentative',
+    [STATUS.ENDED]: 'is-ended'
+});
+
+function plainText(value) {
+    return String(value ?? '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').replace(/\s+/g, ' ').trim();
+}
+
+function createTimelineEvent(tournament) {
+    const parts = getVietnamDateParts(tournament.startTime);
+    const status = getEventStatus(tournament);
+    const item = document.createElement('li');
+    item.className = `timeline-event ${TIMELINE_STATUS_CLASS[status] || ''}`.trim();
+
+    const time = document.createElement('span');
+    time.className = 'timeline-event-time';
+    time.textContent = tournament.hasStartTime ? `${padZero(parts.hours)}h${padZero(parts.minutes)}` : 'Cả ngày';
+
+    const node = document.createElement('span');
+    node.className = 'timeline-node';
+    node.setAttribute('aria-hidden', 'true');
+
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'timeline-event-card';
+
+    const logo = document.createElement('img');
+    logo.className = 'timeline-event-logo';
+    logo.alt = '';
+    logo.width = 40;
+    logo.height = 40;
+    logo.loading = 'lazy';
+    logo.decoding = 'async';
+    setSafeImageSource(logo, tournament.logo, '/images/tvltlogo.png');
+
+    const body = document.createElement('span');
+    body.className = 'timeline-event-body';
+    const badges = document.createElement('span');
+    badges.className = 'timeline-event-badges';
+    badges.innerHTML = getEventBadgesHTML(tournament);
+
+    const title = document.createElement('strong');
+    title.className = 'timeline-event-title';
+    title.textContent = tournament.eventName || 'Tournament';
+    body.append(badges, title);
+
+    const rules = plainText(tournament.gameRules);
+    if (rules) {
+        const meta = document.createElement('span');
+        meta.className = 'timeline-event-meta';
+        meta.textContent = rules.length > 90 ? `${rules.slice(0, 87)}…` : rules;
+        body.appendChild(meta);
+    }
+
+    const chevron = document.createElement('i');
+    chevron.className = 'bx bx-chevron-right timeline-event-chevron';
+    chevron.setAttribute('aria-hidden', 'true');
+    card.append(logo, body, chevron);
+    card.addEventListener('click', () => openModal(tournament));
+    item.append(time, node, card);
+    return item;
+}
+
+function renderTimeline() {
+    if (!DOM.timelineContainer) return;
+    const events = getCurrentMonthEvents();
+    if (!events.length) {
+        DOM.timelineContainer.replaceChildren();
+        return;
+    }
+
+    const today = getVietnamNow();
+    const todayKey = dateKeyOf(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+    const groups = new Map();
+    events.forEach(tournament => {
+        const parts = getVietnamDateParts(tournament.startTime);
+        const key = dateKeyOf(parts.year, parts.month, parts.date);
+        if (!groups.has(key)) groups.set(key, { parts, events: [] });
+        groups.get(key).events.push(tournament);
+    });
+
+    const list = document.createElement('ol');
+    list.className = 'schedule-timeline';
+    list.setAttribute('aria-label', `Timeline sự kiện ${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`);
+
+    groups.forEach(({ parts, events: dayEvents }, key) => {
+        const dayItem = document.createElement('li');
+        dayItem.className = 'timeline-day';
+        const isToday = key === todayKey;
+        const isPast = Date.UTC(parts.year, parts.month, parts.date) <
+            Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+        dayItem.classList.toggle('is-today', isToday);
+        dayItem.classList.toggle('is-past', isPast);
+
+        const dayName = getDayOfWeekVn(`${parts.year}-${padZero(parts.month + 1)}-${padZero(parts.date)}`);
+        const head = document.createElement('div');
+        head.className = 'timeline-day-head';
+        const number = document.createElement('span');
+        number.className = 'timeline-day-num';
+        number.textContent = padZero(parts.date);
+
+        const meta = document.createElement('span');
+        meta.className = 'timeline-day-meta';
+        const weekday = document.createElement('strong');
+        weekday.textContent = dayName === 'Chủ Nhật' ? dayName : `Thứ ${dayName}`;
+        const monthYear = document.createElement('small');
+        monthYear.textContent = `thg ${padZero(parts.month + 1)}, ${parts.year}`;
+        meta.append(weekday, monthYear);
+        head.append(number, meta);
+
+        if (isToday) {
+            const chip = document.createElement('span');
+            chip.className = 'timeline-today-chip';
+            chip.textContent = 'Hôm nay';
+            head.appendChild(chip);
+        }
+
+        const eventList = document.createElement('ul');
+        eventList.className = 'timeline-events';
+        dayEvents.forEach(tournament => eventList.appendChild(createTimelineEvent(tournament)));
+        dayItem.append(head, eventList);
+        list.appendChild(dayItem);
+    });
+
+    DOM.timelineContainer.replaceChildren(list);
 }
 
 function toggleTourDropdown(id) {
@@ -1248,6 +1563,7 @@ function setScheduleState(state) {
     if (state === 'loading' || state === 'error' || state === 'empty') {
         setDisplay(DOM.calendarWrapper, 'none');
         setDisplay(DOM.listWrapper, 'none');
+        setDisplay(DOM.timelineWrapper, 'none');
     }
 }
 
@@ -1435,7 +1751,9 @@ function trapModalFocus(event) {
 function initializeEventListeners() {
     window.addEventListener('keydown', event => {
         if (event.key === 'Escape') {
-            if (DOM.eventModal?.classList.contains('open')) {
+            if (MONTH_PICKER.isOpen) {
+                closeMonthPicker({ restoreFocus: true });
+            } else if (DOM.eventModal?.classList.contains('open')) {
                 closeModal();
             } else {
                 const openDropdown = document.querySelector('.tour-dropdown.open');
@@ -1466,9 +1784,10 @@ function initializeEventListeners() {
     if (DOM.categoryButton) DOM.categoryButton.addEventListener('click', () => toggleTourDropdown('schedule-category-dropdown'));
     if (DOM.btnPrevMonth) DOM.btnPrevMonth.addEventListener('click', () => changeMonth(-1));
     if (DOM.btnNextMonth) DOM.btnNextMonth.addEventListener('click', () => changeMonth(1));
-    if (DOM.btnToday) DOM.btnToday.addEventListener('click', goToToday);
     if (DOM.btnViewCalendar) DOM.btnViewCalendar.addEventListener('click', () => switchView('calendar'));
     if (DOM.btnViewList) DOM.btnViewList.addEventListener('click', () => switchView('list'));
+    if (DOM.btnViewTimeline) DOM.btnViewTimeline.addEventListener('click', () => switchView('timeline'));
+    initializeMonthPicker();
     if (DOM.modalCloseBtn) DOM.modalCloseBtn.addEventListener('click', closeModal);
     if (DOM.statusFilters instanceof HTMLSelectElement) {
         DOM.statusFilters.addEventListener('change', () => setStatusFilter(DOM.statusFilters.value));
