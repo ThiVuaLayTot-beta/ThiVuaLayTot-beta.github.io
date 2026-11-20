@@ -161,7 +161,6 @@ td.today .day-number{color:var(--yellow-400)!important;opacity:1!important;font-
 .rule-helper-link{color:var(--cyan-300);text-decoration:none;font-weight:600;border-bottom:1px dashed var(--cyan-300);transition:color .2s ease,border-bottom-color .2s ease}
 .rule-helper-link:hover{color:var(--cyan-200);border-bottom:1px solid var(--cyan-200)}
 
-.event-card-details{display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.015);padding:12px;border-radius:8px;border:1px solid rgba(53,201,252,.12)}
 .event-card-detail-item{display:flex;align-items:flex-start;gap:8px;font-size:13.5px;color:var(--neutral-300);line-height:1.4}
 .event-card-detail-item i{font-size:18px;color:var(--cyan-400);margin-top:1px;flex-shrink:0}
 .event-card-detail-item strong{color:var(--cyan-300);font-weight:600}
