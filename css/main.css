@@ -848,56 +848,63 @@ html {
 
 /* SOCIAL BUTTONS */
 
+/* Icon-only social links mirror the 44px icon wells on /social. */
 .social_btn {
   display: flex;
   justify-content: var(--social-align, center);
   flex-wrap: wrap;
-  gap: var(--space-md);
+  gap: 8px;
   margin-top: var(--space-lg);
   text-align: center;
 }
 
-.social_btn a {
-  display: flex;
+.social_btn a,
+.social-icon-tile {
+  display: inline-flex;
+  flex: 0 0 44px;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  text-decoration: none;
-  color: var(--color-primary-light);
-  font-size: var(--fs-xl);
-  border: var(--border-width-base) solid var(--color-primary-light);
-  border-radius: var(--border-radius-full);
-  transition: all var(--transition-base);
-  overflow: hidden;
+  width: 44px;
+  height: 44px;
   box-sizing: border-box;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--border-radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-secondary);
+  font-size: 1.75rem;
+  text-decoration: none;
+  transition: transform 180ms ease, background 180ms ease;
 }
 
-.social_btn a span {
-  background: var(--gradient-purple-cyan);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.social_btn a span,
+.social-icon-tile .bx {
+  color: currentColor;
+  background: none;
+  -webkit-text-fill-color: currentColor;
 }
 
-.social_btn a img {
-  width: 20px;
-  height: 20px;
+.social_btn a img,
+.social-icon-tile img {
+  width: 28px;
+  height: 28px;
   object-fit: contain;
 }
 
-.social_btn a:hover {
-  background: var(--color-bg-hover);
-  box-shadow: 0 0 15px var(--color-accent);
-  border-color: var(--color-accent);
-  transform: translateY(-3px);
+.social_btn a:hover,
+.social-icon-tile:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  text-decoration: none;
 }
 
-.social_btn a:hover span {
-  background: var(--gradient-accent);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+.social-icon--facebook .bx { color: #1877f2; }
+.social-icon--messenger .bx { color: #1877f2; }
+.social-icon--discord .bx { color: #5865f2; }
+.social-icon--youtube .bx { color: #ff0000; }
+.social-icon--twitch .bx { color: #9146ff; }
+.social-icon--tiktok .bx { color: #00f2fe; }
+.social-icon--x .bx { color: #e2e8f0; }
 
 /* BACK TO TOP BUTTON */
 
