@@ -9,9 +9,9 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
     <div class="social-card-group">
         <h3 id="club"><span class="bx bxs-group group-icon"></span> Cộng đồng Câu lạc bộ</h3>
         <div class="social-links-list">
-            <a href="https://link.chess.com/club/0CVQh6" target="_blank" class="social-link-item chess-com">
-                <div class="link-icon">
-                    <img src="https://chess.com/bundles/web/favicons/favicon.5d6cb047.svg" alt="Chess.com">
+            <a href="https://link.chess.com/club/0CVQh6" target="_blank" rel="noopener noreferrer" class="social-link-item chess-com">
+                <div class="link-icon social-icon-tile">
+                    <img src="/images/social/chesscom-mark.svg" alt="" aria-hidden="true" width="28" height="28" loading="lazy" decoding="async">
                 </div>
                 <div class="link-info">
                     <h4>CLB Chess.com</h4>
@@ -19,9 +19,9 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank" class="social-link-item lichess">
-                <div class="link-icon">
-                    <img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt="Lichess">
+            <a href="https://lichess.org/team/thi-vua-lay-tot-tungjohn-playing-chess" target="_blank" rel="noopener noreferrer" class="social-link-item lichess">
+                <div class="link-icon social-icon-tile">
+                    <img src="/images/lichesslogo.png" alt="" aria-hidden="true" width="28" height="28" loading="lazy" decoding="async">
                 </div>
                 <div class="link-info">
                     <h4>Đội Lichess</h4>
@@ -29,8 +29,8 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://facebook.com/groups/586909589413729" target="_blank" class="social-link-item facebook">
-                <div class="link-icon">
+            <a href="https://facebook.com/groups/586909589413729" target="_blank" rel="noopener noreferrer" class="social-link-item facebook">
+                <div class="link-icon social-icon-tile">
                     <span class="bx bxl-facebook-circle"></span>
                 </div>
                 <div class="link-info">
@@ -39,8 +39,8 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://discord.gg/bggkufa4nE" target="_blank" class="social-link-item discord">
-                <div class="link-icon">
+            <a href="https://discord.gg/bggkufa4nE" target="_blank" rel="noopener noreferrer" class="social-link-item discord">
+                <div class="link-icon social-icon-tile">
                     <span class="bx bxl-discord-alt"></span>
                 </div>
                 <div class="link-info">
@@ -49,9 +49,9 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://zalo.me/g/zhrwtn779" target="_blank" class="social-link-item zalo">
-                <div class="link-icon">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo">
+            <a href="https://zalo.me/g/zhrwtn779" target="_blank" rel="noopener noreferrer" class="social-link-item zalo">
+                <div class="link-icon social-icon-tile">
+                    <img src="/images/social/zalo-mark.svg" alt="" aria-hidden="true" width="28" height="28" loading="lazy" decoding="async">
                 </div>
                 <div class="link-info">
                     <h4>Nhóm Chat Zalo</h4>
@@ -59,8 +59,8 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://m.me/cm/AbbWJfcGNGrjbN43" target="_blank" class="social-link-item messenger">
-                <div class="link-icon">
+            <a href="https://m.me/cm/AbbWJfcGNGrjbN43" target="_blank" rel="noopener noreferrer" class="social-link-item messenger">
+                <div class="link-icon social-icon-tile">
                     <span class="bx bxl-messenger"></span>
                 </div>
                 <div class="link-info">
@@ -75,9 +75,9 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
     <div class="social-card-group">
         <h3 id="tungjohn"><span class="bx bxs-microphone group-icon"></span> Kênh cá nhân TungJohn</h3>
         <div class="social-links-list">
-            <a href="https://youtube.com/channel/UCvNW1NAWWjblgrP6JQI4MbQ" target="_blank"
+            <a href="https://youtube.com/channel/UCvNW1NAWWjblgrP6JQI4MbQ" target="_blank" rel="noopener noreferrer"
                 class="social-link-item youtube">
-                <div class="link-icon">
+                <div class="link-icon social-icon-tile">
                     <span class="bx bxl-youtube"></span>
                 </div>
                 <div class="link-info">
@@ -86,8 +86,8 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://facebook.com/TungJohn2005" target="_blank" class="social-link-item facebook-profile">
-                <div class="link-icon">
+            <a href="https://facebook.com/TungJohn2005" target="_blank" rel="noopener noreferrer" class="social-link-item facebook-profile">
+                <div class="link-icon social-icon-tile">
                     <span class="bx bxl-facebook-square"></span>
                 </div>
                 <div class="link-info">
@@ -96,8 +96,8 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://twitch.tv/tungjohnplayingchess" target="_blank" class="social-link-item twitch">
-                <div class="link-icon">
+            <a href="https://twitch.tv/tungjohnplayingchess" target="_blank" rel="noopener noreferrer" class="social-link-item twitch">
+                <div class="link-icon social-icon-tile">
                     <span class="bx bxl-twitch"></span>
                 </div>
                 <div class="link-info">
@@ -106,8 +106,8 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://tiktok.com/@tungjohn2005" target="_blank" class="social-link-item tiktok">
-                <div class="link-icon">
+            <a href="https://tiktok.com/@tungjohn2005" target="_blank" rel="noopener noreferrer" class="social-link-item tiktok">
+                <div class="link-icon social-icon-tile">
                     <span class="bx bxl-tiktok"></span>
                 </div>
                 <div class="link-info">
@@ -116,9 +116,9 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://chess.com/member/tungjohn2005" target="_blank" class="social-link-item chess-com">
-                <div class="link-icon">
-                    <img src="https://chess.com/bundles/web/favicons/favicon.5d6cb047.svg" alt="Chess.com">
+            <a href="https://chess.com/member/tungjohn2005" target="_blank" rel="noopener noreferrer" class="social-link-item chess-com">
+                <div class="link-icon social-icon-tile">
+                    <img src="/images/social/chesscom-mark.svg" alt="" aria-hidden="true" width="28" height="28" loading="lazy" decoding="async">
                 </div>
                 <div class="link-info">
                     <h4>Tài khoản Chess.com</h4>
@@ -126,9 +126,9 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://lichess.org/@/Tungjohn2005" target="_blank" class="social-link-item lichess">
-                <div class="link-icon">
-                    <img src="https://lichess1.org/assets/______2/flair/img/activity.lichess.webp" alt="Lichess">
+            <a href="https://lichess.org/@/Tungjohn2005" target="_blank" rel="noopener noreferrer" class="social-link-item lichess">
+                <div class="link-icon social-icon-tile">
+                    <img src="/images/lichesslogo.png" alt="" aria-hidden="true" width="28" height="28" loading="lazy" decoding="async">
                 </div>
                 <div class="link-info">
                     <h4>Tài khoản Lichess</h4>

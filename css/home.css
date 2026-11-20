@@ -197,38 +197,42 @@
 
 .social-row a {
   display: inline-flex;
+  flex: 0 0 44px;
   align-items: center;
   justify-content: center;
-  width: 2.95rem;
-  height: 2.95rem;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.045);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--border-radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   backdrop-filter: none;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+  box-shadow: none;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
 .social-row a:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   border-color: rgba(56, 189, 248, 0.35);
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 18px 36px rgba(56, 189, 248, 0.12);
+  background: rgba(255, 255, 255, 0.08);
   text-decoration: none;
 }
 
 .social-row img,
 .social-grid img {
-  width: 1.35rem;
-  height: 1.35rem;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   display: block;
 }
 
 .social-row .bx {
-  font-size: 1.35rem;
-  color: #fff;
+  font-size: 1.55rem;
+  color: currentColor;
 }
+
+.social-row a.social-icon--youtube .bx { color: #ff0000; }
+.social-row a.social-icon--facebook .bx { color: #1877f2; }
+.social-row a.social-icon--discord .bx { color: #5865f2; }
 
 .section-kicker {
   display: flex;
@@ -779,10 +783,10 @@
         gap: 0.25rem !important;
     }
     .bento-card--connect .social-row--hero a {
-        flex: 0 0 38px !important;
-        width: 38px !important;
-        height: 38px !important;
-        min-width: 38px !important;
+        flex: 0 0 44px !important;
+        width: 44px !important;
+        height: 44px !important;
+        min-width: 44px !important;
     }
 }
 
