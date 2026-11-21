@@ -3374,6 +3374,7 @@ body .schedule-results #loading .schedule-skeleton-weekdays span { height: 38px;
 
 /* Explorer header card */
 .schedule-explorer .schedule-explorer-header {
+    grid-template-columns: minmax(0, 1fr);
     gap: 16px;
     margin-bottom: 18px;
     padding: 18px 20px;
