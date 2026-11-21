@@ -47,10 +47,9 @@ schedule_css: /css/schedule.css
                         <i class="bx bx-chevron-left" aria-hidden="true"></i>
                     </button>
                     <div class="month-display">
-                        <span class="month-display-label">THÁNG</span>
                         <div class="month-display-value">
                             <span class="month-title" id="month-title">
-                                <button type="button" id="btn-month-select" class="month-box month-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="schedule-select-menu" aria-label="Chọn tháng"><span id="month-select-label">11</span><i class="bx bx-chevron-down month-select-chevron" aria-hidden="true"></i></button>
+                                <button type="button" id="btn-month-select" class="month-box month-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="schedule-select-menu" aria-label="Chọn tháng"><span id="month-select-label">Tháng 11</span><i class="bx bx-chevron-down month-select-chevron" aria-hidden="true"></i></button>
                                 <button type="button" id="btn-year-select" class="year-box month-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="schedule-select-menu" aria-label="Chọn năm"><span id="year-select-label">2026</span><i class="bx bx-chevron-down month-select-chevron" aria-hidden="true"></i></button>
                             </span>
                             <span class="month-year" id="month-year"></span>

@@ -885,7 +885,7 @@ function updateMonthHeading() {
     const key = `${monthStr}-${yearStr}`;
     if (DOM.monthTitle && DOM.monthTitle.dataset.monthKey !== key) {
         DOM.monthTitle.dataset.monthKey = key;
-        if (DOM.monthLabel) DOM.monthLabel.textContent = monthStr;
+        if (DOM.monthLabel) DOM.monthLabel.textContent = `Tháng ${STATE.displayMonth + 1}`;
         if (DOM.yearLabel) DOM.yearLabel.textContent = yearStr;
         DOM.btnMonthSelect?.setAttribute('aria-label', `Chọn tháng. Đang xem tháng ${STATE.displayMonth + 1}`);
         DOM.btnYearSelect?.setAttribute('aria-label', `Chọn năm. Đang xem năm ${yearStr}`);
@@ -1254,7 +1254,7 @@ function createTimelineEvent(tournament, { carryOver = false } = {}) {
     const card = document.createElement('article');
     card.className = 'timeline-card';
 
-    const head = document.createElement('header');
+    const head = document.createElement('div');
     head.className = 'timeline-card-head';
     const logo = document.createElement('img');
     logo.className = 'timeline-card-logo';
@@ -1285,7 +1285,7 @@ function createTimelineEvent(tournament, { carryOver = false } = {}) {
         <div class="event-card-detail-item"><i class="bx bxs-chess" aria-hidden="true"></i><span><strong>Ván đấu:</strong> ${getGameRulesWithIcon(linkifyChessTerms(parseMarkdownLinks(tournament.gameRules || 'Chưa có thông tin')))}</span></div>
         <div class="event-card-detail-item"><i class="bx bxs-user-check" aria-hidden="true"></i><span><strong>Tổ chức:</strong> ${getMappedOrganizer(tournament.organizer || '', tournament.organizerLinks)}</span></div>`;
 
-    const footer = document.createElement('footer');
+    const footer = document.createElement('div');
     footer.className = 'timeline-card-footer';
     const detailBtn = document.createElement('button');
     detailBtn.type = 'button';
