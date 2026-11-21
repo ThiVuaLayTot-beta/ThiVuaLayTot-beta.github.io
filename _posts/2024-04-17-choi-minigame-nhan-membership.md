@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Chơi MiniGames nhận Diamond Membership
+image: /images/events/2024/04/17/choi-minigame-nhan-membership.png
 date: 2024-04-17T00:00:00+00:00
 category: events
 tags: Minigame
@@ -13,9 +14,9 @@ tổ chức thể lệ cuộc thi như sau:
 
 Bất cứ ai trong câu lạc bộ Thí Vua Lấy Tốt đều có thể tham gia cuộc thi này. Thể lệ gồm 3 giải:
 
-1. 💎1 month Diamond Membership (1 tháng tư cách hành viên kim cương): Người chiến thắng trong trò chơi [Shogi Sliding-Puzzles](https://thivualaytot.github.io/game/sliding) với số lượt di chuyển ít nhất. <b>Người chiến thắng:</b> [Lê Huỳnh Hải Nam](https://chess.com/member/Le-Huynh-Hai-Nam-2010)
-2. 💎 1 month Diamond Membership (1 tháng tư cách hành viên kim cương): Người chiến thắng trong trò chơi [2048](https://thivualaytot.github.io/game/2048) với số điểm cao nhất. <b>Người chiến thắng:</b> [Nguyễn Nhật Trung](https://chess.com/member/trungnumber1kingchess)
-3. 💎 1 month Diamond Membership (1 tháng tư cách hành viên kim cương): Người chiến thắng trong trò chơi [2048](https://thivualaytot.github.io/game/2048) và [Shogi Sliding-Puzzles](https://thivualaytot.github.io/game/sliding) với yêu cầu như trên. <b>Không có người chiến thắng nào.</b>
+1. 💎1 month Diamond Membership (1 tháng tư cách hành viên kim cương): Người chiến thắng trong trò chơi [Shogi Sliding-Puzzles](https://thivualaytot.github.io/game/sliding) với số lượt di chuyển ít nhất. **Người chiến thắng:** [Lê Huỳnh Hải Nam](https://chess.com/member/Le-Huynh-Hai-Nam-2010)
+2. 💎 1 month Diamond Membership (1 tháng tư cách hành viên kim cương): Người chiến thắng trong trò chơi [2048](https://thivualaytot.github.io/game/2048) với số điểm cao nhất. **Người chiến thắng:** [Nguyễn Nhật Trung](https://chess.com/member/trungnumber1kingchess)
+3. 💎 1 month Diamond Membership (1 tháng tư cách hành viên kim cương): Người chiến thắng trong trò chơi [2048](https://thivualaytot.github.io/game/2048) và [Shogi Sliding-Puzzles](https://thivualaytot.github.io/game/sliding) với yêu cầu như trên. **Không có người chiến thắng nào.**
 
 ---
 

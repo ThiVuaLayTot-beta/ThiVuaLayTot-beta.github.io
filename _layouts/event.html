@@ -4,6 +4,33 @@
 <head>
     <title>{{ page.title }} - CLB Thí Vua Lấy Tốt</title>
     {% include head.html %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Trang chủ",
+          "item": {{ '/' | absolute_url | jsonify }}
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Giải đấu",
+          "item": {{ '/events/tournaments' | absolute_url | jsonify }}
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": {{ page.title | jsonify }},
+          "item": {{ page.url | absolute_url | jsonify }}
+        }
+      ]
+    }
+    </script>
+
     <link type="text/css" rel="stylesheet" href="/css/eventwinner.css">
 </head>
 
@@ -12,16 +39,21 @@
 
     <div id="section-page">
         <div class="container">
+            <nav aria-label="Breadcrumb"><ul class="breadcrumb">
+                <li><a href="/"><span class="bx bx-home-alt-2"></span>Trang chủ</a></li>
+                <li><a href="/events/tournaments">Giải đấu</a></li>
+                <li aria-current="page">{{ page.title }}</li>
+            </ul></nav>
             {{ content }}
             <br>
-            <button id="back-to-top" title="Quay lại đầu trang"><span class="bx bxs-to-top"></span></button>
+            <button type="button" id="back-to-top" title="Quay lại đầu trang" aria-label="Quay lại đầu trang"><span class="bx bxs-to-top" aria-hidden="true"></span></button>
         </div>
     </div>
     {% include footer.html %}
 
-    <div id="scoreModal" class="cc-modal-overlay">
-        <div class="cc-modal-dialog score-modal-dialog">
-            <button class="cc-modal-close" onclick="TournamentModalManager.close()">×</button>
+    <div id="scoreModal" class="cc-modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-player-name">
+        <div class="cc-modal-dialog score-modal-dialog" role="document" tabindex="-1">
+            <button type="button" class="cc-modal-close" aria-label="Đóng cửa sổ">×</button>
             <div class="cc-modal-content-wrapper">
                 <div class="cc-modal-header-row">
                     <div class="cc-modal-title-section">

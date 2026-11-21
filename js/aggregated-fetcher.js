@@ -36,7 +36,6 @@
         'closed:abuse': { c: 'user-badges-closed', i: 'bx bx-dislike', t: 'Bị khóa: Lạm dụng' },
         'closed:fair_play_violations': { c: 'user-badges-closed', i: 'bx bx-block', t: 'Bị khóa: Fair Play' },
         'closed': { c: 'user-badges-inactive', i: 'bx bx-no-signal', t: 'Bị khóa' },
-        'premium': { c: 'user-badges-premium', i: 'bx bxs-star', t: 'Premium' }
     };
 
     const PLAYER_TOP6_STORE = new Map();
@@ -64,6 +63,21 @@
         }
     }
 
+    function escapeHTML(value) {
+        return String(value ?? '').replace(/[&<>"']/g, character => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[character]);
+    }
+
+    function safeHttpUrl(value, fallback = '#') {
+        try {
+            const url = new URL(String(value ?? ''), window.location.origin);
+            return ['http:', 'https:'].includes(url.protocol) ? url.href : fallback;
+        } catch {
+            return fallback;
+        }
+    }
+
     function getRankBadge(rank) {
         const badges = {
             1: '🥇 Hạng 1',
@@ -73,7 +87,7 @@
             5: '🏅 Hạng 5',
             6: '⭐ Hạng 6'
         };
-        return badges[rank] || `Hạng ${rank}`;
+        return badges[rank] || `Hạng ${escapeHTML(rank)}`;
     }
 
     function formatTourStatus(status, isFinished) {
@@ -146,7 +160,7 @@
     }
 
     function createImg(src, w = 15) {
-        return `<img src="${src}" width="${w}" height="${w}" alt="" style="display: inline-block; vertical-align: middle;">`;
+        return `<img src="${escapeHTML(safeHttpUrl(src))}" width="${w}" height="${w}" alt="" style="display: inline-block; vertical-align: middle;">`;
     }
 
     const Cache = {
@@ -368,9 +382,9 @@
                 }
 
                 const tourPlayers = this.buildPlayersMap(data.players || [], pointsMap);
-                const format = meta.rounds === 1 
-                    ? `Đấu trường Arena ${calculateDuration(meta.startTime, meta.endTime)}`
-                    : `Hệ Thụy Sĩ ${meta.rounds} vòng`;
+                const format = meta.rounds === 1
+                    ? `<span class="tournament-format-badge tournament-format-arena"><i class="bx bx-trophy" aria-hidden="true"></i><span>Arena</span><span class="tournament-format-detail">${calculateDuration(meta.startTime, meta.endTime)}</span></span>`
+                    : `<span class="tournament-format-badge tournament-format-swiss"><i class="bx bx-list-ol" aria-hidden="true"></i><span>Hệ Thụy Sĩ</span><span class="tournament-format-detail">${escapeHTML(meta.rounds)} vòng</span></span>`;
 
                 tournaments.push({
                     id: tournamentIds[i],
@@ -453,19 +467,22 @@
             };
 
             const badgeHtml = this.formatBadge(data.status);
+            const safeUsername = escapeHTML(data.username);
+            const safeAvatar = escapeHTML(safeHttpUrl(data.avatar, CONFIG.DEFAULT_AVATAR));
+            const profileUrl = `${CONFIG.CHESS_COM_URL}/member/${encodeURIComponent(data.username)}`;
 
-            return `<td class="player-cell clickable-player" data-month="${monthId || ''}" data-player='${JSON.stringify(player).replace(/'/g, "&apos;")}' data-avatar='${(data.avatar || CONFIG.DEFAULT_AVATAR).replace(/'/g, "&apos;")}' data-status='${data.status || "N/A"}' style="cursor: pointer;">
+            return `<td class="player-cell clickable-player" data-month="${escapeHTML(monthId || '')}" data-player='${escapeHTML(JSON.stringify(player))}' data-avatar='${safeAvatar}' data-status='${escapeHTML(data.status || "N/A")}' style="cursor: pointer;">
                 <div class="post-user-component">
                     <div class="cc-avatar-component post-user-avatar">
-                        <img class="cc-avatar-img" src="${data.avatar || CONFIG.DEFAULT_AVATAR}" height="50" width="50" alt="${data.username}">
+                        <img class="cc-avatar-img" src="${safeAvatar}" height="50" width="50" alt="${safeUsername}">
                     </div>
                     <div class="post-user-details">
                         <div class="user-tagline-component">
-                            <a class="user-username-component user-tagline-username" href="${CONFIG.CHESS_COM_URL}/member/${data.username}" target="_blank">${data.username}</a>
+                            <a class="user-username-component user-tagline-username" href="${profileUrl}" target="_blank" rel="noopener noreferrer">${safeUsername}</a>
                         </div>
                         <div class="post-user-status">
                             <span>${badgeHtml}</span>
-                            <span class="score-display" style="font-weight: bold;">${player.totalPoints} ĐIỂM</span>
+                            <span class="score-display" style="font-weight: bold;">${escapeHTML(player.totalPoints)} ĐIỂM</span>
                         </div>
                     </div>
                 </div>
@@ -489,7 +506,8 @@
                 topPlayers.map(p => RequestManager.fetch(`${API.CHESS_COM}/player/${p.username}`))
             );
 
-            const tournamentsJson = JSON.stringify(tournaments).replace(/'/g, "&apos;");
+            const tournamentsJson = escapeHTML(JSON.stringify(tournaments));
+            const safeMonthId = escapeHTML(monthId);
             const isAllFinished = totalCount > 0 && finishedCount === totalCount;
             const statusBadgeStyle = isAllFinished
                 ? 'background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4);'
@@ -498,10 +516,10 @@
             const statsHtml = `<span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">${totalCount} giải đấu <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span><div style="margin-top: 4px; white-space: nowrap;"><span class="user-badges-badge" style="${statusBadgeStyle} font-size: 0.82em; padding: 2px 8px; font-weight: 600; display: inline-flex; align-items: center; gap: 3px;"><i class="bx ${statusBadgeIcon}"></i>${finishedCount}/${totalCount} đã hoàn thành</span></div>`;
 
             let html = `<tr>
-                <td class="name-tour month-clickable" data-tournaments='${tournamentsJson}' data-month="${monthId}">
-                    <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">Tháng ${monthId} <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span>
+                <td class="name-tour month-clickable" data-tournaments='${tournamentsJson}' data-month="${safeMonthId}">
+                    <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">Tháng ${safeMonthId} <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span>
                 </td>
-                <td class="organization-day month-clickable" data-tournaments='${tournamentsJson}' data-month="${monthId}">
+                <td class="organization-day month-clickable" data-tournaments='${tournamentsJson}' data-month="${safeMonthId}">
                     ${statsHtml}
                 </td>
                 <td class="players">${Object.keys(playerScores).length}</td>`;
@@ -536,16 +554,19 @@
     const EventHandlers = {
         handlePlayerClick(playerData, avatar, status, monthId) {
             const badgeHtml = Renderer.formatBadge(status);
+            const safeUsername = escapeHTML(playerData.username);
+            const safeAvatar = escapeHTML(safeHttpUrl(avatar, CONFIG.DEFAULT_AVATAR));
+            const profileUrl = `${CONFIG.CHESS_COM_URL}/member/${encodeURIComponent(playerData.username)}`;
             let html = `<div class="calendar-wrapper">
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <img src="${avatar || CONFIG.DEFAULT_AVATAR}" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--cyan-300);" alt="${playerData.username}">
-                    <h3 style="margin: 10px 0 5px 0;"><a href="${CONFIG.CHESS_COM_URL}/member/${playerData.username}" target="_blank">${playerData.username}</a></h3>
+                    <img src="${safeAvatar}" style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 2px solid var(--cyan-300);" alt="${safeUsername}">
+                    <h3 style="margin: 10px 0 5px 0;"><a href="${profileUrl}" target="_blank" rel="noopener noreferrer">${safeUsername}</a></h3>
                     ${badgeHtml ? `<div style="margin-top: 5px;">${badgeHtml}</div>` : ''}
                 </div>
 
                 <div style="margin-bottom: 25px;">
                     <h4 style="color: var(--cyan-300); margin: 0 0 10px 0; font-size: 1.05em; display: flex; align-items: center; gap: 6px;">
-                        <i class="bx bx-calendar"></i> Tổng kết Tháng ${monthId || ''}
+                        <i class="bx bx-calendar"></i> Tổng kết Tháng ${escapeHTML(monthId || '')}
                     </h4>
                     <table class="styled-table score-detail-table" style="width: 100%;">
                         <thead><tr><th>Giải đấu</th><th style="text-align: center;">Thể lệ</th><th style="text-align: center;">Điểm</th></tr></thead>
@@ -558,8 +579,8 @@
 
                 html += `<tr>
                     <td>
-                        <a href="${item.url}" target="_blank" style="color: var(--cyan-300); text-decoration: none; font-weight: 500;">
-                            ${item.tourName}
+                        <a href="${escapeHTML(safeHttpUrl(item.url))}" target="_blank" rel="noopener noreferrer" style="color: var(--cyan-300); text-decoration: none; font-weight: 500;">
+                            ${escapeHTML(item.tourName)}
                         </a>
                         <div style="font-size: 0.85em; color: var(--neutral-300); margin-top: 3px;">
                             ${formatDate(item.startTime)}
@@ -567,11 +588,11 @@
                     </td>
                     <td style="text-align: center; font-size: 0.9em;">
                         <div>${Renderer.timeFormat(item.timeControl, item.timeClass)}</div>
-                        <div style="margin-top: 4px;">${variantName} ${variantIcon}</div>
+                        <div style="margin-top: 4px;">${escapeHTML(variantName)} ${variantIcon}</div>
                         <div>${item.format}</div>
                     </td>
                     <td style="text-align: center; color: var(--green-400); font-weight: bold; font-size: 1.05em;">
-                        ${item.points}
+                        ${escapeHTML(item.points)}
                     </td>
                 </tr>`;
             });
@@ -582,7 +603,7 @@
                         <td style="font-weight: bold; color: var(--cyan-300);">TỔNG CỘNG THÁNG</td>
                         <td style="text-align: center; color: var(--blue-400);">${playerData.breakdown.length} giải</td>
                         <td style="text-align: center; color: var(--yellow-400); font-weight: bold; font-size: 1.15em;">
-                            ${playerData.totalPoints}
+                            ${escapeHTML(playerData.totalPoints)}
                         </td>
                     </tr>
                 </tfoot>
@@ -644,9 +665,9 @@
                 let variantHtml = '';
                 if (variantInfo) {
                     if (tour.setup) {
-                        variantHtml = ` <a href="javascript:void(0)" class="custom-variant-link" data-setup="${tour.setup}">${variantInfo.name}${createImg(variantInfo.icon)}</a>`;
+                        variantHtml = ` <a href="#" class="custom-variant-link" data-setup="${escapeHTML(tour.setup)}">${escapeHTML(variantInfo.name)}${createImg(variantInfo.icon)}</a>`;
                     } else {
-                        variantHtml = ` <a href="${variantInfo.url}" target="_blank">${variantInfo.name} ${createImg(variantInfo.icon)}</a>`;
+                        variantHtml = ` <a href="${escapeHTML(safeHttpUrl(variantInfo.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(variantInfo.name)} ${createImg(variantInfo.icon)}</a>`;
                     }
                 }
 
@@ -654,7 +675,7 @@
                 const statusBadge = formatTourStatus(tour.status, tour.isFinished);
                 html += `<tr>
                     <td>
-                        <a href="${tour.url}" target="_blank">${tour.name}</a>
+                        <a href="${escapeHTML(safeHttpUrl(tour.url))}" target="_blank" rel="noopener noreferrer">${escapeHTML(tour.name)}</a>
                         <div style="margin-top: 4px;">${statusBadge}</div>
                     </td>
                     <td>${startTimeStr}</td>
@@ -668,7 +689,7 @@
         },
 
         handleCustomVariantClick(setup) {
-            ModalManager.show('Thế cờ ban đầu', `<div class="calendar-wrapper" style="padding: 20px; color: var(--neutral-100); word-break: break-all;">${setup}</div>`);
+            ModalManager.show('Thế cờ ban đầu', `<div class="calendar-wrapper" style="padding: 20px; color: var(--neutral-100); word-break: break-all;">${escapeHTML(setup)}</div>`);
         }
     };
 
@@ -699,7 +720,7 @@
                 return;
             }
 
-            container.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Tháng</th><th class=\"organization-day\">Thống kê</th><th class=\"players\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display: none\"><td style=\"color: var(--color-warning);font-size:medium\">Không tìm thấy kết quả nào!</td></tr></tbody></table></div>";
+            container.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Tháng</th><th class=\"organization-day\">Thống kê</th><th class=\"players\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display: none\"><td colspan=\"9\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div>";
 
             if (typeof window.loadTournamentFiltersFromURL === 'function') {
                 window.loadTournamentFiltersFromURL();
@@ -718,6 +739,7 @@
                     }
                     const customLink = e.target.closest('.custom-variant-link');
                     if (customLink) {
+                        e.preventDefault();
                         EventHandlers.handleCustomVariantClick(customLink.dataset.setup);
                     }
                 });

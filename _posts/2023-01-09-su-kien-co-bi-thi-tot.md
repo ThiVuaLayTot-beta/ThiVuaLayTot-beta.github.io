@@ -1,11 +1,13 @@
 ---
 layout: post
 title: Giải đấu Cờ Bí Thí Tốt
+image: /images/events/su-kien-co-bi-thi-tot.png
 category: events
 tags: Giải đấu
 author: VN-SenJin
 description: Một sự kiện diễn ra trong câu lạc bộ Thí Vua Lấy Tốt và được tổ chức hàng tháng với tiền thưởng...
 permalink: /events/cbtt-co-bi-thi-tot
+date: 2023-01-09
 ---
 
 **Thể lệ đã được thay đổi và áp dụng từ 20/9/2026*
@@ -27,7 +29,7 @@ Giải luân phiên sử dụng 2 thể thức với logo như bên dưới
 
 <div>
   <a href="/events/cbtt-co-bi-thi-tot" aria-label="Các thể loại Cờ Bí Thí Tốt">
-    <img src="/images/events/cbtt-formats.png" alt="CBTT Format">
+    <img src="/images/events/cbtt-formats.png" alt="CBTT Format" loading="lazy">
   </a>
 </div>
 

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-label="Chess">
+  <rect x="3" y="3" width="42" height="42" rx="12" fill="#81b64c"/>
+  <path d="M15 37h22v-4h-4l-2-5 4-5-2-8-6-4-7 2-4 7 5 5-2 8h-4z" fill="#fff"/>
+  <path d="M23 15l4 2-1 4-5-1z" fill="#81b64c"/>
+</svg>

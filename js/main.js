@@ -1,9 +1,18 @@
-/**
+/** 
  * Main site navigation
  */
-const menuBtn = document.getElementById("menu");
-const mobileNav = document.getElementById("tvltTopnav");
+const menuBtn = document.getElementById("mobile-menu-btn");
+const mobileNav = document.getElementById("mobile-nav-menu");
 const dropdowns = document.querySelectorAll(".section.dropdown");
+
+// Handle image fallbacks without inline HTML event attributes.
+document.addEventListener("error", (event) => {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement) || !image.dataset.fallbackSrc ||
+        image.dataset.fallbackAttempted === "true") return;
+    image.dataset.fallbackAttempted = "true";
+    image.src = image.dataset.fallbackSrc;
+}, true);
 const isMobileNav = () => window.matchMedia("(max-width: 1024px)").matches;
 let dropdownCloseTimer = null;
 
@@ -36,7 +45,7 @@ function closeMobileNav({ restoreFocus = false } = {}) {
     document.body.classList.remove("nav-open");
     closeDropdowns();
 
-    const menuIcon = document.getElementById("menuIcon");
+    const menuIcon = document.getElementById("mobile-menu-icon");
     if (menuIcon) {
         menuIcon.classList.remove("bx-x");
         menuIcon.classList.add("bx-menu");
@@ -54,7 +63,7 @@ function openMobileNav() {
     document.documentElement.classList.add("nav-open");
     document.body.classList.add("nav-open");
 
-    const menuIcon = document.getElementById("menuIcon");
+    const menuIcon = document.getElementById("mobile-menu-icon");
     if (menuIcon) {
         menuIcon.classList.remove("bx-menu");
         menuIcon.classList.add("bx-x");
@@ -169,7 +178,12 @@ document.addEventListener("keydown", event => {
     }
 });
 
+let lastViewportWidth = window.innerWidth;
 window.addEventListener("resize", () => {
+    // Mobile browsers fire "resize" when the URL bar shows/hides while scrolling;
+    // only react to real width changes so open menus are not closed mid-scroll.
+    if (window.innerWidth === lastViewportWidth) return;
+    lastViewportWidth = window.innerWidth;
     closeDropdowns();
     if (!isMobileNav()) closeMobileNav();
 });
@@ -285,8 +299,9 @@ window.addEventListener("scroll", () => {
  */
 function handleScrollEffects() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    updateScrollProgressBar();
 
-    if (backToTopBtn) backToTopBtn.style.display = scrollTop > 100 ? "flex" : "none";
+    if (backToTopBtn) if(scrollTop > 100) { backToTopBtn.classList.add("show"); } else { backToTopBtn.classList.remove("show"); }
 
     if (timeline) {
         const rect = timeline.getBoundingClientRect();
@@ -312,3 +327,547 @@ if (backToTopBtn) {
         document.documentElement.scrollTop = 0;
     });
 }
+
+/**
+ * Scroll progress indicator
+ */
+function updateScrollProgressBar() {
+    const bar = document.getElementById("scroll-progress-bar");
+    if (!bar) return;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const current = window.scrollY || document.documentElement.scrollTop;
+    const progress = maxScroll > 0 ? Math.min(100, Math.max(0, (current / maxScroll) * 100)) : 0;
+    bar.style.width = `${progress}%`;
+}
+window.addEventListener("resize", updateScrollProgressBar, { passive: true });
+
+/** Normalize Vietnamese text once for the entire site. */
+function removeVietnameseTones(value) {
+    return String(value ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[đĐ]/g, (character) => (character === "đ" ? "d" : "D"))
+        .toLowerCase()
+        .trim();
+}
+window.removeVietnameseTones = removeVietnameseTones;
+
+/** Global search dialog with request de-duplication and race-free first results. */
+function initializeGlobalSearch() {
+    const trigger = document.getElementById("open-search-btn");
+    if (!trigger || document.getElementById("search-modal")) return;
+
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        `
+        <div id="search-modal" class="search-modal-overlay" aria-hidden="true">
+            <section class="search-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="global-search-title">
+                <div class="search-modal-header">
+                    <span class="bx bx-search search-icon" aria-hidden="true"></span>
+                    <div class="search-modal-field">
+                        <label id="global-search-title" class="visually-hidden" for="global-search-input">Tìm kiếm trên website</label>
+                        <input type="search" id="global-search-input" placeholder="Tìm kiếm bài viết, giải đấu..." autocomplete="off">
+                        <small>Ctrl+K để mở · Esc để đóng</small>
+                    </div>
+                    <button type="button" id="close-search-modal" class="close-search-btn" aria-label="Đóng tìm kiếm"><span class="bx bx-x" aria-hidden="true"></span></button>
+                </div>
+                <p id="global-search-status" class="visually-hidden" role="status" aria-live="polite"></p>
+                <div id="global-search-results" class="search-modal-results" role="list" aria-label="Kết quả tìm kiếm"></div>
+            </section>
+        </div>`,
+    );
+
+    const modal = document.getElementById("search-modal");
+    const closeButton = document.getElementById("close-search-modal");
+    const input = document.getElementById("global-search-input");
+    const results = document.getElementById("global-search-results");
+    const statusEl = document.getElementById("global-search-status");
+    if (!modal || !closeButton || !input || !results) return;
+
+    let searchTimer = null;
+    let index = [];
+    let indexReady = false;
+    let indexPromise = null;
+    let previousOverflow = "";
+
+    function showMessage(message) {
+        results.textContent = "";
+        const p = document.createElement("p");
+        p.className = "search-no-results";
+        p.textContent = message;
+        results.appendChild(p);
+        if (statusEl) statusEl.textContent = message;
+    }
+    function renderResults(query) {
+        const normalized = removeVietnameseTones(query);
+        results.textContent = "";
+        if (!normalized) {
+            showMessage(
+                indexReady
+                    ? "Nhập từ khóa để tìm bài viết, giải đấu và các trang của CLB."
+                    : "Đang tải dữ liệu tìm kiếm…",
+            );
+            return;
+        }
+        if (!indexReady) {
+            showMessage("Đang tải dữ liệu tìm kiếm…");
+            return;
+        }
+        const terms = normalized.split(/\s+/);
+        const hasAll = (text) => terms.every((term) => text.includes(term));
+        const matches = index
+            .map((item) => {
+                // normalise each field once (not on every keystroke)
+                const text = item.normalized;
+                let score = 0;
+                if (text.title.startsWith(normalized)) score += 5;
+                else if (hasAll(text.title)) score += 4;
+                if (hasAll(text.summary)) score += 2;
+                if (hasAll(text.content)) score += 1;
+                if (hasAll(text.tags) || hasAll(text.category)) score += 2;
+                return { item, score };
+            })
+            .filter((result) => result.score > 0)
+            .sort((a, b) => b.score - a.score || a.item.title.localeCompare(b.item.title, "vi"))
+            .slice(0, 15);
+        if (!matches.length) {
+            showMessage("Không tìm thấy kết quả phù hợp.");
+            return;
+        }
+        if (statusEl) statusEl.textContent = `${matches.length} kết quả phù hợp.`;
+        matches.forEach(({ item }) => {
+            const row = document.createElement("div");
+            row.setAttribute("role", "listitem");
+            const link = document.createElement("a");
+            link.className = "search-result-item";
+            link.href = item.link;
+            const title = document.createElement("h4");
+            title.textContent = item.title;
+            const summary = document.createElement("p");
+            const description = item.summary || item.content || "";
+            summary.textContent = description.length > 140 ? description.slice(0, 137) + "…" : description;
+            link.append(title, summary);
+            row.appendChild(link);
+            results.appendChild(row);
+        });
+    }
+    function loadIndex() {
+        if (indexReady) {
+            renderResults(input.value);
+            return Promise.resolve(index);
+        }
+        if (indexPromise) return indexPromise;
+        indexPromise = fetch("/search.json", { headers: { Accept: "application/json" } })
+            .then((response) => {
+                if (!response.ok) throw new Error("HTTP " + response.status);
+                return response.json();
+            })
+            .then((entries) => {
+                if (!Array.isArray(entries)) throw new Error("Chỉ mục tìm kiếm không hợp lệ.");
+                const posts = entries
+                    .map((entry) => ({
+                        title: String(entry.title || "").trim(),
+                        link: String(entry.url || entry.link || "").trim(),
+                        summary: String(entry.summary || ""),
+                        content: String(entry.content || ""),
+                        category: String(entry.category || ""),
+                        tags: Array.isArray(entry.tags) ? entry.tags.map(String).join(" ") : String(entry.tags || ""),
+                    }))
+                    .filter((item) => item.title && item.link);
+                // Normalize every searchable field once when Jekyll's index is loaded.
+                index = posts.map((item) => ({
+                    ...item,
+                    normalized: {
+                        title: removeVietnameseTones(item.title),
+                        summary: removeVietnameseTones(item.summary),
+                        content: removeVietnameseTones(item.content),
+                        category: removeVietnameseTones(item.category),
+                        tags: removeVietnameseTones(item.tags),
+                    },
+                }));
+                indexReady = true;
+                renderResults(input.value);
+                return index;
+            })
+            .catch((error) => {
+                console.error("Không thể tải chỉ mục tìm kiếm:", error);
+                indexPromise = null;
+                showMessage("Không thể tải dữ liệu tìm kiếm. Hãy thử lại.");
+                return [];
+            });
+        return indexPromise;
+    }
+    function openModal() {
+        if (mobileNav?.classList.contains("active")) closeMobileNav();
+        previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        modal.classList.add("active");
+        modal.setAttribute("aria-hidden", "false");
+        input.focus();
+        loadIndex();
+    }
+    function closeModal() {
+        window.clearTimeout(searchTimer);
+        modal.classList.remove("active");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.style.overflow = previousOverflow;
+        input.value = "";
+        results.textContent = "";
+        if (statusEl) statusEl.textContent = "";
+        trigger.focus();
+    }
+    trigger.addEventListener("click", openModal);
+    closeButton.addEventListener("click", closeModal);
+    input.addEventListener("input", (event) => {
+        window.clearTimeout(searchTimer);
+        const query = event.target.value;
+        searchTimer = window.setTimeout(() => renderResults(query), 140);
+    });
+    input.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowDown") return;
+        const firstResult = results.querySelector(".search-result-item");
+        if (!firstResult) return;
+        event.preventDefault();
+        firstResult.focus();
+    });
+    results.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+        const links = Array.from(results.querySelectorAll(".search-result-item"));
+        const current = links.indexOf(document.activeElement);
+        const next = event.key === "ArrowDown" ? Math.min(current + 1, links.length - 1) : current - 1;
+        event.preventDefault();
+        if (next < 0) input.focus();
+        else links[next]?.focus();
+    });
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal) closeModal();
+    });
+    modal.addEventListener("keydown", (event) => {
+        if (event.key !== "Tab") return;
+        const focusable = Array.from(
+            modal.querySelectorAll("button:not([disabled]),input:not([disabled]),a[href]"),
+        ).filter((element) => element.offsetParent !== null);
+        if (!focusable.length) return;
+        const first = focusable[0],
+            last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    });
+    document.addEventListener("keydown", (event) => {
+        const target = event.target;
+        const isEditingOutsideSearch = target instanceof HTMLElement &&
+            !modal.contains(target) &&
+            (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
+
+        if (
+            (event.ctrlKey || event.metaKey) &&
+            !event.altKey &&
+            !event.shiftKey &&
+            event.key.toLowerCase() === "k"
+        ) {
+            if (isEditingOutsideSearch) return;
+            event.preventDefault();
+            if (modal.classList.contains("active")) closeModal();
+            else openModal();
+        } else if (event.key === "Escape" && modal.classList.contains("active")) {
+            event.preventDefault();
+            closeModal();
+        }
+    });
+}
+
+/** Copy text with a fallback for browsers without the Clipboard API. */
+async function copyTextToClipboard(value) {
+    const text = String(value ?? "");
+    if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+    }
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    if (!copied) throw new Error("Trình duyệt không hỗ trợ sao chép.");
+}
+function showCopiedState(button, originalText) {
+    button.textContent = "Đã sao chép";
+    button.classList.add("is-copied");
+    window.setTimeout(() => {
+        button.textContent = originalText;
+        button.classList.remove("is-copied");
+    }, 1600);
+}
+
+/** Reading time, automatic TOC, page-link and tournament/code copy actions. */
+function showReadingTime(article) {
+    const wordCount = (article.textContent || "").trim().split(/\s+/).filter(Boolean).length;
+    const badge = document.querySelector(".reading-time");
+    if (badge) badge.textContent = `${Math.max(1, Math.ceil(wordCount / 200))} phút đọc`;
+}
+
+function buildTableOfContents(article) {
+    const headings = Array.from(article.querySelectorAll("h2,h3"));
+    if (headings.length >= 2 && !article.querySelector("#post-toc")) {
+        const toc = document.createElement("nav");
+        toc.id = "post-toc";
+        toc.className = "post-toc";
+        toc.setAttribute("aria-label", "Mục lục bài viết");
+        const label = document.createElement("strong");
+        label.textContent = "Mục lục";
+        const list = document.createElement("ol");
+        const used = new Set();
+        headings.forEach((heading, index) => {
+            let base =
+                heading.id ||
+                removeVietnameseTones(heading.textContent)
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-|-$/g, "");
+            if (!base) base = "muc-" + (index + 1);
+            let id = base,
+                suffix = 2;
+            while (used.has(id) || (document.getElementById(id) && heading.id !== id))
+                id = base + "-" + suffix++;
+            used.add(id);
+            heading.id = id;
+            const li = document.createElement("li");
+            if (heading.tagName === "H3") li.classList.add("post-toc__subitem");
+            const link = document.createElement("a");
+            link.href = "#" + id;
+            link.textContent = heading.textContent.trim();
+            li.appendChild(link);
+            list.appendChild(li);
+        });
+        toc.append(label, list);
+        article.insertBefore(toc, article.firstChild);
+    }
+}
+
+function addCopyButtons(article) {
+    const copyPage = document.getElementById("copy-page-link");
+    if (copyPage && copyPage.dataset.initialized !== "true") {
+        copyPage.dataset.initialized = "true";
+        copyPage.addEventListener("click", async () => {
+            const original = copyPage.textContent.trim();
+            try {
+                await copyTextToClipboard(window.location.href);
+                showCopiedState(copyPage, original);
+            } catch (error) {
+                console.error(error);
+                copyPage.textContent = "Không sao chép được";
+            }
+        });
+    }
+    article.querySelectorAll("pre").forEach((pre) => {
+        if (pre.querySelector(".copy-code-btn")) return;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "copy-code-btn";
+        button.textContent = "Sao chép mã";
+        button.addEventListener("click", async () => {
+            try {
+                await copyTextToClipboard(pre.querySelector("code")?.textContent || pre.textContent);
+                showCopiedState(button, "Sao chép mã");
+            } catch (error) {
+                console.error(error);
+                button.textContent = "Lỗi sao chép";
+            }
+        });
+        pre.appendChild(button);
+    });
+    article.querySelectorAll(".tournament-code,[data-tournament-code]").forEach((element) => {
+        if (element.dataset.copyButtonAdded === "true") return;
+        element.dataset.copyButtonAdded = "true";
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "copy-code-btn copy-code-btn--inline";
+        button.textContent = "Sao chép mã";
+        button.addEventListener("click", async () => {
+            const code = element.dataset.tournamentCode || element.textContent.trim();
+            try {
+                await copyTextToClipboard(code);
+                showCopiedState(button, "Sao chép mã");
+            } catch (error) {
+                console.error(error);
+                button.textContent = "Lỗi sao chép";
+            }
+        });
+        element.insertAdjacentElement("afterend", button);
+    });
+}
+
+function initializeReadingUtilities() {
+    const article = document.querySelector(".post-contents");
+    if (!article) return;
+    showReadingTime(article);
+    buildTableOfContents(article);
+    addCopyButtons(article);
+}
+
+/** Respect reduced motion while enhancing only visible homepage elements. */
+function initHomeInteractiveEffects() {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!reduceMotion && finePointer) {
+        document
+            .querySelectorAll(".event-card,.post-card,.partner-item")
+            .forEach((card) => {
+                card.addEventListener("pointermove", (event) => {
+                    const rect = card.getBoundingClientRect();
+                    card.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
+                    card.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
+                });
+            });
+    }
+    const items = document.querySelectorAll(".reveal-on-scroll,[data-reveal]");
+    if (!items.length) return;
+    if (
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+        !("IntersectionObserver" in window)
+    ) {
+        items.forEach((item) => item.classList.add("is-visible"));
+        return;
+    }
+    const observer = new IntersectionObserver(
+        (entries, currentObserver) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add("is-visible");
+                    currentObserver.unobserve(entry.target);
+                }
+            });
+        },
+        { threshold: 0.1 },
+    );
+    items.forEach((item) => observer.observe(item));
+}
+function initializeSharedPageFeatures() {
+    updateScrollProgressBar();
+    initializeGlobalSearch();
+    initializeReadingUtilities();
+    initHomeInteractiveEffects();
+}
+if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", initializeSharedPageFeatures, { once: true });
+else initializeSharedPageFeatures();
+function initSubpageInteractiveEffects() {
+    const cards = document.querySelectorAll(
+        ".list-item-people, .category-card, .social-card, .social-card-group, .social-link-item, .contact-card, .contact-method, .contact-donation, .video-card, .card-list .card, .about-card, .tournament-card, .event-winner-card"
+    );
+    if (!cards.length) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!reduceMotion && finePointer) {
+        cards.forEach((card) => {
+            card.addEventListener("pointermove", (event) => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty("--mouse-x", (event.clientX - rect.left) + "px");
+                card.style.setProperty("--mouse-y", (event.clientY - rect.top) + "px");
+            });
+        });
+    }
+
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+        cards.forEach((item) => item.classList.add("is-visible"));
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                currentObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    cards.forEach((item) => observer.observe(item));
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initSubpageInteractiveEffects, { once: true });
+else initSubpageInteractiveEffects();
+async function initHomepageStatsSync() {
+    const card = document.querySelector(".bento-card--stats");
+    const ytEl = document.getElementById("stat-youtube-subs");
+    const ccEl = document.getElementById("stat-chesscom-members");
+    const peEl = document.getElementById("stat-prize-events");
+    if (!ytEl && !ccEl && !peEl) return;
+
+    const statsApiUrl = (card?.getAttribute("data-stats-api") || "").trim();
+    // Build-time snapshot (_data/stats.json); a cache older than it must not override it.
+    const builtAt = Date.parse(card?.getAttribute("data-updated-at") || "") || 0;
+    const CACHE_KEY = "tvlt_homepage_stats_cache_v1";
+    const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+    const setStat = (element, value) => {
+        if (!element || !value) return;
+        element.dataset.finalValue = value; // lets home.js count-up end on the fresh value
+        element.textContent = value;
+    };
+    const applyStats = (stats) => {
+        if (!stats) return;
+        setStat(ytEl, stats.youtubeSubs);
+        setStat(ccEl, stats.chesscomMembers);
+        setStat(peEl, stats.prizeEvents);
+    };
+    const saveCache = (value) => {
+        try { localStorage.setItem(CACHE_KEY, JSON.stringify(value)); } catch (error) { /* storage unavailable */ }
+    };
+
+    try {
+        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
+        const isFresh = cached && Date.now() - cached.updatedAt < CACHE_TTL_MS && cached.updatedAt > builtAt;
+        if (isFresh) {
+            const usable = statsApiUrl
+                ? cached.source === "apps-script" && (cached.youtubeSubs || cached.chesscomMembers || cached.prizeEvents)
+                : cached.chesscomMembers;
+            if (usable) {
+                applyStats(cached);
+                return;
+            }
+        }
+    } catch (error) { /* ignore corrupt cache */ }
+
+    if (statsApiUrl) {
+        try {
+            const response = await fetch(statsApiUrl);
+            if (response.ok) {
+                const data = await response.json();
+                const next = {
+                    youtubeSubs: data.youtube_subs || "",
+                    chesscomMembers: data.chesscom_members || "",
+                    prizeEvents: data.prize_events || "",
+                    source: "apps-script",
+                    updatedAt: Date.now(),
+                };
+                if (next.youtubeSubs || next.chesscomMembers || next.prizeEvents) {
+                    applyStats(next);
+                    saveCache(next);
+                    return;
+                }
+            }
+        } catch (error) { /* fall through to Chess.com */ }
+    }
+
+    if (!ccEl) return;
+    try {
+        const response = await fetch("https://api.chess.com/pub/club/thi-vua-lay-tot-tungjohn-playing-chess");
+        if (!response.ok) return;
+        const data = await response.json();
+        if (typeof data.members_count === "number" && data.members_count > 0) {
+            const formatted = data.members_count >= 1000 ? `${Math.floor(data.members_count / 1000)}K+` : String(data.members_count);
+            setStat(ccEl, formatted);
+            saveCache({ chesscomMembers: formatted, source: "chesscom-api", updatedAt: Date.now() });
+        }
+    } catch (error) { /* keep build-time value */ }
+}
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initHomepageStatsSync, { once: true });
+else initHomepageStatsSync();
