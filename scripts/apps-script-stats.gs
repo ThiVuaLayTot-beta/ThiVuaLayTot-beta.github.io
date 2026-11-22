@@ -9,16 +9,19 @@
             YOUTUBE_HANDLE_URL: 'https://' + 'www.youtube.com' + '/@TungJohnPlayingChess',
               CHESSCOM_CLUB_SLUG: 'thi-vua-lay-tot-tungjohn-playing-chess',
                 CHESSCOM_CLUB_API: 'https://' + 'api.chess.com' + '/pub/club/thi-vua-lay-tot-tungjohn-playing-chess',
-                  GIST_API_URL: 'https://' + 'api.github.com' + '/gists/9c53a11fca709a656076bf6de7c118b0',
-                    GIST_RAW_URL: 'https://' + 'gist.githubusercontent.com' + '/M-DinhHoangViet/9c53a11fca709a656076bf6de7c118b0/raw',
-                      PROPERTY_KEY: 'TVLT_HOMEPAGE_STATS',
+        TOURNAMENTS_GIST_ID: '9c53a11fca709a656076bf826e10b79d',
+        GITHUB_OWNER: 'ThiVuaLayTot-beta',
+    GITHUB_REPO: 'ThiVuaLayTot-beta.github.io',
+    GITHUB_BRANCH: 'main',
+    GITHUB_STATS_PATH: '_data/stats.json',
+              PROPERTY_KEY: 'TVLT_HOMEPAGE_STATS',
                         SHEET_NAME: 'Stats'
     };
 
     function doGet(e) {
           var action = (e && e.parameter && e.parameter.action) ? String(e.parameter.action) : 'stats';
-            if (action !== 'stats') {
-                    return ContentService
+        if (action && action !== 'stats') {
+                return ContentService
                           .createTextOutput(JSON.stringify({ error: 'Unsupported action', action: action }))
                                 .setMimeType(ContentService.MimeType.JSON);
             }
@@ -54,7 +57,8 @@
 
         var ytRaw = fetchYoutubeSubscribers_();
         var ccRaw = fetchChesscomMembers_();
-        var peRaw = fetchPrizeEventsCount_();
+    var peResult = fetchPrizeEventsFromGist_();
+    var peRaw = (peResult && typeof peResult.total === 'number') ? peResult.total : null;
 
         var youtubeSubsRaw = (typeof ytRaw === 'number' && ytRaw > 0) ? ytRaw : (prev.youtube_subs_raw || null);
         var youtubeSubs = youtubeSubsRaw ? formatThousandsK_(youtubeSubsRaw) : (prev.youtube_subs || '17K+');
@@ -62,7 +66,8 @@
         var chesscomMembersRaw = (typeof ccRaw === 'number' && ccRaw > 0) ? ccRaw : (prev.chesscom_members_raw || null);
         var chesscomMembers = chesscomMembersRaw ? formatThousandsK_(chesscomMembersRaw) : (prev.chesscom_members || '5K+');
 
-        var prizeEventsRaw = (typeof peRaw === 'number' && peRaw > 0) ? peRaw : (prev.prize_events_raw || null);
+        var prizeEventsBreakdown = (peResult && peResult.breakdown) ? peResult.breakdown : (prev.prize_events_breakdown || null);
+    var prizeEventsRaw = (typeof peRaw === 'number' && peRaw > 0) ? peRaw : (prev.prize_events_raw || null);
         var prizeEvents = prizeEventsRaw ? formatPrizeEvents_(prizeEventsRaw) : (prev.prize_events || '50+');
 
         var payload = {
@@ -72,17 +77,20 @@
             chesscom_members_raw: chesscomMembersRaw,
             prize_events: prizeEvents,
             prize_events_raw: prizeEventsRaw,
-            updated_at: new Date().toISOString(),
-            source: 'google-apps-script'
+            prize_events_breakdown: prizeEventsBreakdown,
+        updated_at: new Date().toISOString(),
+            sync_interval_days: 3,
+        source: 'google-apps-script'
         };
 
         props.setProperty(STATS_CONFIG.PROPERTY_KEY, JSON.stringify(payload));
         writeStatsToSheet_(payload);
-        return payload;
+        pushStatsToGitHub_(payload);
+    return payload;
     }
 
-    function installWeeklyStatsTrigger() {
-        var triggers = ScriptApp.getProjectTriggers();
+    function installEvery3DaysStatsTrigger() {
+    var triggers = ScriptApp.getProjectTriggers();
         for (var i = 0; i < triggers.length; i++) {
             if (triggers[i].getHandlerFunction() === 'syncHomepageStats') {
                 ScriptApp.deleteTrigger(triggers[i]);
@@ -90,9 +98,8 @@
         }
         ScriptApp.newTrigger('syncHomepageStats')
         .timeBased()
-        .onWeekDay(ScriptApp.WeekDay.MONDAY)
-        .atHour(7)
-        .everyWeeks(1)
+            .everyDays(3)
+    .atHour(7)
         .create();
     }
 
@@ -140,41 +147,57 @@
         return null;
     }
 
-    function fetchPrizeEventsCount_() {
-        try {
-            var text = null;
-            var apiRes = UrlFetchApp.fetch(STATS_CONFIG.GIST_API_URL, {
-                muteHttpExceptions: true,
-                headers: { 'User-Agent': 'GoogleAppsScript' }
-        });
-        if (apiRes.getResponseCode() === 200) {
-            var gistJson = JSON.parse(apiRes.getContentText());
-            if (gistJson && gistJson.files) {
-                var fileKeys = Object.keys(gistJson.files);
-                for (var i = 0; i < fileKeys.length; i++) {
-                    var f = gistJson.files[fileKeys[i]];
-                    if (f && f.content) {
-                        text = f.content;
-                        break;
-                    }
-                }
-            }
+  function readGistFileContent_(fileObj) {
+    if (!fileObj) return '';
+    if (fileObj.truncated === true && fileObj.raw_url) {
+        var rawRes = UrlFetchApp.fetch(fileObj.raw_url, { muteHttpExceptions: true });
+        if (rawRes.getResponseCode() === 200) {
+            return rawRes.getContentText() || '';
         }
-        if (!text) {
-            var rawRes = UrlFetchApp.fetch(STATS_CONFIG.GIST_RAW_URL, { muteHttpExceptions: true });
-            if (rawRes.getResponseCode() === 200) {
-                text = rawRes.getContentText();
-            }
-        }
-        if (!text) return null;
-        var parsed = JSON.parse(text);
-        if (Array.isArray(parsed)) return parsed.length;
-        if (parsed && Array.isArray(parsed.tournaments)) return parsed.tournaments.length;
-        if (parsed && Array.isArray(parsed.events)) return parsed.events.length;
-        if (parsed && typeof parsed === 'object') return Object.keys(parsed).length;
-        } catch (err) {}
-        return null;
     }
+    return fileObj.content || '';
+}
+
+function fetchPrizeEventsFromGist_() {
+    try {
+        var url = 'https://api.github.com/gists/' + STATS_CONFIG.TOURNAMENTS_GIST_ID;
+        var res = UrlFetchApp.fetch(url, {
+            muteHttpExceptions: true,
+            headers: { 'User-Agent': 'GoogleAppsScript' }
+        });
+        if (res.getResponseCode() !== 200) return null;
+        var data = JSON.parse(res.getContentText());
+        var files = (data && data.files) ? data.files : {};
+
+        var getNonEmptyLines = function (fileName) {
+            var text = readGistFileContent_(files[fileName]);
+            if (!text) return [];
+            return String(text)
+                .split(/\r?\n/)
+                .map(function (line) { return line.trim(); })
+                .filter(function (line) { return line.length > 0; });
+        };
+
+        var tvlt = getNonEmptyLines('tvlt.txt').length;
+        var cbtt = getNonEmptyLines('cbtt.txt').length;
+        var cttqLines = getNonEmptyLines('cttq.txt');
+        var cttqStarLines = cttqLines.filter(function (line) { return line.charAt(0) === '*'; });
+        var cttqMonthly = cttqStarLines.length > 0 ? cttqStarLines.length : cttqLines.length;
+
+        var total = tvlt + cttqMonthly + cbtt;
+        if (total <= 0) return null;
+
+        return {
+            total: total,
+            breakdown: {
+                tvlt: tvlt,
+                cttq_monthly: cttqMonthly,
+                cbtt: cbtt
+            }
+        };
+    } catch (err) {}
+    return null;
+}
 
     function parseCompactNumber_(str) {
         if (!str) return null;
@@ -214,4 +237,57 @@
         } catch (err) {}
     }
 
-     
+    function pushStatsToGitHub_(stats) {
+    try {
+        var props = PropertiesService.getScriptProperties();
+        var token = props.getProperty('GITHUB_TOKEN');
+        if (!token) return;
+        var branch = props.getProperty('GITHUB_BRANCH') || STATS_CONFIG.GITHUB_BRANCH;
+
+        var apiUrl = 'https://api.github.com/repos/' +
+            STATS_CONFIG.GITHUB_OWNER + '/' +
+            STATS_CONFIG.GITHUB_REPO + '/contents/' +
+            STATS_CONFIG.GITHUB_STATS_PATH;
+
+        var headers = {
+            'Authorization': 'Bearer ' + token,
+            'Accept': 'application/vnd.github+json',
+            'User-Agent': 'GoogleAppsScript'
+        };
+
+        var sha = null;
+        var getRes = UrlFetchApp.fetch(apiUrl + '?ref=' + encodeURIComponent(branch), {
+            method: 'get',
+            headers: headers,
+            muteHttpExceptions: true
+        });
+        if (getRes.getResponseCode() === 200) {
+            var existing = JSON.parse(getRes.getContentText());
+            if (existing && existing.sha) {
+                sha = existing.sha;
+            }
+        }
+
+        var contentStr = JSON.stringify(stats, null, 2) + '\n';
+        var encodedContent = Utilities.base64Encode(
+            Utilities.newBlob(contentStr, 'application/json', 'stats.json').getBytes()
+        );
+
+        var body = {
+            message: 'chore(stats): sync homepage stats via Apps Script',
+            content: encodedContent,
+            branch: branch
+        };
+        if (sha) {
+            body.sha = sha;
+        }
+
+        UrlFetchApp.fetch(apiUrl, {
+            method: 'put',
+            contentType: 'application/json',
+            headers: headers,
+            payload: JSON.stringify(body),
+            muteHttpExceptions: true
+        });
+    } catch (err) {}
+}

@@ -1035,7 +1035,7 @@ async function initHomepageStatsSync() {
     // Build-time snapshot (_data/stats.json); a cache older than it must not override it.
     const builtAt = Date.parse(card?.getAttribute("data-updated-at") || "") || 0;
     const CACHE_KEY = "tvlt_homepage_stats_cache_v1";
-    const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+    const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000;
 
     const setStat = (element, value) => {
         if (!element || !value) return;
