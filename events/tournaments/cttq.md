@@ -35,4 +35,4 @@ title: Bảng tổng giải Chiến Trường Thí Quân
     </a>
 </div>
 
-<script src="/js/aggregated-fetcher.js"></script>
+<script src="/js/aggregated-fetcher.js" defer></script>

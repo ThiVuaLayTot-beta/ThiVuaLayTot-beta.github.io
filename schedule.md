@@ -224,4 +224,4 @@ schedule_css: /css/schedule.css
     </div>
 </div>
 
-<script src="/js/schedule.js"></script>
+<script src="/js/schedule.js" defer></script>
