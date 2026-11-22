@@ -299,7 +299,6 @@ window.addEventListener("scroll", () => {
  */
 function handleScrollEffects() {
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    updateScrollProgressBar();
 
     if (backToTopBtn) if(scrollTop > 100) { backToTopBtn.classList.add("show"); } else { backToTopBtn.classList.remove("show"); }
 
@@ -327,19 +326,6 @@ if (backToTopBtn) {
         document.documentElement.scrollTop = 0;
     });
 }
-
-/**
- * Scroll progress indicator
- */
-function updateScrollProgressBar() {
-    const bar = document.getElementById("scroll-progress-bar");
-    if (!bar) return;
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const current = window.scrollY || document.documentElement.scrollTop;
-    const progress = maxScroll > 0 ? Math.min(100, Math.max(0, (current / maxScroll) * 100)) : 0;
-    bar.style.width = `${progress}%`;
-}
-window.addEventListener("resize", updateScrollProgressBar, { passive: true });
 
 /** Normalize Vietnamese text once for the entire site. */
 function removeVietnameseTones(value) {
@@ -751,7 +737,6 @@ function initHomeInteractiveEffects() {
     items.forEach((item) => observer.observe(item));
 }
 function initializeSharedPageFeatures() {
-    updateScrollProgressBar();
     initializeGlobalSearch();
     initializeReadingUtilities();
     initHomeInteractiveEffects();

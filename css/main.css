@@ -1344,22 +1344,38 @@ footer .bottom-details .bottom_text {
   background: rgba(56, 189, 248, 0.6);
 }
 
-/* SCROLL PROGRESS BAR */
-.scroll-progress-container {
+/* PAGE LOADING PROGRESS BAR (document + fetch response bodies; not scroll position) */
+.page-progress {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 4px;
+  height: 3px;
   background: transparent;
-  z-index: 1001; /* Ensure it is above the page-header */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1001;
 }
 
-.scroll-progress-bar {
-  height: 100%;
-  background: var(--gradient-purple-cyan, linear-gradient(135deg, #a855f7 0%, #38bdf8 100%));
+.page-progress.is-active {
+  opacity: 1;
+}
+
+.page-progress-bar {
   width: 0%;
-  transition: width 0.1s ease-out;
+  height: 100%;
+  border-radius: 0 2px 2px 0;
+  background: var(--gradient-purple-cyan, linear-gradient(135deg, #a855f7 0%, #38bdf8 100%));
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.55);
+  transition: width 0.25s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-progress,
+  .page-progress-bar {
+    transition: none;
+  }
 }
 
 /* IMPROVED BACK TO TOP BUTTON */
