@@ -3428,8 +3428,22 @@ body .schedule-results #loading .schedule-skeleton-weekdays span { height: 38px;
     font-weight: 700;
     white-space: nowrap;
 }
-.schedule-explorer #view-switcher-container { box-sizing: border-box; height: 42px; flex: none; }
-.schedule-explorer #view-switcher-container .segment-btn { min-height: 34px; }
+/* View switcher: one box model at every width. Older breakpoints forced a fixed container
+   height (36px) while the buttons stayed 38px tall, so the active pill overflowed the box. */
+.schedule-explorer #view-switcher-container {
+    box-sizing: border-box;
+    height: auto !important;
+    min-height: 42px;
+    flex: none;
+    align-items: stretch;
+    padding: 3px;
+}
+.schedule-explorer #view-switcher-container .segment-btn {
+    box-sizing: border-box;
+    height: auto !important;
+    min-height: 34px !important;
+    align-self: stretch;
+}
 
 /* Filters: same inner edges as the toolbar, no dead grid tracks */
 .schedule-explorer .schedule-filter-panel {
@@ -3460,7 +3474,7 @@ body .schedule-results #loading .schedule-skeleton-weekdays span { height: 38px;
     }
     .schedule-explorer .schedule-filter-panel .schedule-filter-search { grid-column: 1 / -1; }
 }
-@media (max-width: 640px) {
+@media (max-width: 680px) {
     .schedule-intro-row { margin-bottom: 14px; }
     .schedule-explorer .schedule-explorer-header { padding: 14px; gap: 14px; border-radius: 16px; }
     .schedule-explorer .schedule-toolbar.schedule-explorer-tools { flex-direction: column; align-items: stretch; gap: 10px; }
@@ -3483,4 +3497,20 @@ body .schedule-results #loading .schedule-skeleton-weekdays span { height: 38px;
     box-shadow: none;
     font-size: .76rem;
     letter-spacing: .04em;
+}
+
+
+/* 681-900px: month navigator and view switcher share one row (older breakpoints stretched the switcher full width) */
+@media (min-width: 681px) and (max-width: 900px) {
+    .schedule-explorer #view-switcher-container {
+        display: inline-flex !important;
+        grid-template-columns: none !important;
+        width: auto !important;
+        min-width: 0;
+    }
+    .schedule-explorer #view-switcher-container .segment-btn {
+        flex: 0 0 auto;
+        width: auto !important;
+        padding-inline: 16px;
+    }
 }
