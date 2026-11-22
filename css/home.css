@@ -842,6 +842,11 @@
 
 .home-page > .hero-v2 #hero-title .hero-v2__brand {
   display: block;
+  /* background-clip:text only paints inside the element box. With line-height < 1.05 the
+     descender of "y" (and the tone marks) fell outside it and were clipped, so give the box
+     extra room and cancel it with negative margins to keep the layout unchanged. */
+  padding: .14em .06em .24em;
+  margin: -.14em -.06em -.24em;
   background: linear-gradient(115deg, #e0f2fe 0%, var(--accent-ice-soft) 48%, #818cf8 100%);
   background-clip: text;
   -webkit-background-clip: text;
