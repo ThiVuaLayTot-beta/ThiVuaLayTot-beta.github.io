@@ -1,7 +1,7 @@
 /**
  * Google Apps Script exporter for Thí Vua Lấy Tốt homepage stats.
   * Deploy as a Web App (Execute as: Me, Who has access: Anyone)
-   * and run installWeeklyStatsTrigger() once to schedule Monday 07:00 syncs.
+   * and run installEvery3DaysStatsTrigger() once to schedule every-3-days 07:00 syncs and serve JSON directly via Web App doGet(e).
     */
 
     const STATS_CONFIG = {
@@ -10,10 +10,6 @@
               CHESSCOM_CLUB_SLUG: 'thi-vua-lay-tot-tungjohn-playing-chess',
                 CHESSCOM_CLUB_API: 'https://' + 'api.chess.com' + '/pub/club/thi-vua-lay-tot-tungjohn-playing-chess',
         TOURNAMENTS_GIST_ID: '9c53a11fca709a656076bf826e10b79d',
-        GITHUB_OWNER: 'ThiVuaLayTot-beta',
-    GITHUB_REPO: 'ThiVuaLayTot-beta.github.io',
-    GITHUB_BRANCH: 'main',
-    GITHUB_STATS_PATH: '_data/stats.json',
               PROPERTY_KEY: 'TVLT_HOMEPAGE_STATS',
                         SHEET_NAME: 'Stats'
     };
@@ -85,7 +81,6 @@
 
         props.setProperty(STATS_CONFIG.PROPERTY_KEY, JSON.stringify(payload));
         writeStatsToSheet_(payload);
-        pushStatsToGitHub_(payload);
     return payload;
     }
 
@@ -236,58 +231,3 @@ function fetchPrizeEventsFromGist_() {
             ]);
         } catch (err) {}
     }
-
-    function pushStatsToGitHub_(stats) {
-    try {
-        var props = PropertiesService.getScriptProperties();
-        var token = props.getProperty('GITHUB_TOKEN');
-        if (!token) return;
-        var branch = props.getProperty('GITHUB_BRANCH') || STATS_CONFIG.GITHUB_BRANCH;
-
-        var apiUrl = 'https://api.github.com/repos/' +
-            STATS_CONFIG.GITHUB_OWNER + '/' +
-            STATS_CONFIG.GITHUB_REPO + '/contents/' +
-            STATS_CONFIG.GITHUB_STATS_PATH;
-
-        var headers = {
-            'Authorization': 'Bearer ' + token,
-            'Accept': 'application/vnd.github+json',
-            'User-Agent': 'GoogleAppsScript'
-        };
-
-        var sha = null;
-        var getRes = UrlFetchApp.fetch(apiUrl + '?ref=' + encodeURIComponent(branch), {
-            method: 'get',
-            headers: headers,
-            muteHttpExceptions: true
-        });
-        if (getRes.getResponseCode() === 200) {
-            var existing = JSON.parse(getRes.getContentText());
-            if (existing && existing.sha) {
-                sha = existing.sha;
-            }
-        }
-
-        var contentStr = JSON.stringify(stats, null, 2) + '\n';
-        var encodedContent = Utilities.base64Encode(
-            Utilities.newBlob(contentStr, 'application/json', 'stats.json').getBytes()
-        );
-
-        var body = {
-            message: 'chore(stats): sync homepage stats via Apps Script',
-            content: encodedContent,
-            branch: branch
-        };
-        if (sha) {
-            body.sha = sha;
-        }
-
-        UrlFetchApp.fetch(apiUrl, {
-            method: 'put',
-            contentType: 'application/json',
-            headers: headers,
-            payload: JSON.stringify(body),
-            muteHttpExceptions: true
-        });
-    } catch (err) {}
-}
