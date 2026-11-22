@@ -89,7 +89,7 @@
     function formatTimeControl(tc, timeClass) {
         const icon = TIME_ICONS[timeClass];
         const iconHtml = icon ? createImg(CONFIG.CHESS_COM_URL + icon.p) : '';
-        return `${escapeHTML(tc)} ${icon?.name || 'Standard'}${iconHtml}`;
+        return `<span class="tournament-format-tc">${escapeHTML(tc)} ${icon?.name || 'Standard'}${iconHtml}</span>`;
     }
 
     function formatBadge(status) {
@@ -467,7 +467,7 @@
             return; 
         }
 
-        el.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Giải đấu</th><th class=\"organization-day\">Thời gian bắt đầu</th><th class=\"rules\">Thể lệ</th><th class=\"players\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display:none\"><td colspan=\"10\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div><br><br><hr>";
+        el.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Giải đấu</th><th class=\"organization-day\">Thời gian bắt đầu</th><th class=\"rules\">Thể lệ</th><th class=\"players-count\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display:none\"><td colspan=\"10\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div><br><br><hr>";
 
         if (typeof window.loadTournamentFiltersFromURL === 'function') {
             window.loadTournamentFiltersFromURL();
@@ -535,15 +535,15 @@
                 if ((v === 'standard' || v === 'chess') && s) v = 'custom';
 
                 const fmtStr = rds === 1
-                    ? `<span class="tournament-format-badge tournament-format-arena"><i class="bx bx-trophy" aria-hidden="true"></i><span>Arena</span><span class="tournament-format-detail">${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}</span></span>`
-                    : `<span class="tournament-format-badge tournament-format-swiss"><i class="bx bx-list-ol" aria-hidden="true"></i><span>Hệ Thụy Sĩ</span><span class="tournament-format-detail">${escapeHTML(rds)} vòng</span></span>`;
+                    ? `<span class="tournament-format-type"><a href="https://support.chess.com/articles/8562889-what-are-arena-tournaments" target="_blank">Đấu trường Arena</a><span class="tournament-format-detail">${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}</span> <img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" width="15" height="15" alt="Arena" style="vertical-align:middle"></span>`
+                    : `<span class="tournament-format-type"><a href="https://chess.com/terms/swiss-chess" target="_blank">Hệ Thụy Sĩ</a><span class="tournament-format-detail">${escapeHTML(rds)} vòng</span><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" width="15" height="15" alt="Swiss" style="vertical-align:middle"></span>`;
 
                 const tournamentUrl = escapeHTML(safeHttpUrl(data.url, `${CONFIG.CHESS_COM_URL}/tournament/${encodeURIComponent(id)}`));
                 const tournamentName = escapeHTML(data.name || 'Unknown');
                 let row = `<td><a href="${tournamentUrl}" target="_blank" rel="noopener noreferrer">${tournamentName}</a></td>
                     <td>${formatDate(data.start_time || data.startTime)}</td>
                     <td>${formatTimeControl(parseTC(data.settings?.time_control || data.time_control || data.timeControl), data.settings?.time_class || data.time_class)}${formatVariantLink(v, s)}${fmtStr}</td>
-                    <td>${data.settings?.registered_user_count || data.players_registered || data.players?.length || 0}</td>`;
+                    <td class="players-count">${data.settings?.registered_user_count || data.players_registered || data.players?.length || 0}</td>`;
 
                 for (let i = 0; i < CONFIG.MAX_PLAYERS; i++) {
                     row += await renderPlayer(top[i]?.u, top[i]?.pts || 0, data, i + 1);

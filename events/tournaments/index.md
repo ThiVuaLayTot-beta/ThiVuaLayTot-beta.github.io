@@ -32,10 +32,10 @@ description: Tổng hợp các hệ thống giải đấu chính thức đã đ�
             </div>
         </div>
         <div class="tournament-card">
-            <img class="tournament-logo" src="/images/events/su-kien-co-bi-thi-tot.png" alt="CBTT" title="Cờ Bí Thí Tốt">
+            <img class="tournament-logo" src="/images/events/cbtt-swiss.png" alt="CBTT" title="Cờ Bí Thí Tốt">
             <div class="tournament-content">
                 <h3>Cờ Bí Thí Tốt</h3>
-                <p>Giải đấu được tổ chức.</p>
+                <p>Giải đấu được tổ chức hàng tuần với giải thưởng hấp dẫn.</p>
                 <div class="tournament-organizer">Tổ chức bởi <a href="/leaders#admin4">VN-SenJin</a></div>
                 <div class="tournament-actions">
                     <a class="tournament-action" href="/events/tournaments/cbtt">Bảng tổng kết <span aria-hidden="true">→</span></a>
@@ -47,7 +47,7 @@ description: Tổng hợp các hệ thống giải đấu chính thức đã đ�
             <div class="tournament-placeholder" aria-hidden="true"><span class="bx bx-trophy"></span></div>
             <div class="tournament-content">
                 <h3>Đấu Trường Thí Vua</h3>
-                <p>Một hệ thống giải đấu do quản trị viên CLB tổ chức.</p>
+                <p>Một hệ thống giải đấu giao lưu do quản trị viên CLB tổ chức.</p>
                 <div class="tournament-organizer">Tổ chức bởi <a href="/leaders#admin2">FR-CH_TheClanTeamIsMine</a>
                 </div>
                 <div class="tournament-actions">

@@ -10,9 +10,10 @@ permalink: /events/cttq-chien-truong-thi-quan
 date: 2024-08-03
 ---
 
+**Thể lệ đã được thay đổi và áp dụng từ tháng /2026*
 ## ⚔️ Chiến Trường Thí Quân
 
-**Chiến Trường Thí Quân (CTTQ)** được tổ chức lần đầu vào [**08/2024**](/events/tournaments/cbtt?sort=date-asc), dành cho các kỳ thủ muốn thi đấu nhiều giải và tích lũy điểm tổng. Giải do **M-DinhHoangViet** quản lý.
+**Chiến Trường Thí Quân (CTTQ)** được tổ chức lần đầu vào [**08/2024**](/events/tournaments/cbtt?sort=date-asc), dành cho các kỳ thủ muốn thi đấu nhiều giải và tích lũy điểm tổng. Giải do [**M-DinhHoangViet**](/leaders#admin3) quản lý.
 
 👉 [Xem các giải đã tổ chức](/events/tournaments/cttq)
 

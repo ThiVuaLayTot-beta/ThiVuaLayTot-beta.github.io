@@ -18,7 +18,7 @@ schedule_css: /css/schedule.css
             <div class="schedule-guide-grid">
                 <div class="schedule-guide-item">
                     <span class="schedule-guide-step">01</span>
-                    <div><strong>Xem thông tin giải</strong><p>Chọn biểu tượng giải đấu để mở thông tin chi tiết và đường dẫn tham gia.</p></div>
+                    <div><strong>Xem thông tin giải</strong><p>Chọn icon của giải đấu để mở thông tin chi tiết và đường dẫn tham gia.</p></div>
                 </div>
                 <div class="schedule-guide-item">
                     <span class="schedule-guide-step">02</span>
@@ -30,7 +30,7 @@ schedule_css: /css/schedule.css
                 </div>
                 <div class="schedule-guide-item">
                     <span class="schedule-guide-step">04</span>
-                    <div><strong>Đổi cách xem</strong><p>Chuyển giữa <b>Lịch</b> và <b>Timeline</b>; dùng mũi tên hoặc mở ô thả xuống tháng/năm để chọn nhanh thời gian cần xem.</p></div>
+                    <div><strong>Đổi cách xem</strong><p>Chuyển giữa <b>Lịch</b> và <b>Timeline</b>; chọn tháng/năm để chọn nhanh thời điểm cần xem.</p></div>
                 </div>
             </div>
         </div>

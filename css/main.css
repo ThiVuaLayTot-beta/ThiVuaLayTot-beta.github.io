@@ -1354,7 +1354,7 @@ footer .bottom-details .bottom_text {
   background: transparent;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.5s ease;
   z-index: 1001;
 }
 
@@ -1368,7 +1368,7 @@ footer .bottom-details .bottom_text {
   border-radius: 0 2px 2px 0;
   background: var(--gradient-purple-cyan, linear-gradient(135deg, #a855f7 0%, #38bdf8 100%));
   box-shadow: 0 0 8px rgba(56, 189, 248, 0.55);
-  transition: width 0.25s ease-out;
+  transition: width 0.35s ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {

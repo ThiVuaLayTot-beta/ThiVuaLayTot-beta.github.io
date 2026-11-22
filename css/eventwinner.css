@@ -15,7 +15,7 @@
 .name-tour { min-width: 15em; width: 33vw; color: var(--neutral-100); font-weight: var(--fw-semibold); text-transform: capitalize; }
 .organization-day { min-width: 8rem; color: var(--neutral-200); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 .rules { min-width: 13.5rem; color: var(--neutral-200); }
-.players { min-width: 3rem; color: var(--neutral-100); font-weight: var(--fw-semibold); text-align: center; }
+.players-count { min-width: 3rem; color: var(--neutral-100); font-weight: var(--fw-semibold); text-align: center; }
 .winner { min-width: 14rem; text-align: center; }
 
 .post-user-component { display: flex; align-items: flex-start; gap: var(--space-md); padding: var(--space-xs) 0; }
@@ -211,19 +211,19 @@
   overflow-wrap:anywhere;
 }
 .styled-table thead th.winner,
-.styled-table thead th.players { text-align:center; }
+.styled-table thead th.players-count { text-align:center; }
 
 /* Restore the established column proportions for desktop tables. */
 #tournament-table .styled-table th.name-tour { width:230px; }
 #tournament-table .styled-table th.organization-day { width:170px; }
-#tournament-table .styled-table th.rules { width:250px; }
-#tournament-table .styled-table th.players { width:86px; }
-#tournament-table .styled-table th.winner { width:184px; }
+#tournament-table .styled-table th.rules { width:220px; }
+#tournament-table .styled-table th.players-count { width:85px; }
+#tournament-table .styled-table th.winner { width:190px; }
 
 #cttq-months-container .styled-table th.name-tour { width:155px; }
 #cttq-months-container .styled-table th.organization-day { width:235px; }
-#cttq-months-container .styled-table th.players { width:90px; }
-#cttq-months-container .styled-table th.winner { width:176px; }
+#cttq-months-container .styled-table th.players-count { width:86px; }
+#cttq-months-container .styled-table th.winner { width:180px; }
 
 #tournament-table .styled-table td,
 #cttq-months-container .styled-table td {
@@ -248,7 +248,7 @@
 .styled-table tbody td.name-tour { color:var(--neutral-100); font-weight:750; text-transform:none; }
 .styled-table tbody td.organization-day { color:var(--neutral-200); font-family:inherit; font-variant-numeric:tabular-nums; }
 .styled-table tbody td.rules { color:var(--neutral-200); line-height:1.7; }
-.styled-table tbody td.players { text-align:center; font-weight:800; }
+.styled-table tbody td.players-count { text-align:center; font-weight:800; }
 .styled-table a { color:var(--color-primary-light); }
 .styled-table a:hover { color:var(--color-accent); text-shadow:0 0 12px rgba(96, 165, 250, .4); }
 
@@ -346,25 +346,7 @@
   white-space:nowrap;
 }
 
-.tournament-format-badge {
-  display:inline-flex;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:5px;
-  max-width:100%;
-  margin:2px 0;
-  padding:0;
-  border:0;
-  border-radius:0;
-  background:transparent;
-  font-size:.73rem;
-  font-weight:800;
-  line-height:1.35;
-  white-space:normal;
-}
-.tournament-format-badge > i { font-size:.95rem; line-height:1; }
-.tournament-format-arena { border:0; background:transparent; color:#facc5b; }
-.tournament-format-swiss { border:0; background:transparent; color:#8bc9ff; }
+.tournament-format-type { border:0; background:transparent; color:#8bc9ff; }
 .tournament-format-detail { font-weight:600; opacity:.95; }
 
 .month-clickable { cursor:pointer; }
@@ -379,7 +361,6 @@
 .score-detail-table { min-width:0; width:100%; table-layout:auto; }
 .score-detail-table th,
 .score-detail-table th, .score-detail-table td { padding:10px 11px; white-space:normal; overflow:visible; text-overflow:clip; overflow-wrap:anywhere; }
-.score-detail-table .tournament-format-badge { justify-content:center; }
 .tour-misc { display:flex; justify-content:flex-end; align-items:center; min-width:0; }
 
 /* Tablet: trim each player column without making names overflow. */

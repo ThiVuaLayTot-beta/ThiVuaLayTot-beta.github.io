@@ -253,12 +253,6 @@
   background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.10), rgba(56, 189, 248, 0.8), transparent);
 }
 
-.feature-section,
-.highlight-section,
-.blog-section {
-  padding: clamp(3.5rem, 6vw, 6.25rem) 0;
-}
-
 .feature-grid,
 .post-grid,
 .social-grid {

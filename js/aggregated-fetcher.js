@@ -383,8 +383,8 @@
 
                 const tourPlayers = this.buildPlayersMap(data.players || [], pointsMap);
                 const format = meta.rounds === 1
-                    ? `<span class="tournament-format-badge tournament-format-arena"><i class="bx bx-trophy" aria-hidden="true"></i><span>Arena</span><span class="tournament-format-detail">${calculateDuration(meta.startTime, meta.endTime)}</span></span>`
-                    : `<span class="tournament-format-badge tournament-format-swiss"><i class="bx bx-list-ol" aria-hidden="true"></i><span>Hệ Thụy Sĩ</span><span class="tournament-format-detail">${escapeHTML(meta.rounds)} vòng</span></span>`;
+                    ? `<span class="tournament-format-type"><a href="https://support.chess.com/articles/8562889-what-are-arena-tournaments" target="_blank">Đấu trường Arena</a><span class="tournament-format-detail">${calculateDuration(meta.startTime, meta.endTime)}</span><img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" width="15" height="15" alt="Arena" style="vertical-align:middle"></span>`
+                    : `<span class="tournament-format-type"><a href="https://chess.com/terms/swiss-chess" target="_blank">Hệ Thụy Sĩ</a><span class="tournament-format-detail">${escapeHTML(meta.rounds)} vòng</span><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" width="15" height="15" alt="Swiss" style="vertical-align:middle"></span>`;
 
                 tournaments.push({
                     id: tournamentIds[i],
@@ -519,10 +519,10 @@
                 <td class="name-tour month-clickable" data-tournaments='${tournamentsJson}' data-month="${safeMonthId}">
                     <span style="white-space: nowrap; display: inline-flex; align-items: center; gap: 4px;">Tháng ${safeMonthId} <i class="bx bx-info-circle" style="font-size: 0.85em; opacity: 0.7;"></i></span>
                 </td>
-                <td class="organization-day month-clickable" data-tournaments='${tournamentsJson}' data-month="${safeMonthId}">
+                <td class="rules month-clickable" data-tournaments='${tournamentsJson}' data-month="${safeMonthId}">
                     ${statsHtml}
                 </td>
-                <td class="players">${Object.keys(playerScores).length}</td>`;
+                <td class="players-count">${Object.keys(playerScores).length}</td>`;
 
             for (let i = 0; i < CONFIG.TOP_PLAYERS; i++) {
                 html += await this.playerCell(topPlayers[i], playerDetails[i], monthId);
@@ -720,7 +720,7 @@
                 return;
             }
 
-            container.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Tháng</th><th class=\"organization-day\">Thống kê</th><th class=\"players\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display: none\"><td colspan=\"9\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div>";
+            container.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Tháng</th><th class=\"rules\">Thống kê</th><th class=\"players-count\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display: none\"><td colspan=\"9\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div>";
 
             if (typeof window.loadTournamentFiltersFromURL === 'function') {
                 window.loadTournamentFiltersFromURL();
