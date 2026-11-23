@@ -52,7 +52,7 @@ schedule_css: /css/schedule.css
                                 <button type="button" id="btn-month-select" class="month-box month-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="schedule-select-menu" aria-label="Chọn tháng"><span id="month-select-label">Tháng 11</span><i class="bx bx-chevron-down month-select-chevron" aria-hidden="true"></i></button>
                                 <button type="button" id="btn-year-select" class="year-box month-select-btn" aria-haspopup="listbox" aria-expanded="false" aria-controls="schedule-select-menu" aria-label="Chọn năm"><span id="year-select-label">2026</span><i class="bx bx-chevron-down month-select-chevron" aria-hidden="true"></i></button>
                             </span>
-                            <span class="month-year" id="month-year"></span>
+                            
                         </div>
                         <span class="visually-hidden" id="month-live" role="status" aria-live="polite"></span>
                     </div>

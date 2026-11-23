@@ -944,42 +944,51 @@ function initializeReadingUtilities() {
     addCopyButtons(article);
 }
 
-/** Respect reduced motion while enhancing only visible homepage elements. */
-function initHomeInteractiveEffects() {
+/**
+ * Shared card effects. Pointer coordinates are coalesced to one layout read/write per frame.
+ */
+function initializeCardEffects(pointerTargets, revealTargets = pointerTargets) {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
     if (!reduceMotion && finePointer) {
-        document
-            .querySelectorAll(".event-card,.post-card,.partner-item")
-            .forEach((card) => {
-                card.addEventListener("pointermove", (event) => {
-                    const rect = card.getBoundingClientRect();
-                    card.style.setProperty("--mouse-x", `${event.clientX - rect.left}px`);
-                    card.style.setProperty("--mouse-y", `${event.clientY - rect.top}px`);
+        pointerTargets.forEach((card) => {
+            let frameId = 0;
+            let pointerX = 0;
+            let pointerY = 0;
+            card.addEventListener("pointermove", (event) => {
+                pointerX = event.clientX;
+                pointerY = event.clientY;
+                if (frameId) return;
+                frameId = window.requestAnimationFrame(() => {
+                    frameId = 0;
+                    const bounds = card.getBoundingClientRect();
+                    card.style.setProperty("--mouse-x", `${pointerX - bounds.left}px`);
+                    card.style.setProperty("--mouse-y", `${pointerY - bounds.top}px`);
                 });
-            });
+            }, { passive: true });
+        });
     }
-    const items = document.querySelectorAll(".reveal-on-scroll,[data-reveal]");
-    if (!items.length) return;
-    if (
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-        !("IntersectionObserver" in window)
-    ) {
-        items.forEach((item) => item.classList.add("is-visible"));
+
+    if (!revealTargets.length) return;
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+        revealTargets.forEach((item) => item.classList.add("is-visible"));
         return;
     }
-    const observer = new IntersectionObserver(
-        (entries, currentObserver) => {
-            entries.forEach((entry) => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add("is-visible");
-                    currentObserver.unobserve(entry.target);
-                }
-            });
-        },
-        { threshold: 0.1 },
-    );
-    items.forEach((item) => observer.observe(item));
+    const observer = new IntersectionObserver((entries, currentObserver) => {
+        entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("is-visible");
+            currentObserver.unobserve(entry.target);
+        });
+    }, { threshold: 0.1 });
+    revealTargets.forEach((item) => observer.observe(item));
+}
+
+function initHomeInteractiveEffects() {
+    const pointerCards = document.querySelectorAll(".event-card,.post-card,.partner-item");
+    const revealItems = document.querySelectorAll(".reveal-on-scroll,[data-reveal]");
+    initializeCardEffects(pointerCards, revealItems);
 }
 function initializeSharedPageFeatures() {
     initializeGlobalSearch();
@@ -989,40 +998,15 @@ function initializeSharedPageFeatures() {
 if (document.readyState === "loading")
     document.addEventListener("DOMContentLoaded", initializeSharedPageFeatures, { once: true });
 else initializeSharedPageFeatures();
+
 function initSubpageInteractiveEffects() {
     const cards = document.querySelectorAll(
         ".list-item-people, .category-card, .social-card, .social-card-group, .social-link-item, .contact-card, .contact-method, .contact-donation, .video-card, .card-list .card, .about-card, .tournament-card, .event-winner-card"
     );
-    if (!cards.length) return;
-
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    if (!reduceMotion && finePointer) {
-        cards.forEach((card) => {
-            card.addEventListener("pointermove", (event) => {
-                const rect = card.getBoundingClientRect();
-                card.style.setProperty("--mouse-x", (event.clientX - rect.left) + "px");
-                card.style.setProperty("--mouse-y", (event.clientY - rect.top) + "px");
-            });
-        });
-    }
-
-    if (reduceMotion || !("IntersectionObserver" in window)) {
-        cards.forEach((item) => item.classList.add("is-visible"));
-        return;
-    }
-
-    const observer = new IntersectionObserver((entries, currentObserver) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("is-visible");
-                currentObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
-    cards.forEach((item) => observer.observe(item));
+    initializeCardEffects(cards);
 }
-if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initSubpageInteractiveEffects, { once: true });
+if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", initSubpageInteractiveEffects, { once: true });
 else initSubpageInteractiveEffects();
 async function initHomepageStatsSync() {
     const card = document.querySelector(".bento-card--stats");

@@ -75,7 +75,6 @@ const INFO_MAP = {
 const DOM = {};
 const STATE = {
     tournaments: [],
-    selectedEvent: null,
     currentView: 'calendar',
     displayYear: undefined,
     displayMonth: undefined,
@@ -98,9 +97,9 @@ function cacheDOMElements() {
     DOM.calendarWrapper = document.getElementById('calendar-wrapper');
     DOM.timelineWrapper = document.getElementById('timeline-wrapper');
     DOM.timelineContainer = document.getElementById('timeline-container');
+    DOM.scheduleSkeleton = document.getElementById('schedule-skeleton');
     DOM.calendarBody = document.getElementById('calendar-body');
     DOM.monthTitle = document.getElementById('month-title');
-    DOM.monthYear = document.getElementById('month-year');
     DOM.btnPrevMonth = document.getElementById('btn-prev-month');
     DOM.btnNextMonth = document.getElementById('btn-next-month');
     DOM.btnMonthSelect = document.getElementById('btn-month-select');
@@ -624,7 +623,7 @@ function hideScheduleTooltip() {
     tooltip.hidden = true;
 }
 
-document.addEventListener('scroll', hideScheduleTooltip, true);
+document.addEventListener('scroll', hideScheduleTooltip, { capture: true, passive: true });
 window.addEventListener('resize', hideScheduleTooltip, { passive: true });
 
 function createEventIcon(tournament) {
@@ -779,7 +778,6 @@ function openModal(tournament) {
         STATE.lastFocusedElement = document.activeElement;
         STATE.previousBodyOverflow = document.body.style.overflow;
     }
-    STATE.selectedEvent = tournament;
     const urls = getModalURLs(tournament);
     const isTentative = isTentativeEvent(tournament);
     const eventName = tournament.eventName || 'Chi tiết giải đấu';
@@ -850,21 +848,8 @@ function closeModal() {
     DOM.eventModal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = STATE.previousBodyOverflow;
     STATE.previousBodyOverflow = '';
-    STATE.selectedEvent = null;
     STATE.lastFocusedElement?.focus?.();
     STATE.lastFocusedElement = null;
-}
-
-function updateNavButtonStates() {
-    // Month navigation remains unrestricted in both directions.
-    if (DOM.btnPrevMonth) {
-        DOM.btnPrevMonth.disabled = false;
-        DOM.btnPrevMonth.style.opacity = '1';
-    }
-    if (DOM.btnNextMonth) {
-        DOM.btnNextMonth.disabled = false;
-        DOM.btnNextMonth.style.opacity = '1';
-    }
 }
 
 function updateViewSwitcherButtons() {
@@ -891,7 +876,6 @@ function updateMonthHeading() {
         DOM.btnYearSelect?.setAttribute('aria-label', `Chọn năm. Đang xem năm ${yearStr}`);
         if (DOM.monthLive) DOM.monthLive.textContent = `Đang xem tháng ${STATE.displayMonth + 1} năm ${yearStr}`;
     }
-    if (DOM.monthYear) DOM.monthYear.textContent = '';
 }
 
 function renderActiveView() {
@@ -906,7 +890,6 @@ function renderActiveView() {
     }
 
     updateMonthHeading();
-    updateNavButtonStates();
     updateFilterControls();
     updateResultsSummary();
 
@@ -946,6 +929,7 @@ function switchView(view) {
 
 /* ---------- Month / year dropdowns ---------- */
 const SELECT_MENU = { el: null, kind: '', trigger: null, isOpen: false };
+let selectMenuPositionFrame = 0;
 const SELECT_MIN_YEAR = 1900;
 const SELECT_MAX_YEAR = 2100;
 
@@ -1058,6 +1042,14 @@ function positionSelectMenu() {
     menu.style.top = `${top}px`;
 }
 
+function scheduleSelectMenuPosition() {
+    if (!SELECT_MENU.isOpen || selectMenuPositionFrame) return;
+    selectMenuPositionFrame = window.requestAnimationFrame(() => {
+        selectMenuPositionFrame = 0;
+        if (SELECT_MENU.isOpen) positionSelectMenu();
+    });
+}
+
 function openSelectMenu(kind) {
     const trigger = getSelectTrigger(kind);
     if (!trigger || STATE.displayYear === undefined) return;
@@ -1106,6 +1098,10 @@ function openSelectMenu(kind) {
 
 function closeSelectMenu({ restoreFocus = false } = {}) {
     if (!SELECT_MENU.isOpen) return;
+    if (selectMenuPositionFrame) {
+        window.cancelAnimationFrame(selectMenuPositionFrame);
+        selectMenuPositionFrame = 0;
+    }
     const trigger = SELECT_MENU.trigger;
     SELECT_MENU.isOpen = false;
     if (SELECT_MENU.el) SELECT_MENU.el.hidden = true;
@@ -1171,8 +1167,8 @@ function initializeSelectMenus() {
     document.addEventListener('focusin', event => {
         if (SELECT_MENU.isOpen && !isInsideSelect(event.target)) closeSelectMenu();
     });
-    window.addEventListener('resize', () => { if (SELECT_MENU.isOpen) positionSelectMenu(); }, { passive: true });
-    window.addEventListener('scroll', () => { if (SELECT_MENU.isOpen) positionSelectMenu(); }, { passive: true });
+    window.addEventListener('resize', scheduleSelectMenuPosition, { passive: true });
+    window.addEventListener('scroll', scheduleSelectMenuPosition, { passive: true });
 }
 
 /* ---------- Timeline view ---------- */
@@ -1566,7 +1562,7 @@ function setScheduleState(state) {
     setDisplay(DOM.loadingEl, state === 'loading' ? 'block' : 'none');
     setDisplay(DOM.errorEl, state === 'error' ? 'block' : 'none');
     setDisplay(DOM.emptyEl, state === 'empty' ? 'block' : 'none');
-    setDisplay(document.getElementById('schedule-skeleton'), state === 'loading' ? 'block' : 'none');
+    setDisplay(DOM.scheduleSkeleton, state === 'loading' ? 'block' : 'none');
 
     if (state === 'loading' || state === 'error' || state === 'empty') {
         setDisplay(DOM.calendarWrapper, 'none');
