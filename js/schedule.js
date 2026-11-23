@@ -80,7 +80,7 @@ const STATE = {
     displayMonth: undefined,
     lastFocusedElement: null,
     previousBodyOverflow: '',
-    statusFilter: 'all',
+    selectedStatusFilter: 'all',
     hasUsableData: false,
     hasShownSchedule: false,
     refreshPromise: null,
