@@ -1,6 +1,7 @@
 ---
 layout: event
 title: Bảng tổng giải Chiến Trường Thí Quân
+event_data_source: aggregated
 ---
 
 <header>
@@ -35,4 +36,3 @@ title: Bảng tổng giải Chiến Trường Thí Quân
     </a>
 </div>
 
-<script src="/js/aggregated-fetcher.js" defer></script>
