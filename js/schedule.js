@@ -87,10 +87,10 @@ const STATE = {
 };
 
 function cacheDOMElements() {
-    DOM.loadingEl = document.getElementById('loading');
-    DOM.errorEl = document.getElementById('error');
-    DOM.emptyEl = document.getElementById('empty');
-    DOM.lastUpdatedEl = document.getElementById('last-updated');
+    DOM.loadingState = document.getElementById('loading');
+    DOM.errorState = document.getElementById('error');
+    DOM.emptyState = document.getElementById('empty');
+    DOM.lastUpdated = document.getElementById('last-updated');
     DOM.statusFilters = document.getElementById('schedule-status-filters');
     DOM.viewSwitcherContainer = document.getElementById('view-switcher-container');
     DOM.scheduleFilters = document.getElementById('schedule-filters');
@@ -100,24 +100,24 @@ function cacheDOMElements() {
     DOM.scheduleSkeleton = document.getElementById('schedule-skeleton');
     DOM.calendarBody = document.getElementById('calendar-body');
     DOM.monthTitle = document.getElementById('month-title');
-    DOM.btnPrevMonth = document.getElementById('btn-prev-month');
-    DOM.btnNextMonth = document.getElementById('btn-next-month');
-    DOM.btnMonthSelect = document.getElementById('btn-month-select');
-    DOM.btnYearSelect = document.getElementById('btn-year-select');
+    DOM.previousMonthButton = document.getElementById('btn-prev-month');
+    DOM.nextMonthButton = document.getElementById('btn-next-month');
+    DOM.monthSelectButton = document.getElementById('btn-month-select');
+    DOM.yearSelectButton = document.getElementById('btn-year-select');
     DOM.monthLabel = document.getElementById('month-select-label');
     DOM.yearLabel = document.getElementById('year-select-label');
     DOM.monthLive = document.getElementById('month-live');
     DOM.resultsSummary = document.getElementById('schedule-results-summary');
     DOM.resetFilters = document.getElementById('schedule-reset-filters');
     DOM.categoryButton = document.getElementById('schedule-category-button');
-    DOM.btnViewCalendar = document.getElementById('btn-view-calendar');
-    DOM.btnViewTimeline = document.getElementById('btn-view-timeline');
+    DOM.calendarViewButton = document.getElementById('btn-view-calendar');
+    DOM.timelineViewButton = document.getElementById('btn-view-timeline');
     DOM.scheduleSearch = document.getElementById('schedule-search');
     DOM.schedulePrizeFilter = document.getElementById('schedule-prize-filter');
     DOM.scheduleTypeGroup = document.getElementById('schedule-type-group');
     DOM.eventModal = document.getElementById('eventModal');
     DOM.modalDialog = DOM.eventModal?.querySelector('.cc-modal-dialog') || null;
-    DOM.modalCloseBtn = DOM.eventModal?.querySelector('.cc-modal-close') || null;
+    DOM.modalCloseButton = DOM.eventModal?.querySelector('.cc-modal-close') || null;
     DOM.modalName = document.getElementById('modal-name');
     DOM.modalCategory = document.getElementById('modal-category');
     DOM.modalOrganizer = document.getElementById('modal-organizer');
@@ -127,9 +127,9 @@ function cacheDOMElements() {
     DOM.modalLogo = document.getElementById('modal-logo');
     DOM.modalLogoLink = document.getElementById('modal-logo-link');
     DOM.modalBanner = document.getElementById('modal-banner');
-    DOM.modalJoinBtn = document.getElementById('modal-join');
-    DOM.modalRuleBtn = document.getElementById('modal-rule');
-    DOM.modalResultsBtn = document.getElementById('modal-results');
+    DOM.modalJoinButton = document.getElementById('modal-join');
+    DOM.modalInfoButton = document.getElementById('modal-rule');
+    DOM.modalResultsButton = document.getElementById('modal-results');
 }
 
 function safeUrl(value, fallback = '') {
@@ -435,7 +435,7 @@ function updateFilterControls(filters = getFilterState()) {
     const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter):not([data-internal-filter])') || []);
     const selectedVisibleTypes = allTypes.filter(checkbox => checkbox.checked);
     const hasActiveFilters = Boolean(filters.search || filters.onlyPrize ||
-        selectedVisibleTypes.length !== allTypes.length || STATE.statusFilter !== 'all');
+        selectedVisibleTypes.length !== allTypes.length || STATE.selectedStatusFilter !== 'all');
     if (DOM.resetFilters) DOM.resetFilters.hidden = !hasActiveFilters;
     if (DOM.categoryButton) {
         const categoryLabel = DOM.categoryButton.querySelector('[data-filter-label], .tour-dropdown-btn-content span');
@@ -459,7 +459,7 @@ function resetFilters() {
     if (DOM.scheduleSearch) DOM.scheduleSearch.value = '';
     if (DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = false;
     DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)').forEach(checkbox => { checkbox.checked = true; });
-    STATE.statusFilter = 'all';
+    STATE.selectedStatusFilter = 'all';
     updateStatusFilterButtons();
     filterSchedule();
 }
@@ -474,21 +474,21 @@ function getFilterState() {
 
 function updateStatusFilterButtons() {
     if (DOM.statusFilters instanceof HTMLSelectElement) {
-        DOM.statusFilters.value = STATE.statusFilter;
+        DOM.statusFilters.value = STATE.selectedStatusFilter;
     }
 }
 
 function statusMatchesFilter(tournament) {
     const status = getEventStatus(tournament);
-    if (STATE.statusFilter === 'upcoming') return status === STATUS.UPCOMING || status === STATUS.TENTATIVE;
-    if (STATE.statusFilter === 'ongoing') return status === STATUS.ONGOING;
-    if (STATE.statusFilter === 'ended') return status === STATUS.ENDED;
+    if (STATE.selectedStatusFilter === 'upcoming') return status === STATUS.UPCOMING || status === STATUS.TENTATIVE;
+    if (STATE.selectedStatusFilter === 'ongoing') return status === STATUS.ONGOING;
+    if (STATE.selectedStatusFilter === 'ended') return status === STATUS.ENDED;
     return true;
 }
 
 function setStatusFilter(status) {
     if (!['all', 'upcoming', 'ongoing', 'ended'].includes(status)) return;
-    STATE.statusFilter = status;
+    STATE.selectedStatusFilter = status;
     saveFiltersToURL();
     updateStatusFilterButtons();
     renderActiveView();
@@ -507,7 +507,7 @@ function loadFiltersFromURL() {
     if (params.has('search') && DOM.scheduleSearch) DOM.scheduleSearch.value = params.get('search');
     if (params.has('prize') && DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = (params.get('prize') === '1');
     const status = params.get('status');
-    if (['upcoming', 'ongoing', 'ended'].includes(status)) STATE.statusFilter = status;
+    if (['upcoming', 'ongoing', 'ended'].includes(status)) STATE.selectedStatusFilter = status;
     if (params.has('type') && DOM.scheduleTypeGroup) {
         const selectedTypes = params.get('type').toLowerCase().split(/[\s+]+/);
         DOM.scheduleTypeGroup.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)').forEach(cb => {
@@ -521,7 +521,7 @@ function saveFiltersToURL() {
     const filters = getFilterState();
     if (filters.search) params.set('search', filters.search);
     if (DOM.schedulePrizeFilter?.checked) params.set('prize', '1');
-    if (STATE.statusFilter !== 'all') params.set('status', STATE.statusFilter);
+    if (STATE.selectedStatusFilter !== 'all') params.set('status', STATE.selectedStatusFilter);
     const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)') || [])
         .map(cb => cb.value);
     if (filters.types.length < allTypes.length) {
@@ -575,7 +575,7 @@ function groupEventsByDay(filters) {
     return byDay;
 }
 
-let activeScheduleTooltip = null;
+let activeTooltipTrigger = null;
 
 function getScheduleTooltipElement() {
     let tooltip = document.getElementById('schedule-event-tooltip');
@@ -600,7 +600,7 @@ function showScheduleTooltip(icon) {
     tooltip.setAttribute('aria-hidden', 'false');
     tooltip.classList.add('is-visible');
     icon.setAttribute('aria-describedby', tooltip.id);
-    activeScheduleTooltip = icon;
+    activeTooltipTrigger = icon;
 
     const anchor = icon.getBoundingClientRect();
     const bounds = tooltip.getBoundingClientRect();
@@ -615,8 +615,8 @@ function showScheduleTooltip(icon) {
 
 function hideScheduleTooltip() {
     const tooltip = document.getElementById('schedule-event-tooltip');
-    activeScheduleTooltip?.removeAttribute('aria-describedby');
-    activeScheduleTooltip = null;
+    activeTooltipTrigger?.removeAttribute('aria-describedby');
+    activeTooltipTrigger = null;
     if (!tooltip) return;
     tooltip.classList.remove('is-visible');
     tooltip.setAttribute('aria-hidden', 'true');
@@ -825,21 +825,21 @@ function openModal(tournament) {
     DOM.modalLogoLink.rel = 'noopener noreferrer';
 
     if (joinUrl) {
-        DOM.modalJoinBtn.href = joinUrl;
-        DOM.modalJoinBtn.removeAttribute('aria-disabled');
-        DOM.modalJoinBtn.tabIndex = 0;
+        DOM.modalJoinButton.href = joinUrl;
+        DOM.modalJoinButton.removeAttribute('aria-disabled');
+        DOM.modalJoinButton.tabIndex = 0;
     } else {
-        DOM.modalJoinBtn.removeAttribute('href');
-        DOM.modalJoinBtn.setAttribute('aria-disabled', 'true');
-        DOM.modalJoinBtn.tabIndex = -1;
+        DOM.modalJoinButton.removeAttribute('href');
+        DOM.modalJoinButton.setAttribute('aria-disabled', 'true');
+        DOM.modalJoinButton.tabIndex = -1;
     }
-    DOM.modalRuleBtn.href = safeUrl(urls.newsUrl, '/events');
-    DOM.modalResultsBtn.href = safeUrl(urls.resultUrl, '/events/tournaments');
+    DOM.modalInfoButton.href = safeUrl(urls.newsUrl, '/events');
+    DOM.modalResultsButton.href = safeUrl(urls.resultUrl, '/events/tournaments');
 
     DOM.eventModal.classList.add('open');
     DOM.eventModal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
-    (DOM.modalCloseBtn || DOM.modalDialog)?.focus({ preventScroll: true });
+    (DOM.modalCloseButton || DOM.modalDialog)?.focus({ preventScroll: true });
 }
 
 function closeModal() {
@@ -854,8 +854,8 @@ function closeModal() {
 
 function updateViewSwitcherButtons() {
     [
-        ['calendar', DOM.btnViewCalendar],
-        ['timeline', DOM.btnViewTimeline]
+        ['calendar', DOM.calendarViewButton],
+        ['timeline', DOM.timelineViewButton]
     ].forEach(([view, button]) => {
         if (!button) return;
         const isActive = STATE.currentView === view;
@@ -872,8 +872,8 @@ function updateMonthHeading() {
         DOM.monthTitle.dataset.monthKey = key;
         if (DOM.monthLabel) DOM.monthLabel.textContent = `Tháng ${STATE.displayMonth + 1}`;
         if (DOM.yearLabel) DOM.yearLabel.textContent = yearStr;
-        DOM.btnMonthSelect?.setAttribute('aria-label', `Chọn tháng. Đang xem tháng ${STATE.displayMonth + 1}`);
-        DOM.btnYearSelect?.setAttribute('aria-label', `Chọn năm. Đang xem năm ${yearStr}`);
+        DOM.monthSelectButton?.setAttribute('aria-label', `Chọn tháng. Đang xem tháng ${STATE.displayMonth + 1}`);
+        DOM.yearSelectButton?.setAttribute('aria-label', `Chọn năm. Đang xem năm ${yearStr}`);
         if (DOM.monthLive) DOM.monthLive.textContent = `Đang xem tháng ${STATE.displayMonth + 1} năm ${yearStr}`;
     }
 }
@@ -881,11 +881,11 @@ function updateMonthHeading() {
 function renderActiveView() {
     if (DOM.calendarWrapper) DOM.calendarWrapper.style.display = 'none';
     if (DOM.timelineWrapper) DOM.timelineWrapper.style.display = 'none';
-    if (DOM.emptyEl) DOM.emptyEl.style.display = 'none';
+    if (DOM.emptyState) DOM.emptyState.style.display = 'none';
     updateStatusFilterButtons();
 
     if (STATE.tournaments.length === 0) {
-        if (DOM.emptyEl) DOM.emptyEl.style.display = 'block';
+        if (DOM.emptyState) DOM.emptyState.style.display = 'block';
         return;
     }
 
@@ -901,10 +901,10 @@ function renderActiveView() {
 
     const hasVisibleEvents = getCurrentMonthEvents().length > 0 ||
         (isTimeline && getTimelineCarryOverEvents().length > 0);
-    if (DOM.emptyEl && !hasVisibleEvents) {
-        const message = DOM.emptyEl.querySelector('p');
+    if (DOM.emptyState && !hasVisibleEvents) {
+        const message = DOM.emptyState.querySelector('p');
         if (message) message.textContent = 'Không có sự kiện nào khớp với các bộ lọc trong tháng này.';
-        DOM.emptyEl.style.display = 'block';
+        DOM.emptyState.style.display = 'block';
     }
 }
 
@@ -934,7 +934,7 @@ const SELECT_MIN_YEAR = 1900;
 const SELECT_MAX_YEAR = 2100;
 
 function getSelectTrigger(kind) {
-    return kind === 'month' ? DOM.btnMonthSelect : DOM.btnYearSelect;
+    return kind === 'month' ? DOM.monthSelectButton : DOM.yearSelectButton;
 }
 
 function buildSelectMenu() {
@@ -1144,7 +1144,7 @@ function selectFromMenu(kind, value) {
 
 function initializeSelectMenus() {
     const menu = buildSelectMenu();
-    [['month', DOM.btnMonthSelect], ['year', DOM.btnYearSelect]].forEach(([kind, trigger]) => {
+    [['month', DOM.monthSelectButton], ['year', DOM.yearSelectButton]].forEach(([kind, trigger]) => {
         if (!trigger) return;
         trigger.setAttribute('aria-controls', menu.id);
         trigger.addEventListener('click', () => {
@@ -1160,7 +1160,7 @@ function initializeSelectMenus() {
     });
 
     const isInsideSelect = target =>
-        SELECT_MENU.el?.contains(target) || DOM.btnMonthSelect?.contains(target) || DOM.btnYearSelect?.contains(target);
+        SELECT_MENU.el?.contains(target) || DOM.monthSelectButton?.contains(target) || DOM.yearSelectButton?.contains(target);
     document.addEventListener('click', event => {
         if (SELECT_MENU.isOpen && !isInsideSelect(event.target)) closeSelectMenu();
     });
@@ -1559,9 +1559,9 @@ function parseLastUpdated(data) {
 }
 
 function setScheduleState(state) {
-    setDisplay(DOM.loadingEl, state === 'loading' ? 'block' : 'none');
-    setDisplay(DOM.errorEl, state === 'error' ? 'block' : 'none');
-    setDisplay(DOM.emptyEl, state === 'empty' ? 'block' : 'none');
+    setDisplay(DOM.loadingState, state === 'loading' ? 'block' : 'none');
+    setDisplay(DOM.errorState, state === 'error' ? 'block' : 'none');
+    setDisplay(DOM.emptyState, state === 'empty' ? 'block' : 'none');
     setDisplay(DOM.scheduleSkeleton, state === 'loading' ? 'block' : 'none');
 
     if (state === 'loading' || state === 'error' || state === 'empty') {
@@ -1571,8 +1571,8 @@ function setScheduleState(state) {
 }
 
 function setLastUpdated(data) {
-    if (!DOM.lastUpdatedEl) return;
-    DOM.lastUpdatedEl.textContent = parseLastUpdated(data).toLocaleString('vi-VN', {
+    if (!DOM.lastUpdated) return;
+    DOM.lastUpdated.textContent = parseLastUpdated(data).toLocaleString('vi-VN', {
         year: 'numeric', month: 'long', day: 'numeric',
         hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
@@ -1622,7 +1622,7 @@ function writeScheduleCache(data) {
 
 function showScheduleError(error) {
     setScheduleState('error');
-    if (!DOM.errorEl) return;
+    if (!DOM.errorState) return;
 
     const wrapper = document.createElement('div');
     wrapper.className = 'error';
@@ -1643,7 +1643,7 @@ function showScheduleError(error) {
     retry.addEventListener('click', () => loadTournaments(), { once: true });
     hint.append(' ', forum);
     wrapper.append(message, hint, retry);
-    DOM.errorEl.replaceChildren(wrapper);
+    DOM.errorState.replaceChildren(wrapper);
 }
 
 async function refreshScheduleData({ background = false } = {}) {
@@ -1695,8 +1695,8 @@ async function loadTournaments() {
             }
 
             const cacheIsFresh = Date.now() - cached.savedAt <= SCHEDULE_CACHE_TTL_MS;
-            if (!cacheIsFresh && DOM.lastUpdatedEl) {
-                DOM.lastUpdatedEl.textContent += ' · đang dùng dữ liệu lưu tạm';
+            if (!cacheIsFresh && DOM.lastUpdated) {
+                DOM.lastUpdated.textContent += ' · đang dùng dữ liệu lưu tạm';
             }
             // Render immediately from cache; refresh the source in the background.
             void refreshScheduleData({ background: true });
@@ -1785,12 +1785,12 @@ function initializeEventListeners() {
     if (DOM.scheduleTypeGroup) DOM.scheduleTypeGroup.addEventListener('change', filterSchedule);
     if (DOM.resetFilters) DOM.resetFilters.addEventListener('click', resetFilters);
     if (DOM.categoryButton) DOM.categoryButton.addEventListener('click', () => toggleTourDropdown('schedule-category-dropdown'));
-    if (DOM.btnPrevMonth) DOM.btnPrevMonth.addEventListener('click', () => changeMonth(-1));
-    if (DOM.btnNextMonth) DOM.btnNextMonth.addEventListener('click', () => changeMonth(1));
-    if (DOM.btnViewCalendar) DOM.btnViewCalendar.addEventListener('click', () => switchView('calendar'));
-    if (DOM.btnViewTimeline) DOM.btnViewTimeline.addEventListener('click', () => switchView('timeline'));
+    if (DOM.previousMonthButton) DOM.previousMonthButton.addEventListener('click', () => changeMonth(-1));
+    if (DOM.nextMonthButton) DOM.nextMonthButton.addEventListener('click', () => changeMonth(1));
+    if (DOM.calendarViewButton) DOM.calendarViewButton.addEventListener('click', () => switchView('calendar'));
+    if (DOM.timelineViewButton) DOM.timelineViewButton.addEventListener('click', () => switchView('timeline'));
     initializeSelectMenus();
-    if (DOM.modalCloseBtn) DOM.modalCloseBtn.addEventListener('click', closeModal);
+    if (DOM.modalCloseButton) DOM.modalCloseButton.addEventListener('click', closeModal);
     if (DOM.statusFilters instanceof HTMLSelectElement) {
         DOM.statusFilters.addEventListener('change', () => setStatusFilter(DOM.statusFilters.value));
     }
