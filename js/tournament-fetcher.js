@@ -547,7 +547,7 @@
         tbody.appendChild(skeletonFragment);
 
         let success = 0;
-        await Promise.allSettled(ids.map(async id => {
+        await Promise.allSettled(ids.map(async (id, idx) => {
             try {
                 const data = await getTour(id); 
                 if (!data) return;
