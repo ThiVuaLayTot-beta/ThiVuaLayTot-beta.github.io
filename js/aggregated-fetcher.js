@@ -197,44 +197,71 @@
     const RequestManager = {
         active: 0,
         queue: [],
+        inFlight: new Map(),
+
         async acquire() {
-            if (this.active >= CONFIG.MAX_CONCURRENT) {
-                await new Promise(r => this.queue.push(r));
+            if (this.active < CONFIG.MAX_CONCURRENT) {
+                this.active++;
+                return;
             }
-            this.active++;
+            await new Promise(resolve => this.queue.push(resolve));
         },
+
         release() {
-            this.active--;
-            if (this.queue.length) this.queue.shift()();
+            const next = this.queue.shift();
+            if (next) {
+                next();
+                return;
+            }
+            this.active = Math.max(0, this.active - 1);
         },
+
         async fetch(url, isJson = true) {
             const cached = Cache.get(url);
             if (cached) return cached;
-            await this.acquire();
-            try {
-                for (let attempt = 0; attempt < 2; attempt++) {
-                    try {
-                        const response = await fetch(url);
-                        if (response.status === 429) {
-                            await new Promise(r => setTimeout(r, 2000));
-                            continue;
+
+            const requestKey = `${isJson ? 'json' : 'text'}:${url}`;
+            const pending = this.inFlight.get(requestKey);
+            if (pending) return pending;
+
+            const request = (async () => {
+                await this.acquire();
+                try {
+                    for (let attempt = 0; attempt < 2; attempt++) {
+                        try {
+                            const response = await fetch(url);
+                            if (response.status === 429) {
+                                await new Promise(resolve => setTimeout(resolve, 2000));
+                                continue;
+                            }
+                            if (!response.ok) return null;
+
+                            const data = isJson ? await response.json() : await response.text();
+                            if (url.startsWith(API.CHESS_COM)) {
+                                const ttl = url.includes('/player/') ? CONFIG.CACHE_TTL.p : CONFIG.CACHE_TTL.t;
+                                Cache.set(url, data, ttl);
+                            } else {
+                                Cache.memory.set(url, data);
+                            }
+                            return data;
+                        } catch (error) {
+                            if (attempt === 1) return null;
+                            await new Promise(resolve => setTimeout(resolve, 1000));
                         }
-                        if (!response.ok) return null;
-                        const data = isJson ? await response.json() : await response.text();
-                        if (url.startsWith(API.CHESS_COM)) {
-                            const ttl = url.includes('/player/') ? CONFIG.CACHE_TTL.p : CONFIG.CACHE_TTL.t;
-                            Cache.set(url, data, ttl);
-                        } else {
-                            Cache.memory.set(url, data);
-                        }
-                        return data;
-                    } catch (e) {
-                        if (attempt === 1) return null;
-                        await new Promise(r => setTimeout(r, 1000));
                     }
+                    return null;
+                } finally {
+                    this.release();
                 }
+            })();
+
+            this.inFlight.set(requestKey, request);
+            try {
+                return await request;
             } finally {
-                this.release();
+                if (this.inFlight.get(requestKey) === request) {
+                    this.inFlight.delete(requestKey);
+                }
             }
         }
     };
@@ -352,44 +379,56 @@
                 tournamentIds.map(id => RequestManager.fetch(`${API.CHESS_COM}/tournament/${id}`))
             );
 
-            const playerScores = {};
-            const tournaments = [];
-            let monthStatus = 'finished';
-
-            for (let i = 0; i < tournamentIds.length; i++) {
-                const data = tourDataList[i];
-                if (!data) continue;
+            const processedTournaments = await Promise.all(tournamentIds.map(async (id, index) => {
+                const data = tourDataList[index];
+                if (!data) return null;
 
                 const meta = this.getTournamentMetadata(data);
-                if (!meta.isFinished) monthStatus = 'unfinished';
+                const pointsMap = new Map();
 
-                let pointsMap = new Map();
                 if (meta.rounds > 0) {
                     const roundData = await RequestManager.fetch(
-                        `${API.CHESS_COM}/tournament/${tournamentIds[i]}/${meta.rounds}`
+                        `${API.CHESS_COM}/tournament/${id}/${meta.rounds}`
                     );
                     const groups = roundData?.groups || [];
                     const playerList = groups.length
-                        ? (await Promise.allSettled(groups.map(url => RequestManager.fetch(url))))
-                            .filter(r => r.status === 'fulfilled')
-                            .flatMap(r => r.value?.players || [])
+                        ? (await Promise.all(groups.map(url => RequestManager.fetch(url))))
+                            .flatMap(result => result?.players || [])
                         : (roundData?.players || []);
-                    playerList.forEach(p => {
-                        if (p.username) {
-                            pointsMap.set(p.username.toLowerCase(), p.points || 0);
+
+                    playerList.forEach(player => {
+                        if (player.username) {
+                            pointsMap.set(player.username.toLowerCase(), player.points || 0);
                         }
                     });
                 }
 
-                const tourPlayers = this.buildPlayersMap(data.players || [], pointsMap);
+                return {
+                    id,
+                    data,
+                    meta,
+                    players: this.buildPlayersMap(data.players || [], pointsMap)
+                };
+            }));
+
+            const playerScores = {};
+            const tournaments = [];
+            let monthStatus = 'finished';
+
+            for (const processed of processedTournaments) {
+                if (!processed) continue;
+
+                const { id, data, meta, players } = processed;
+                if (!meta.isFinished) monthStatus = 'unfinished';
+
                 const format = meta.rounds === 1
-                    ? `<span class="tournament-format-type"><a href="https://support.chess.com/articles/8562889-what-are-arena-tournaments" target="_blank">Đấu trường Arena</a><span class="tournament-format-detail">${calculateDuration(meta.startTime, meta.endTime)}</span><img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" width="15" height="15" alt="Arena" style="vertical-align:middle"></span>`
-                    : `<span class="tournament-format-type"><a href="https://chess.com/terms/swiss-chess" target="_blank">Hệ Thụy Sĩ</a><span class="tournament-format-detail">${escapeHTML(meta.rounds)} vòng</span><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" width="15" height="15" alt="Swiss" style="vertical-align:middle"></span>`;
+                    ? `<span class="tournament-format-type"><a href="https://support.chess.com/articles/8562889-what-are-arena-tournaments" target="_blank" rel="noopener noreferrer">Đấu trường Arena</a><span class="tournament-format-detail">${calculateDuration(meta.startTime, meta.endTime)}</span><img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" width="15" height="15" alt="Arena" style="vertical-align:middle"></span>`
+                    : `<span class="tournament-format-type"><a href="https://chess.com/terms/swiss-chess" target="_blank" rel="noopener noreferrer">Hệ Thụy Sĩ</a><span class="tournament-format-detail">${escapeHTML(meta.rounds)} vòng</span><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" width="15" height="15" alt="Swiss" style="vertical-align:middle"></span>`;
 
                 tournaments.push({
-                    id: tournamentIds[i],
+                    id,
                     name: data.name || 'Unknown',
-                    url: data.url || `${CONFIG.CHESS_COM_URL}/tournament/${tournamentIds[i]}`,
+                    url: data.url || `${CONFIG.CHESS_COM_URL}/tournament/${id}`,
                     variant: meta.variant,
                     setup: meta.setup,
                     timeClass: meta.timeClass,
@@ -398,12 +437,12 @@
                     duration: calculateDuration(meta.startTime, meta.endTime),
                     playersCount: meta.registeredCount,
                     startTime: meta.startTime,
-                    format: format,
+                    format,
                     status: meta.status,
                     isFinished: meta.isFinished
                 });
 
-                tourPlayers.forEach(player => {
+                players.forEach(player => {
                     const usernameLower = player.username.toLowerCase();
                     if (!playerScores[usernameLower]) {
                         playerScores[usernameLower] = {
@@ -414,7 +453,7 @@
                     }
                     playerScores[usernameLower].totalPoints += player.points;
                     playerScores[usernameLower].breakdown.push({
-                        tourId: tournamentIds[i],
+                        tourId: id,
                         tourName: data.name || 'Unknown',
                         points: player.points,
                         url: data.url,
@@ -422,7 +461,7 @@
                         timeControl: meta.timeControl,
                         timeClass: meta.timeClass,
                         startTime: meta.startTime,
-                        format: format
+                        format
                     });
                 });
             }
@@ -489,8 +528,8 @@
             </td>`;
         },
 
-        async monthRow(monthId, eventType) {
-            const { playerScores, tournaments, status } = await DataProcessor.getMonthlyAggregation(monthId, eventType);
+        async monthRow(monthId, aggregation) {
+            const { playerScores, tournaments, status } = aggregation;
             const topPlayers = Object.values(playerScores)
                 .sort((a, b) => b.totalPoints - a.totalPoints)
                 .slice(0, CONFIG.TOP_PLAYERS);
@@ -768,19 +807,22 @@
         async loadMonthsData(months) {
             const tbody = document.getElementById('tournament-tbody');
             const skeletonRows = this.createSkeletonRows(months.length);
-            skeletonRows.forEach(row => tbody.appendChild(row));
+            const skeletonFragment = document.createDocumentFragment();
+            skeletonRows.forEach(row => skeletonFragment.appendChild(row));
+            tbody.appendChild(skeletonFragment);
 
             let successCount = 0;
             const eventType = document.querySelector('[data-fetch-aggregated]').dataset.fetchAggregated || 'cttq';
 
             await Promise.allSettled(months.map(async (monthId, idx) => {
                 try {
-                    const html = await Renderer.monthRow(monthId, eventType);
+                    const aggregation = await DataProcessor.getMonthlyAggregation(monthId, eventType);
+                    const html = await Renderer.monthRow(monthId, aggregation);
                     const tempContainer = document.createElement('tbody');
                     tempContainer.innerHTML = html;
                     const newRow = tempContainer.firstElementChild;
 
-                    const { playerScores, tournaments, status } = await DataProcessor.getMonthlyAggregation(monthId, eventType);
+                    const { playerScores, tournaments, status } = aggregation;
 
                     const [monthNum, year] = monthId.split('-').map(Number);
                     const timestamp = new Date(year, monthNum - 1, 1).getTime();
@@ -791,15 +833,19 @@
                     newRow.setAttribute('data-status', status || 'finished');
 
                     skeletonRows[idx].replaceWith(newRow);
-                    document.getElementById('current-tournament').textContent = `${++successCount}/${months.length}`;
-
-                    if (typeof window.searchTable === 'function') {
-                        window.searchTable();
+                    successCount++;
+                    const currentTournament = document.getElementById('current-tournament');
+                    if (currentTournament) {
+                        currentTournament.textContent = `${successCount}/${months.length}`;
                     }
                 } catch (e) {
                     console.error('Error loading month:', monthId, e);
                 }
             }));
+
+            if (typeof window.searchTable === 'function') {
+                window.searchTable();
+            }
 
             this.updateStatus(successCount, months.length);
         },
@@ -833,6 +879,7 @@
         updateStatus(successCount, totalCount) {
             const statusIcon = document.getElementById('statusIcon');
             const isComplete = successCount === totalCount;
+            if (!statusIcon) return;
             statusIcon.style.color = isComplete ? 'var(--primary-success)' : 'var(--color-danger)';
             statusIcon.className = isComplete ? 'bx bx-check' : 'bx bx-x';
         }

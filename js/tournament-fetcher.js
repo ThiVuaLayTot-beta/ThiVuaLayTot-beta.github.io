@@ -351,18 +351,69 @@
     };
 
     // ========== Fetch & Data Processing ==========
-    async function fetchRetry(url, json = true) {
-        for (let i = 0; i < 2; i++) {
+    const RequestManager = {
+        active: 0,
+        queue: [],
+        inFlight: new Map(),
+
+        async acquire() {
+            if (this.active < CONFIG.MAX_CONCURRENT) {
+                this.active++;
+                return;
+            }
+            await new Promise(resolve => this.queue.push(resolve));
+        },
+
+        release() {
+            const next = this.queue.shift();
+            if (next) {
+                next();
+                return;
+            }
+            this.active = Math.max(0, this.active - 1);
+        },
+
+        async fetch(url, json = true) {
+            const requestKey = `${json ? 'json' : 'text'}:${url}`;
+            const pending = this.inFlight.get(requestKey);
+            if (pending) return pending;
+
+            const request = (async () => {
+                await this.acquire();
+                try {
+                    for (let attempt = 0; attempt < 2; attempt++) {
+                        try {
+                            const response = await fetch(url);
+                            if (response.status === 429) {
+                                await new Promise(resolve => setTimeout(resolve, 2000));
+                                continue;
+                            }
+                            if (!response.ok) return null;
+                            return json ? await response.json() : await response.text();
+                        } catch (error) {
+                            if (attempt === 1) return null;
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+                    }
+                    return null;
+                } finally {
+                    this.release();
+                }
+            })();
+
+            this.inFlight.set(requestKey, request);
             try {
-                const r = await fetch(url);
-                if (r.status === 429) { await new Promise(x => setTimeout(x, 2000)); continue; }
-                if (!r.ok) return null;
-                return json ? await r.json() : await r.text();
-            } catch (e) { 
-                if (i === 1) return null; 
-                await new Promise(x => setTimeout(x, 1000)); 
+                return await request;
+            } finally {
+                if (this.inFlight.get(requestKey) === request) {
+                    this.inFlight.delete(requestKey);
+                }
             }
         }
+    };
+
+    async function fetchRetry(url, json = true) {
+        return RequestManager.fetch(url, json);
     }
 
     async function getTour(id) {
@@ -474,6 +525,8 @@
         }
 
         const tbody = document.getElementById('tournament-tbody');
+        const currentTournament = document.getElementById('current-tournament');
+        const skeletonFragment = document.createDocumentFragment();
         const skeletons = ids.map(() => {
             const tr = document.createElement('tr'); 
             tr.className = 'skeleton-row';
@@ -488,13 +541,13 @@
                     <div class="skeleton skeleton-text" style="width: 40px;"></div></div></div></td>`;
             }
             tr.innerHTML = row;
-            tbody.appendChild(tr); 
+            skeletonFragment.appendChild(tr);
             return tr;
         });
+        tbody.appendChild(skeletonFragment);
 
         let success = 0;
-        await Promise.allSettled(ids.map(async (id, idx) => {
-            if (!Cache.get(`t_${id}`)) await new Promise(r => setTimeout(r, (idx % CONFIG.MAX_CONCURRENT) * 100));
+        await Promise.allSettled(ids.map(async id => {
             try {
                 const data = await getTour(id); 
                 if (!data) return;
@@ -556,15 +609,18 @@
                 skeletons[idx].setAttribute('data-variant', v.toLowerCase());
                 skeletons[idx].setAttribute('data-format', rds === 1 ? 'arena' : 'swiss');
                 skeletons[idx].className = '';
-                document.getElementById('current-tournament').textContent = `${++success}/${ids.length}`;
-
-                if (typeof window.searchTable === 'function') {
-                    window.searchTable();
+                success++;
+                if (currentTournament) {
+                    currentTournament.textContent = `${success}/${ids.length}`;
                 }
             } catch (e) {
                 console.error('Error loading tournament:', id, e);
             }
         }));
+
+        if (typeof window.searchTable === 'function') {
+            window.searchTable();
+        }
 
         const icon = document.getElementById('statusIcon');
         if (icon) { 

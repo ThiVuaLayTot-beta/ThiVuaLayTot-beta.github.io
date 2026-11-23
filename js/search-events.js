@@ -190,6 +190,9 @@ window.saveTournamentFiltersToURL = function() {
 /**
  * Mapping for filter values to normalize data attributes
  */
+let lastSortValue = null;
+let lastSortedRowCount = -1;
+
 const FILTER_MAPPINGS = {
     timeclass: {
         'lightning': 'bullet',
@@ -257,7 +260,7 @@ window.searchTable = debounce(function() {
     }
 
     const searchFilter = searchInput.value.toUpperCase();
-    const table = document.querySelector('.styled-table');
+    const table = document.getElementById('tournament-results-table');
     if (!table) return;
 
     const tbody = document.getElementById('tournament-tbody') || table.querySelector('tbody');
@@ -289,25 +292,20 @@ window.searchTable = debounce(function() {
     };
 
     const comparator = sortComparators[sortValue];
-    if (comparator) {
+    if (comparator && (sortValue !== lastSortValue || loadedRows.length !== lastSortedRowCount)) {
         loadedRows.sort(comparator);
-        loadedRows.forEach(row => tbody.appendChild(row));
-        skeletonRows.forEach(row => tbody.appendChild(row));
-        if (notMatchRow) tbody.appendChild(notMatchRow);
+        const sortedRows = document.createDocumentFragment();
+        loadedRows.forEach(row => sortedRows.appendChild(row));
+        skeletonRows.forEach(row => sortedRows.appendChild(row));
+        if (notMatchRow) sortedRows.appendChild(notMatchRow);
+        tbody.appendChild(sortedRows);
+        lastSortValue = sortValue;
+        lastSortedRowCount = loadedRows.length;
     }
 
     // Apply filters
     const filters = {
-        textMatch: (row) => {
-            if (!searchFilter) return true;
-            const cells = row.getElementsByTagName('td');
-            for (const cell of cells) {
-                if (cell.textContent.toUpperCase().indexOf(searchFilter) > -1) {
-                    return true;
-                }
-            }
-            return false;
-        },
+        textMatch: (row) => !searchFilter || row.textContent.toUpperCase().includes(searchFilter),
         timeClass: timeClassChecked.length < getAllCheckboxValues('timeclass-checkbox-group').length ? timeClassChecked : null,
         variant: variantCheckedRaw.length < getAllCheckboxValues('variant-checkbox-group').length ? variantChecked : null,
         format: formatChecked.length < getAllCheckboxValues('format-checkbox-group').length ? formatChecked : null,
