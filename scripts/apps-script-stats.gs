@@ -1,6 +1,4 @@
-/**
- * Google Apps Script exporter for Thí Vua Lấy Tốt homepage stats.
-  * Deploy as a Web App (Execute as: Me, Who has access: Anyone)
+/**  Deploy as a Web App (Execute as: Me, Who has access: Anyone)
    * and run installEvery3DaysStatsTrigger() once to schedule every-3-days 07:00 syncs and serve JSON directly via Web App doGet(e).
     */
 
@@ -9,7 +7,8 @@
             YOUTUBE_HANDLE_URL: 'https://' + 'www.youtube.com' + '/@TungJohnPlayingChess',
               CHESSCOM_CLUB_SLUG: 'thi-vua-lay-tot-tungjohn-playing-chess',
                 CHESSCOM_CLUB_API: 'https://' + 'api.chess.com' + '/pub/club/thi-vua-lay-tot-tungjohn-playing-chess',
-        TOURNAMENTS_GIST_ID: '9c53a11fca709a656076bf826e10b79d',
+        TOURNAMENTS_GIST_ID: '9c53a11fca709a656076bf6de7c118b0',
+    TOURNAMENTS_GIST_RAW_BASE: 'https://gist.githubusercontent.com/M-DinhHoangViet/9c53a11fca709a656076bf6de7c118b0/raw',
               PROPERTY_KEY: 'TVLT_HOMEPAGE_STATS',
                         SHEET_NAME: 'Stats'
     };
@@ -57,14 +56,14 @@
     var peRaw = (peResult && typeof peResult.total === 'number') ? peResult.total : null;
 
         var youtubeSubsRaw = (typeof ytRaw === 'number' && ytRaw > 0) ? ytRaw : (prev.youtube_subs_raw || null);
-        var youtubeSubs = youtubeSubsRaw ? formatThousandsK_(youtubeSubsRaw) : (prev.youtube_subs || '17K+');
+        var youtubeSubs = youtubeSubsRaw ? formatThousandsK_(youtubeSubsRaw) : (prev.youtube_subs || '174K+');
 
         var chesscomMembersRaw = (typeof ccRaw === 'number' && ccRaw > 0) ? ccRaw : (prev.chesscom_members_raw || null);
-        var chesscomMembers = chesscomMembersRaw ? formatThousandsK_(chesscomMembersRaw) : (prev.chesscom_members || '5K+');
+        var chesscomMembers = chesscomMembersRaw ? formatThousandsK_(chesscomMembersRaw) : (prev.chesscom_members || '22K+');
 
         var prizeEventsBreakdown = (peResult && peResult.breakdown) ? peResult.breakdown : (prev.prize_events_breakdown || null);
     var prizeEventsRaw = (typeof peRaw === 'number' && peRaw > 0) ? peRaw : (prev.prize_events_raw || null);
-        var prizeEvents = prizeEventsRaw ? formatPrizeEvents_(prizeEventsRaw) : (prev.prize_events || '50+');
+        var prizeEvents = prizeEventsRaw ? formatPrizeEvents_(prizeEventsRaw) : (prev.prize_events || '110+');
 
         var payload = {
             youtube_subs: youtubeSubs,
@@ -118,15 +117,15 @@
         try {
             var htmlRes = UrlFetchApp.fetch(STATS_CONFIG.YOUTUBE_HANDLE_URL, {
                 muteHttpExceptions: true,
-                headers: { 'User-Agent': 'Mozilla/5.0' }
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36', 'Accept-Language': 'en-US,en;q=0.9', 'Cookie': 'CONSENT=YES+cb; SOCS=CAI' }
         });
         if (htmlRes.getResponseCode() !== 200) return null;
         var html = htmlRes.getContentText();
-        var match = html.match(/"subscriberCountText"\s*:\s*\{\s*"simpleText"\s*:\s*"([^"]+)"/) || html.match(/"subscriberCountText"\s*:\s*\{\s*"runs"\s*:\s*\[\s*\{\s*"text"\s*:\s*"([^"]+)"/);
+        var match = html.match(/"content"\s*:\s*"([\d.,]+\s*[KMBkmb]?)\s+subscribers"/i) || html.match(/"accessibilityText"\s*:\s*"([\d.,]+\s*[KMBkmb]?)\s+subscribers"/i) || html.match(/"subscriberCountText"\s*:\s*\{\s*"simpleText"\s*:\s*"([^"]+)"/) || html.match(/"subscriberCountText"\s*:\s*\{\s*"runs"\s*:\s*\[\s*\{\s*"text"\s*:\s*"([^"]+)"/) || html.match(/([\d.,]+\s*(?:K|M|N|Tr|nghìn|triệu)?)\s*(?:subscribers|người đăng ký)/i);
         if (match && match[1]) {
             return parseCompactNumber_(match[1]);
         }
-        } catch (err) {}
+    } catch (err) {}
         return null;
     }
 
@@ -142,30 +141,19 @@
         return null;
     }
 
-  function readGistFileContent_(fileObj) {
-    if (!fileObj) return '';
-    if (fileObj.truncated === true && fileObj.raw_url) {
-        var rawRes = UrlFetchApp.fetch(fileObj.raw_url, { muteHttpExceptions: true });
-        if (rawRes.getResponseCode() === 200) {
-            return rawRes.getContentText() || '';
-        }
-    }
-    return fileObj.content || '';
+  function fetchRawGistText_(fileName) {
+    try {
+        var url = STATS_CONFIG.TOURNAMENTS_GIST_RAW_BASE + '/' + encodeURIComponent(fileName) + '?t=' + Date.now();
+        var res = UrlFetchApp.fetch(url, { muteHttpExceptions: true, headers: { 'User-Agent': 'GoogleAppsScript' } });
+        if (res.getResponseCode() === 200) return res.getContentText() || '';
+    } catch (err) {}
+    return '';
 }
 
 function fetchPrizeEventsFromGist_() {
     try {
-        var url = 'https://api.github.com/gists/' + STATS_CONFIG.TOURNAMENTS_GIST_ID;
-        var res = UrlFetchApp.fetch(url, {
-            muteHttpExceptions: true,
-            headers: { 'User-Agent': 'GoogleAppsScript' }
-        });
-        if (res.getResponseCode() !== 200) return null;
-        var data = JSON.parse(res.getContentText());
-        var files = (data && data.files) ? data.files : {};
-
         var getNonEmptyLines = function (fileName) {
-            var text = readGistFileContent_(files[fileName]);
+            var text = fetchRawGistText_(fileName);
             if (!text) return [];
             return String(text)
                 .split(/\r?\n/)
@@ -176,6 +164,7 @@ function fetchPrizeEventsFromGist_() {
         var tvlt = getNonEmptyLines('tvlt.txt').length;
         var cbtt = getNonEmptyLines('cbtt.txt').length;
         var cttqLines = getNonEmptyLines('cttq.txt');
+        if (cttqLines.length === 0) cttqLines = getNonEmptyLines('cttq');
         var cttqStarLines = cttqLines.filter(function (line) { return line.charAt(0) === '*'; });
         var cttqMonthly = cttqStarLines.length > 0 ? cttqStarLines.length : cttqLines.length;
 
