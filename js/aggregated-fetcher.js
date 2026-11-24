@@ -833,10 +833,15 @@
 
         async loadMonthsData(months) {
             const tbody = document.getElementById('tournament-tbody');
-            const skeletonRows = this.createSkeletonRows(months.length);
+            const skeletonRows = this.createSkeletonRows(months);
             const skeletonFragment = document.createDocumentFragment();
             skeletonRows.forEach(row => skeletonFragment.appendChild(row));
             tbody.appendChild(skeletonFragment);
+
+            // Month dates are known up front, so the visible slots can be sorted immediately.
+            if (typeof window.sortTournamentRows === 'function') {
+                window.sortTournamentRows();
+            }
 
             let successCount = 0;
             const eventType = document.querySelector('[data-fetch-aggregated]').dataset.fetchAggregated || 'cttq';
@@ -855,6 +860,7 @@
                     const timestamp = new Date(year, monthNum - 1, 1).getTime();
 
                     newRow.setAttribute('data-start-time', timestamp);
+                    newRow.setAttribute('data-sort-order', String(idx));
                     newRow.setAttribute('data-players-count', Object.keys(playerScores).length);
                     newRow.setAttribute('data-tours-count', tournaments.length);
                     newRow.setAttribute('data-status', status || 'finished');
@@ -879,6 +885,19 @@
                     }));
                 } catch (e) {
                     console.error('Error loading month:', monthId, e);
+
+                    // A failed month is no longer an endless skeleton or an unknown sort key.
+                    const failedRow = skeletonRows[idx];
+                    if (failedRow) {
+                        failedRow.setAttribute('data-players-count', '0');
+                        failedRow.setAttribute('data-tours-count', '0');
+                        failedRow.classList.remove('skeleton-row');
+                        failedRow.classList.add('results-row-error');
+                        failedRow.innerHTML = `<td colspan="${3 + CONFIG.TOP_PLAYERS}" class="table-empty-state">Không thể tải dữ liệu tháng ${escapeHTML(monthId)}.</td>`;
+                    }
+                    if (typeof window.searchTable === 'function') {
+                        window.searchTable();
+                    }
                 }
             }));
 
@@ -889,10 +908,16 @@
             this.updateStatus(successCount, months.length);
         },
 
-        createSkeletonRows(count) {
-            return Array.from({ length: count }, () => {
+        createSkeletonRows(months) {
+            return months.map((monthId, index) => {
                 const tr = document.createElement('tr');
                 tr.className = 'skeleton-row';
+                const [monthNum, year] = monthId.split('-').map(Number);
+                const timestamp = Number.isFinite(monthNum) && Number.isFinite(year)
+                    ? new Date(year, monthNum - 1, 1).getTime()
+                    : 0;
+                tr.setAttribute('data-start-time', String(timestamp));
+                tr.setAttribute('data-sort-order', String(index));
                 let html = `
                     <td><div class="skeleton skeleton-text" style="width: 80%;"></div></td>
                     <td><div class="skeleton skeleton-text" style="width: 60%;"></div></td>
