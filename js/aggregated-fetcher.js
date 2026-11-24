@@ -859,6 +859,7 @@
                     newRow.setAttribute('data-tours-count', tournaments.length);
                     newRow.setAttribute('data-status', status || 'finished');
 
+                    newRow.classList.add('results-row-enter');
                     skeletonRows[idx].replaceWith(newRow);
                     successCount++;
                     const currentTournament = document.getElementById('current-tournament');
