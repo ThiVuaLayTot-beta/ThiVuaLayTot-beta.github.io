@@ -494,33 +494,32 @@
             return `<div class="user-badges-component"><div class="user-badges-badge ${badge.c}"><span class="${badge.i}"></span><span>${badge.t}</span></div></div>`;
         },
 
-        async playerCell(player, playerData, monthId) {
+        playerCell(player, monthId) {
             if (!player) {
                 return '<td style="color: var(--primary-warning)">Chưa có dữ liệu!</td>';
             }
 
-            const data = playerData?.player || playerData || {
-                username: player.username,
-                avatar: CONFIG.DEFAULT_AVATAR,
-                status: 'N/A'
-            };
+            const safeUsername = escapeHTML(player.username);
+            const safeAvatar = escapeHTML(CONFIG.DEFAULT_AVATAR);
+            const profileUrl = `${CONFIG.CHESS_COM_URL}/member/${encodeURIComponent(player.username)}`;
 
-            const badgeHtml = this.formatBadge(data.status);
-            const safeUsername = escapeHTML(data.username);
-            const safeAvatar = escapeHTML(safeHttpUrl(data.avatar, CONFIG.DEFAULT_AVATAR));
-            const profileUrl = `${CONFIG.CHESS_COM_URL}/member/${encodeURIComponent(data.username)}`;
-
-            return `<td class="player-cell clickable-player" data-month="${escapeHTML(monthId || '')}" data-player='${escapeHTML(JSON.stringify(player))}' data-avatar='${safeAvatar}' data-status='${escapeHTML(data.status || "N/A")}' style="cursor: pointer;">
+            return `<td class="player-cell clickable-player"
+                    data-month="${escapeHTML(monthId || '')}"
+                    data-player='${escapeHTML(JSON.stringify(player))}'
+                    data-player-username="${safeUsername}"
+                    data-avatar="${safeAvatar}"
+                    data-status="N/A"
+                    style="cursor: pointer;">
                 <div class="post-user-component">
                     <div class="cc-avatar-component post-user-avatar">
-                        <img class="cc-avatar-img" src="${safeAvatar}" height="50" width="50" alt="${safeUsername}">
+                        <img class="cc-avatar-img" src="${safeAvatar}" loading="lazy" height="50" width="50" alt="${safeUsername}">
                     </div>
                     <div class="post-user-details">
                         <div class="user-tagline-component">
                             <a class="user-username-component user-tagline-username" href="${profileUrl}" target="_blank" rel="noopener noreferrer">${safeUsername}</a>
                         </div>
                         <div class="post-user-status">
-                            <span>${badgeHtml}</span>
+                            <span class="player-status-badge"></span>
                             <span class="score-display" style="font-weight: bold;">${escapeHTML(player.totalPoints)} ĐIỂM</span>
                         </div>
                     </div>
@@ -528,22 +527,18 @@
             </td>`;
         },
 
-        async monthRow(monthId, aggregation) {
+        monthRow(monthId, aggregation) {
             const { playerScores, tournaments, status } = aggregation;
             const topPlayers = Object.values(playerScores)
                 .sort((a, b) => b.totalPoints - a.totalPoints)
                 .slice(0, CONFIG.TOP_PLAYERS);
 
-            const finishedCount = tournaments.filter(t => t.isFinished).length;
+            const finishedCount = tournaments.filter(tournament => tournament.isFinished).length;
             const totalCount = tournaments.length;
 
-            topPlayers.forEach((p, idx) => {
-                recordTop6Finish(monthId, p, idx + 1, totalCount, finishedCount, status);
+            topPlayers.forEach((player, index) => {
+                recordTop6Finish(monthId, player, index + 1, totalCount, finishedCount, status);
             });
-
-            const playerDetails = await Promise.all(
-                topPlayers.map(p => RequestManager.fetch(`${API.CHESS_COM}/player/${p.username}`))
-            );
 
             const tournamentsJson = escapeHTML(JSON.stringify(tournaments));
             const safeMonthId = escapeHTML(monthId);
@@ -563,11 +558,43 @@
                 </td>
                 <td class="players-count">${Object.keys(playerScores).length}</td>`;
 
-            for (let i = 0; i < CONFIG.TOP_PLAYERS; i++) {
-                html += await this.playerCell(topPlayers[i], playerDetails[i], monthId);
+            for (let index = 0; index < CONFIG.TOP_PLAYERS; index++) {
+                html += this.playerCell(topPlayers[index], monthId);
             }
 
             return html + '</tr>';
+        },
+
+        async loadMonthAvatars(row) {
+            const cells = Array.from(row.querySelectorAll('.player-cell[data-player-username]'));
+            const usernames = [...new Set(cells.map(cell => cell.dataset.playerUsername).filter(Boolean))];
+
+            await Promise.allSettled(usernames.map(async username => {
+                const profile = await RequestManager.fetch(
+                    `${API.CHESS_COM}/player/${encodeURIComponent(username)}`
+                );
+                if (!profile) return;
+
+                const avatar = profile.avatar || CONFIG.DEFAULT_AVATAR;
+                const status = profile.status || 'N/A';
+
+                cells
+                    .filter(cell => cell.dataset.playerUsername?.toLowerCase() === username.toLowerCase())
+                    .forEach(cell => {
+                        const image = cell.querySelector('.cc-avatar-img');
+                        if (image && profile.avatar) {
+                            image.src = safeHttpUrl(avatar, CONFIG.DEFAULT_AVATAR);
+                        }
+
+                        cell.dataset.avatar = safeHttpUrl(avatar, CONFIG.DEFAULT_AVATAR);
+                        cell.dataset.status = status;
+
+                        const statusElement = cell.querySelector('.player-status-badge');
+                        if (statusElement) {
+                            statusElement.innerHTML = this.formatBadge(status);
+                        }
+                    });
+            }));
         }
     };
 
@@ -838,6 +865,17 @@
                     if (currentTournament) {
                         currentTournament.textContent = `${successCount}/${months.length}`;
                     }
+
+                    if (typeof window.searchTable === 'function') {
+                        window.searchTable();
+                    }
+
+                    // Give the completed month a chance to paint before fetching its avatars.
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        Renderer.loadMonthAvatars(newRow).catch(error => {
+                            console.error('Error loading player avatars for month:', monthId, error);
+                        });
+                    }));
                 } catch (e) {
                     console.error('Error loading month:', monthId, e);
                 }
