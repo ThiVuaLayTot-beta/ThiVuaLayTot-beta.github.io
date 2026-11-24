@@ -443,79 +443,98 @@
         return !isNaN(n) ? (n >= 60 ? `${Math.floor(n/60)}+0` : `${n}+0`) : '3+0';
     }
 
-    // ========== Render Player Cell with Enhanced Modal Data ==========
-    async function renderPlayer(u, pts, tourData, rank) {
+    // ========== Render Player Cell ==========
+    function renderPlayer(u, pts, tourData, rank) {
         if (!u) return '<td style="color:var(--primary-warning)">Giải chưa kết thúc!</td>';
-        
-        const sp = SPECIAL_PLAYERS.get(u.toLowerCase());
-        const specialUsername = sp || u;
-        
-        const p = await getPlayer(specialUsername);
 
-        // Extract variant and format
-        const variant = tourData.settings?.rules || tourData.rules || 'standard';
-        const isCustom = (variant === 'standard' || variant === 'chess') && tourData.settings?.initial_setup;
-        const finalVariant = isCustom ? 'custom' : variant;
-        
-        const rounds = tourData.settings?.total_rounds || tourData.rounds || tourData.total_rounds || 0;
-        const format = rounds === 1 
-            ? `Đấu trường Arena ${calculateDuration(tourData.start_time || tourData.startTime, tourData.finish_time || tourData.endTime)}`
-            : `Hệ Thụy Sĩ ${rounds} vòng`;
-
-        // Store in global with enhanced tournament details
+        const specialUsername = SPECIAL_PLAYERS.get(u.toLowerCase()) || u;
         const breakdownItem = {
             tourId: tourData.id || tourData.url,
             tourName: tourData.name || 'Unknown',
             url: tourData.url || `${CONFIG.CHESS_COM_URL}/tournament/${tourData.id}`,
             points: pts,
             rank: rank || 0,
-            variant: finalVariant,
+            variant: tourData._finalVariant,
             timeControl: parseTC(tourData.settings?.time_control || tourData.time_control || tourData.timeControl),
             timeClass: tourData.settings?.time_class || tourData.time_class || 'classical',
             playersCount: tourData.settings?.registered_user_count || tourData.players_registered || tourData.players?.length || 0,
             startTime: tourData.start_time || tourData.startTime || 0,
-            format: format
+            format: tourData._formatLabel
         };
 
+        // Save tournament details now; fetch the player's profile only after this month renders.
         storePlayerData(specialUsername, {
-            avatar: p?.avatar || CONFIG.DEFAULT_AVATAR,
-            status: p?.status || 'N/A',
+            avatar: CONFIG.DEFAULT_AVATAR,
+            status: 'N/A',
             breakdown: [breakdownItem]
         });
 
         const safeUsername = escapeHTML(specialUsername);
-        const safeAvatar = escapeHTML(safeHttpUrl(p?.avatar, CONFIG.DEFAULT_AVATAR));
         const profileUrl = `${CONFIG.CHESS_COM_URL}/member/${encodeURIComponent(specialUsername)}`;
 
-        return `<td class="player-cell clickable-player" data-username="${safeUsername}" data-points="${escapeHTML(pts)}" style="cursor: pointer;">
+        return `<td class="player-cell clickable-player" data-username="${safeUsername}" data-player-username="${safeUsername}" data-points="${escapeHTML(pts)}" style="cursor: pointer;">
             <div class="post-user-component">
                 <div class="cc-avatar-component post-user-avatar">
-                    <img class="cc-avatar-img" src="${safeAvatar}" height="50" width="50" alt="${safeUsername}">
+                    <img class="cc-avatar-img" src="${CONFIG.DEFAULT_AVATAR}" loading="lazy" height="50" width="50" alt="${safeUsername}">
                 </div>
                 <div class="post-user-details">
                     <div class="user-tagline-component">
                         <a class="user-username-component user-tagline-username" href="${profileUrl}" target="_blank" rel="noopener noreferrer">${safeUsername}</a>
                     </div>
                     <div class="post-user-status">
-                        <span>${formatBadge(p?.status)}</span>
-                        <span class="score-display" style="font-weight: bold;">${pts} ĐIỂM</span>
+                        <span class="player-status-badge"></span>
+                        <span class="score-display" style="font-weight: bold;">${escapeHTML(pts)} ĐIỂM</span>
                     </div>
                 </div>
             </div>
         </td>`;
     }
 
+    async function loadMonthAvatars(rows) {
+        const cells = rows.flatMap(row =>
+            Array.from(row.querySelectorAll('.player-cell[data-player-username]'))
+        );
+        const usernames = [...new Set(cells.map(cell => cell.dataset.playerUsername).filter(Boolean))];
+
+        await Promise.allSettled(usernames.map(async username => {
+            const profile = await getPlayer(username);
+            if (!profile) return;
+
+            const avatar = profile.avatar || CONFIG.DEFAULT_AVATAR;
+            const status = profile.status || 'N/A';
+            storePlayerData(username, { avatar, status, breakdown: [] });
+
+            cells
+                .filter(cell => cell.dataset.playerUsername?.toLowerCase() === username.toLowerCase())
+                .forEach(cell => {
+                    const image = cell.querySelector('.cc-avatar-img');
+                    if (image && profile.avatar) {
+                        image.src = safeHttpUrl(avatar, CONFIG.DEFAULT_AVATAR);
+                    }
+
+                    const statusElement = cell.querySelector('.player-status-badge');
+                    if (statusElement) statusElement.innerHTML = formatBadge(status);
+                });
+        }));
+    }
+
+    function runAfterPaint(callback) {
+        // Let the completed month reach the screen before starting profile requests.
+        window.requestAnimationFrame(() => window.requestAnimationFrame(callback));
+    }
+
     // ========== Main Init ==========
     async function init(type = 'tvlt', containerId = 'tournament-table') {
-        const el = document.getElementById(containerId); 
+        const el = document.getElementById(containerId);
         if (!el) return;
+
         el.innerHTML = '<div class="loading">Đang xử lý dữ liệu...</div>';
 
         const txt = await fetchRetry(`${CONFIG.GIST_BASE}/${type}.txt`, false);
-        const ids = txt ? txt.split('\n').filter(l => l.trim()) : [];
-        if (!ids.length) { 
-            el.innerHTML = '<div class="error">Không tìm thấy giải đấu.</div>'; 
-            return; 
+        const ids = txt ? txt.split('\n').map(id => id.trim()).filter(Boolean) : [];
+        if (!ids.length) {
+            el.innerHTML = '<div class="error">Không tìm thấy giải đấu.</div>';
+            return;
         }
 
         el.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Giải đấu</th><th class=\"organization-day\">Thời gian bắt đầu</th><th class=\"rules\">Thể lệ</th><th class=\"players-count\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display:none\"><td colspan=\"10\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div><br><br><hr>";
@@ -528,7 +547,7 @@
         const currentTournament = document.getElementById('current-tournament');
         const skeletonFragment = document.createDocumentFragment();
         const skeletons = ids.map(() => {
-            const tr = document.createElement('tr'); 
+            const tr = document.createElement('tr');
             tr.className = 'skeleton-row';
             let row = `
                 <td><div class="skeleton skeleton-text" style="width: 80%;"></div></td>
@@ -546,105 +565,174 @@
         });
         tbody.appendChild(skeletonFragment);
 
+        // Bind interactions before the first month is rendered, so early results are usable.
+        tbody.addEventListener('click', event => {
+            const playerCell = event.target.closest('.clickable-player');
+            if (playerCell) {
+                EventHandlers.handlePlayerClick(
+                    playerCell.dataset.username,
+                    playerCell.dataset.points
+                );
+                return;
+            }
+
+            const link = event.target.closest('.custom-variant-link');
+            if (link) {
+                event.preventDefault();
+                EventHandlers.handleCustomVariantClick(link.dataset.setup);
+            }
+        });
+
+        /*
+         * Fetch tournament metadata first to group IDs by their actual start month.
+         * Player profiles and avatars are not requested during this stage.
+         */
+        const metadataResults = await Promise.allSettled(ids.map(async (id, idx) => ({
+            id,
+            idx,
+            data: await getTour(id)
+        })));
+
+        const monthsByKey = new Map();
+        metadataResults.forEach(result => {
+            if (result.status !== 'fulfilled' || !result.value.data) return;
+
+            const entry = result.value;
+            const timestamp = entry.data.start_time || entry.data.startTime || 0;
+            const date = timestamp ? new Date(timestamp * 1000) : null;
+            const monthKey = date && !isNaN(date)
+                ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+                : 'unknown';
+
+            if (!monthsByKey.has(monthKey)) monthsByKey.set(monthKey, []);
+            monthsByKey.get(monthKey).push(entry);
+        });
+
         let success = 0;
-        await Promise.allSettled(ids.map(async (id, idx) => {
-            try {
-                const data = await getTour(id); 
-                if (!data) return;
-                
-                const rds = data.settings?.total_rounds || data.rounds || data.total_rounds || 0;
-                let ptsMap = new Map();
-                
-                if (rds > 0) {
-                    const rdData = await fetchRetry(`${CONFIG.CHESS_COM_BASE}/tournament/${id}/${rds}`);
-                    const groups = rdData?.groups || [];
-                    const pList = groups.length 
+
+        const monthJobs = Array.from(monthsByKey.values(), async monthEntries => {
+            // Keep each month independent: one slow month does not block another month's rows.
+            const processedResults = await Promise.allSettled(monthEntries.map(async entry => {
+                const { id, idx, data } = entry;
+                const rounds = data.settings?.total_rounds || data.rounds || data.total_rounds || 0;
+                const pointsMap = new Map();
+
+                if (rounds > 0) {
+                    const roundData = await fetchRetry(`${CONFIG.CHESS_COM_BASE}/tournament/${id}/${rounds}`);
+                    const groups = roundData?.groups || [];
+                    const playerList = groups.length
                         ? (await Promise.allSettled(groups.map(url => fetchRetry(url))))
-                            .filter(r => r.status === 'fulfilled')
-                            .flatMap(r => r.value?.players || []) 
-                        : (rdData?.players || []);
-                    pList.forEach(p => p.username && ptsMap.set(p.username.toLowerCase(), p.points || 0));
+                            .filter(result => result.status === 'fulfilled')
+                            .flatMap(result => result.value?.players || [])
+                        : (roundData?.players || []);
+
+                    playerList.forEach(player => {
+                        if (player.username) {
+                            pointsMap.set(player.username.toLowerCase(), player.points || 0);
+                        }
+                    });
                 }
 
                 const players = (data.players || [])
-                    .map(p => {
-                        const u = typeof p === 'string' ? p : p.username;
-                        return { 
-                            u, 
-                            pts: p.points ?? ptsMap.get(u.toLowerCase()) ?? 0, 
-                            rank: p.rank || p.place_finish 
+                    .map(player => {
+                        const username = typeof player === 'string' ? player : player.username;
+                        if (!username) return null;
+                        return {
+                            username,
+                            points: player.points ?? pointsMap.get(username.toLowerCase()) ?? 0,
+                            rank: player.rank || player.place_finish
                         };
                     })
-                    .sort((a, b) => (a.rank || Infinity) - (b.rank || Infinity) || b.pts - a.pts);
+                    .filter(Boolean)
+                    .sort((a, b) =>
+                        (a.rank || Infinity) - (b.rank || Infinity) || b.points - a.points
+                    );
 
-                const top = players.slice(0, CONFIG.MAX_PLAYERS);
-                await Promise.allSettled(top.map(p => getPlayer(SPECIAL_PLAYERS.get(p.u.toLowerCase()) || p.u)));
+                return { id, idx, data, rounds, topPlayers: players.slice(0, CONFIG.MAX_PLAYERS) };
+            }));
 
-                // Add tournament ID to data
+            const renderedRows = [];
+
+            for (const result of processedResults) {
+                if (result.status !== 'fulfilled') {
+                    console.error('Error processing tournament in month:', result.reason);
+                    continue;
+                }
+
+                const { id, idx, data, rounds, topPlayers } = result.value;
                 data.id = id;
 
-                let v = data.settings?.rules || data.rules || 'standard';
-                const s = data.settings?.initial_setup || null;
-                if ((v === 'standard' || v === 'chess') && s) v = 'custom';
+                let variant = data.settings?.rules || data.rules || 'standard';
+                const setup = data.settings?.initial_setup || null;
+                if ((variant === 'standard' || variant === 'chess') && setup) {
+                    variant = 'custom';
+                }
 
-                const fmtStr = rds === 1
-                    ? `<span class="tournament-format-type"><a href="https://support.chess.com/articles/8562889-what-are-arena-tournaments" target="_blank">Đấu trường Arena</a><span class="tournament-format-detail">${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}</span> <img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" width="15" height="15" alt="Arena" style="vertical-align:middle"></span>`
-                    : `<span class="tournament-format-type"><a href="https://chess.com/terms/swiss-chess" target="_blank">Hệ Thụy Sĩ</a><span class="tournament-format-detail">${escapeHTML(rds)} vòng</span><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" width="15" height="15" alt="Swiss" style="vertical-align:middle"></span>`;
+                const formatLabel = rounds === 1
+                    ? `Đấu trường Arena ${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}`
+                    : `Hệ Thụy Sĩ ${rounds} vòng`;
+                data._finalVariant = variant;
+                data._formatLabel = formatLabel;
 
-                const tournamentUrl = escapeHTML(safeHttpUrl(data.url, `${CONFIG.CHESS_COM_URL}/tournament/${encodeURIComponent(id)}`));
+                const formatHtml = rounds === 1
+                    ? `<span class="tournament-format-type"><a href="https://support.chess.com/articles/8562889-what-are-arena-tournaments" target="_blank" rel="noopener noreferrer">Đấu trường Arena</a><span class="tournament-format-detail">${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}</span> <img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" width="15" height="15" alt="Arena" style="vertical-align:middle"></span>`
+                    : `<span class="tournament-format-type"><a href="https://chess.com/terms/swiss-chess" target="_blank" rel="noopener noreferrer">Hệ Thụy Sĩ</a><span class="tournament-format-detail">${escapeHTML(rounds)} vòng</span><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" width="15" height="15" alt="Swiss" style="vertical-align:middle"></span>`;
+
+                const tournamentUrl = escapeHTML(safeHttpUrl(
+                    data.url,
+                    `${CONFIG.CHESS_COM_URL}/tournament/${encodeURIComponent(id)}`
+                ));
                 const tournamentName = escapeHTML(data.name || 'Unknown');
                 let row = `<td><a href="${tournamentUrl}" target="_blank" rel="noopener noreferrer">${tournamentName}</a></td>
                     <td>${formatDate(data.start_time || data.startTime)}</td>
-                    <td>${formatTimeControl(parseTC(data.settings?.time_control || data.time_control || data.timeControl), data.settings?.time_class || data.time_class)}${formatVariantLink(v, s)}${fmtStr}</td>
+                    <td>${formatTimeControl(parseTC(data.settings?.time_control || data.time_control || data.timeControl), data.settings?.time_class || data.time_class)}${formatVariantLink(variant, setup)}${formatHtml}</td>
                     <td class="players-count">${data.settings?.registered_user_count || data.players_registered || data.players?.length || 0}</td>`;
 
-                for (let i = 0; i < CONFIG.MAX_PLAYERS; i++) {
-                    row += await renderPlayer(top[i]?.u, top[i]?.pts || 0, data, i + 1);
+                for (let rank = 0; rank < CONFIG.MAX_PLAYERS; rank++) {
+                    const player = topPlayers[rank];
+                    row += renderPlayer(player?.username, player?.points || 0, data, rank + 1);
                 }
 
-                skeletons[idx].innerHTML = row;
-                skeletons[idx].setAttribute('data-start-time', data.start_time || data.startTime || 0);
-                skeletons[idx].setAttribute('data-players-count', data.settings?.registered_user_count || data.players_registered || data.players?.length || 0);
-                skeletons[idx].setAttribute('data-time-class', data.settings?.time_class || data.time_class || 'classical');
-                skeletons[idx].setAttribute('data-variant', v.toLowerCase());
-                skeletons[idx].setAttribute('data-format', rds === 1 ? 'arena' : 'swiss');
-                skeletons[idx].className = '';
+                const tableRow = skeletons[idx];
+                tableRow.innerHTML = row;
+                tableRow.setAttribute('data-start-time', data.start_time || data.startTime || 0);
+                tableRow.setAttribute('data-players-count', data.settings?.registered_user_count || data.players_registered || data.players?.length || 0);
+                tableRow.setAttribute('data-time-class', data.settings?.time_class || data.time_class || 'classical');
+                tableRow.setAttribute('data-variant', variant.toLowerCase());
+                tableRow.setAttribute('data-format', rounds === 1 ? 'arena' : 'swiss');
+                tableRow.className = '';
+                renderedRows.push(tableRow);
+
                 success++;
                 if (currentTournament) {
                     currentTournament.textContent = `${success}/${ids.length}`;
                 }
-            } catch (e) {
-                console.error('Error loading tournament:', id, e);
             }
-        }));
+
+            if (renderedRows.length) {
+                if (typeof window.searchTable === 'function') {
+                    window.searchTable();
+                }
+
+                runAfterPaint(() => {
+                    loadMonthAvatars(renderedRows).catch(error => {
+                        console.error('Error loading player avatars for month:', error);
+                    });
+                });
+            }
+        });
+
+        await Promise.allSettled(monthJobs);
 
         if (typeof window.searchTable === 'function') {
             window.searchTable();
         }
 
         const icon = document.getElementById('statusIcon');
-        if (icon) { 
-            icon.style.color = success === ids.length ? 'var(--primary-success)' : 'var(--color-danger)'; 
-            icon.className = success === ids.length ? 'bx bx-check' : 'bx bx-x'; 
+        if (icon) {
+            icon.style.color = success === ids.length ? 'var(--primary-success)' : 'var(--color-danger)';
+            icon.className = success === ids.length ? 'bx bx-check' : 'bx bx-x';
         }
-
-        // ========== Setup Event Listeners ==========
-        tbody.addEventListener('click', e => {
-            const playerCell = e.target.closest('.clickable-player');
-            if (playerCell) {
-                const username = playerCell.dataset.username;
-                const points = playerCell.dataset.points;
-                EventHandlers.handlePlayerClick(username, points);
-                return;
-            }
-
-            const link = e.target.closest('.custom-variant-link');
-            if (link) {
-                e.preventDefault();
-                const setup = link.dataset.setup;
-                EventHandlers.handleCustomVariantClick(setup);
-            }
-        });
     }
 
     if (document.readyState === 'loading') {
