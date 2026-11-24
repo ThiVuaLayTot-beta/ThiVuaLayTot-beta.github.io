@@ -345,8 +345,9 @@ window.searchTable = debounce(function() {
     const tbody = document.getElementById('tournament-tbody') || table.querySelector('tbody');
     if (!tbody) return;
 
+    const notMatchRow = tbody.querySelector('tr.not-match');
+
     // Prepare filter state
-    const sortValue = document.getElementById('sortFilter')?.value || 'date-desc';
     const timeClassChecked = getCheckedValues('timeclass-checkbox-group');
     const variantCheckedRaw = getCheckedValues('variant-checkbox-group');
     const variantChecked = variantCheckedRaw
