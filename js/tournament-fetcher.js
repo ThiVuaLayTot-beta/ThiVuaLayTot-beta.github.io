@@ -700,7 +700,7 @@
                 tableRow.setAttribute('data-time-class', data.settings?.time_class || data.time_class || 'classical');
                 tableRow.setAttribute('data-variant', variant.toLowerCase());
                 tableRow.setAttribute('data-format', rounds === 1 ? 'arena' : 'swiss');
-                tableRow.className = '';
+                tableRow.className = 'results-row-enter';
                 renderedRows.push(tableRow);
 
                 success++;
