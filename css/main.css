@@ -791,7 +791,8 @@ html {
   border-radius: var(--border-radius-md);
   cursor: pointer;
   user-select: none;
-  transition: all var(--transition-base);
+  transition: var(--transition-base);
+  transition-property: color, background, border-color, box-shadow, opacity, transform, outline, outline-offset;
   background-color: var(--color-primary);
   color: var(--color-text-primary);
   box-shadow: var(--shadow-md);
@@ -1585,7 +1586,8 @@ body {
                                                                                                                                                                                                                           padding: 0 16px !important;
                                                                                                                                                                                                                               font-size: 0.95rem !important;
                                                                                                                                                                                                                                   border-radius: 10px !important;
-                                                                                                                                                                                                                                      transition: all 0.2s ease !important;
+                                                                                                                                                                                                                                      transition: 0.2s ease;
+                                                                                                                                                                                                                                      transition-property: color, background, border-color, border-radius, box-shadow, text-shadow, opacity, transform, outline, outline-offset;
                                                                                                                                                                                                                                         }
 
                                                                                                                                                                                                                                           #mobile-nav-menu .dropdown-menu,
