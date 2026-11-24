@@ -191,7 +191,8 @@ window.saveTournamentFiltersToURL = function() {
  * Mapping for filter values to normalize data attributes
  */
 let lastSortValue = null;
-let lastSortedRowCount = -1;
+let lastSortedRows = new Set();
+let lastSortedTbody = null;
 
 const FILTER_MAPPINGS = {
     timeclass: {
@@ -275,13 +276,20 @@ window.searchTable = debounce(function() {
     const formatChecked = getCheckedValues('format-checkbox-group');
     const cttqStatusValue = document.getElementById('cttq-status-filter')?.value || 'all';
 
-    // Sort rows
-    const allRows = Array.from(tbody.querySelectorAll('tr'));
-    const loadedRows = allRows.filter(r => r.getAttribute('data-start-time') !== null && !r.classList.contains('not-match'));
-    const skeletonRows = allRows.filter(r => r.classList.contains('skeleton-row'));
-    const notMatchRow = allRows.find(r => r.classList.contains('not-match'));
+    // Keep the active table state scoped to its current tbody.
+    if (tbody !== lastSortedTbody) {
+        lastSortedTbody = tbody;
+        lastSortValue = null;
+        lastSortedRows = new Set();
+    }
 
-    // Sort mapping
+    const allRows = Array.from(tbody.querySelectorAll('tr'));
+    const loadedRows = allRows.filter(row =>
+        row.hasAttribute('data-start-time') && !row.classList.contains('not-match')
+    );
+    const skeletonRows = allRows.filter(row => row.classList.contains('skeleton-row'));
+    const notMatchRow = allRows.find(row => row.classList.contains('not-match'));
+
     const sortComparators = {
         'date-desc': (a, b) => (parseInt(b.getAttribute('data-start-time')) || 0) - (parseInt(a.getAttribute('data-start-time')) || 0),
         'date-asc': (a, b) => (parseInt(a.getAttribute('data-start-time')) || 0) - (parseInt(b.getAttribute('data-start-time')) || 0),
@@ -292,15 +300,39 @@ window.searchTable = debounce(function() {
     };
 
     const comparator = sortComparators[sortValue];
-    if (comparator && (sortValue !== lastSortValue || loadedRows.length !== lastSortedRowCount)) {
+
+    if (comparator && sortValue !== lastSortValue) {
+        // A full reorder is needed only when the user changes the sort mode.
+        // This path runs once initially and on explicit sort changes, not on every data batch.
         loadedRows.sort(comparator);
+
         const sortedRows = document.createDocumentFragment();
         loadedRows.forEach(row => sortedRows.appendChild(row));
         skeletonRows.forEach(row => sortedRows.appendChild(row));
         if (notMatchRow) sortedRows.appendChild(notMatchRow);
+
         tbody.appendChild(sortedRows);
+        lastSortedRows = new Set(loadedRows);
         lastSortValue = sortValue;
-        lastSortedRowCount = loadedRows.length;
+    } else if (comparator) {
+        // Incremental path: move only rows that have just finished loading.
+        // Detach the new rows first so they cannot be mistaken for already-sorted siblings.
+        const newRows = loadedRows.filter(row => !lastSortedRows.has(row));
+        if (newRows.length) {
+            newRows.forEach(row => row.remove());
+            newRows.sort(comparator);
+
+            for (const row of newRows) {
+                const sortedSiblings = Array.from(tbody.querySelectorAll('tr[data-start-time]'));
+                const nextRow = sortedSiblings.find(sibling => comparator(row, sibling) < 0);
+                const firstSkeleton = tbody.querySelector('tr.skeleton-row');
+                const insertionPoint = nextRow || firstSkeleton || notMatchRow || null;
+
+                // Existing rows stay mounted; only this newly completed row is inserted.
+                tbody.insertBefore(row, insertionPoint);
+                lastSortedRows.add(row);
+            }
+        }
     }
 
     // Apply filters
