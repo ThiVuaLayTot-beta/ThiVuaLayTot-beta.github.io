@@ -191,8 +191,86 @@ window.saveTournamentFiltersToURL = function() {
  * Mapping for filter values to normalize data attributes
  */
 let lastSortValue = null;
-let lastSortedRows = new Set();
+let lastSortedRowCount = -1;
 let lastSortedTbody = null;
+
+/**
+ * Sorts completed rows and their placeholders as one sequence.
+ * Placeholders keep their metadata-derived sort keys, so replacing one with
+ * its completed row never changes the position of the other rows.
+ */
+function sortTournamentRows() {
+    const table = document.getElementById('tournament-results-table');
+    if (!table) return false;
+
+    const tbody = document.getElementById('tournament-tbody') || table.querySelector('tbody');
+    if (!tbody) return false;
+
+    if (tbody !== lastSortedTbody) {
+        lastSortedTbody = tbody;
+        lastSortValue = null;
+        lastSortedRowCount = -1;
+    }
+
+    const sortValue = document.getElementById('sortFilter')?.value || 'date-desc';
+    const sortAttributes = {
+        'date-desc': 'data-start-time',
+        'date-asc': 'data-start-time',
+        'players-desc': 'data-players-count',
+        'players-asc': 'data-players-count',
+        'tours-desc': 'data-tours-count',
+        'tours-asc': 'data-tours-count'
+    };
+    const sortAttribute = sortAttributes[sortValue];
+    if (!sortAttribute) return false;
+
+    const sortableRows = Array.from(tbody.children).filter(row =>
+        !row.classList.contains('not-match') &&
+        (row.classList.contains('skeleton-row') || row.hasAttribute('data-start-time'))
+    );
+
+    // Do not guess positions when a sort key is not known yet. Standard
+    // tournament pages hydrate every placeholder from metadata first; the
+    // aggregated page waits for exact count keys before applying count sorts.
+    if (!sortableRows.length || sortableRows.some(row => !row.hasAttribute(sortAttribute))) {
+        return false;
+    }
+
+    if (sortValue === lastSortValue && sortableRows.length === lastSortedRowCount) {
+        return false;
+    }
+
+    const sourceOrder = new Map(sortableRows.map((row, index) => [row, index]));
+    const descending = sortValue.endsWith('-desc');
+    const getValue = row => {
+        const value = Number(row.getAttribute(sortAttribute));
+        return Number.isFinite(value) ? value : 0;
+    };
+    const getOriginalOrder = row => {
+        const rawOrder = row.getAttribute('data-sort-order');
+        const value = rawOrder === null ? NaN : Number(rawOrder);
+        return Number.isFinite(value) ? value : sourceOrder.get(row);
+    };
+
+    sortableRows.sort((a, b) => {
+        const difference = getValue(a) - getValue(b);
+        if (difference !== 0) return descending ? -difference : difference;
+        return getOriginalOrder(a) - getOriginalOrder(b);
+    });
+
+    const sortableSet = new Set(sortableRows);
+    const trailingRows = Array.from(tbody.children).filter(row => !sortableSet.has(row));
+    const fragment = document.createDocumentFragment();
+    sortableRows.forEach(row => fragment.appendChild(row));
+    trailingRows.forEach(row => fragment.appendChild(row));
+    tbody.appendChild(fragment);
+
+    lastSortValue = sortValue;
+    lastSortedRowCount = sortableRows.length;
+    return true;
+}
+
+window.sortTournamentRows = sortTournamentRows;
 
 const FILTER_MAPPINGS = {
     timeclass: {
@@ -276,64 +354,8 @@ window.searchTable = debounce(function() {
     const formatChecked = getCheckedValues('format-checkbox-group');
     const cttqStatusValue = document.getElementById('cttq-status-filter')?.value || 'all';
 
-    // Keep the active table state scoped to its current tbody.
-    if (tbody !== lastSortedTbody) {
-        lastSortedTbody = tbody;
-        lastSortValue = null;
-        lastSortedRows = new Set();
-    }
-
-    const allRows = Array.from(tbody.querySelectorAll('tr'));
-    const loadedRows = allRows.filter(row =>
-        row.hasAttribute('data-start-time') && !row.classList.contains('not-match')
-    );
-    const skeletonRows = allRows.filter(row => row.classList.contains('skeleton-row'));
-    const notMatchRow = allRows.find(row => row.classList.contains('not-match'));
-
-    const sortComparators = {
-        'date-desc': (a, b) => (parseInt(b.getAttribute('data-start-time')) || 0) - (parseInt(a.getAttribute('data-start-time')) || 0),
-        'date-asc': (a, b) => (parseInt(a.getAttribute('data-start-time')) || 0) - (parseInt(b.getAttribute('data-start-time')) || 0),
-        'players-desc': (a, b) => (parseInt(b.getAttribute('data-players-count')) || 0) - (parseInt(a.getAttribute('data-players-count')) || 0),
-        'players-asc': (a, b) => (parseInt(a.getAttribute('data-players-count')) || 0) - (parseInt(b.getAttribute('data-players-count')) || 0),
-        'tours-desc': (a, b) => (parseInt(b.getAttribute('data-tours-count')) || 0) - (parseInt(a.getAttribute('data-tours-count')) || 0),
-        'tours-asc': (a, b) => (parseInt(a.getAttribute('data-tours-count')) || 0) - (parseInt(b.getAttribute('data-tours-count')) || 0)
-    };
-
-    const comparator = sortComparators[sortValue];
-
-    if (comparator && sortValue !== lastSortValue) {
-        // A full reorder is needed only when the user changes the sort mode.
-        // This path runs once initially and on explicit sort changes, not on every data batch.
-        loadedRows.sort(comparator);
-
-        const sortedRows = document.createDocumentFragment();
-        loadedRows.forEach(row => sortedRows.appendChild(row));
-        skeletonRows.forEach(row => sortedRows.appendChild(row));
-        if (notMatchRow) sortedRows.appendChild(notMatchRow);
-
-        tbody.appendChild(sortedRows);
-        lastSortedRows = new Set(loadedRows);
-        lastSortValue = sortValue;
-    } else if (comparator) {
-        // Incremental path: move only rows that have just finished loading.
-        // Detach the new rows first so they cannot be mistaken for already-sorted siblings.
-        const newRows = loadedRows.filter(row => !lastSortedRows.has(row));
-        if (newRows.length) {
-            newRows.forEach(row => row.remove());
-            newRows.sort(comparator);
-
-            for (const row of newRows) {
-                const sortedSiblings = Array.from(tbody.querySelectorAll('tr[data-start-time]'));
-                const nextRow = sortedSiblings.find(sibling => comparator(row, sibling) < 0);
-                const firstSkeleton = tbody.querySelector('tr.skeleton-row');
-                const insertionPoint = nextRow || firstSkeleton || notMatchRow || null;
-
-                // Existing rows stay mounted; only this newly completed row is inserted.
-                tbody.insertBefore(row, insertionPoint);
-                lastSortedRows.add(row);
-            }
-        }
-    }
+    // Completed rows keep the slots already sorted with their placeholders.
+    sortTournamentRows();
 
     // Apply filters
     const filters = {
@@ -362,7 +384,8 @@ window.searchTable = debounce(function() {
 
     // Show/hide no-match message
     if (notMatchRow) {
-        notMatchRow.style.display = matchedCount === 0 ? '' : 'none';
+        const hasPendingRows = Array.from(rows).some(row => row.classList.contains('skeleton-row'));
+        notMatchRow.style.display = matchedCount === 0 && !hasPendingRows ? '' : 'none';
     }
 }, 100);
 
