@@ -909,7 +909,6 @@ html {
 /* BACK TO TOP BUTTON */
 
 #back-to-top {
-  display: none;
   position: fixed;
   bottom: var(--space-xl);
   right: var(--space-xl);
@@ -927,7 +926,6 @@ html {
   border-radius: var(--border-radius-lg);
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-base);
   border: var(--border-width-base) solid rgba(53, 201, 252, 0.5);
   box-shadow: var(--shadow-glow);
 }
@@ -1002,12 +1000,6 @@ footer {
   font-weight: 500;
 }
 
-.cc_club_banner {
-  width: auto;
-  height: auto;
-  aspect-ratio: auto 1171 / 614;
-  max-width: 300px;
-}
 
 .footer_content .link_boxes {
   width: 100%;
