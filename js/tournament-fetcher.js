@@ -563,6 +563,9 @@
             skeletonFragment.appendChild(tr);
             return tr;
         });
+        skeletons.forEach((row, index) => {
+            row.setAttribute('data-sort-order', String(index));
+        });
         tbody.appendChild(skeletonFragment);
 
         // Bind interactions before the first month is rendered, so early results are usable.
@@ -594,11 +597,41 @@
         })));
 
         const monthsByKey = new Map();
-        metadataResults.forEach(result => {
-            if (result.status !== 'fulfilled' || !result.value.data) return;
+
+        // Give every placeholder its sort keys before detailed tournament data is processed.
+        // Failed metadata lookups retain a deterministic fallback position at the end.
+        skeletons.forEach(row => {
+            row.setAttribute('data-start-time', '0');
+            row.setAttribute('data-players-count', '0');
+            row.setAttribute('data-tours-count', '0');
+        });
+
+        metadataResults.forEach((result, index) => {
+            const placeholder = skeletons[index];
+            if (result.status !== 'fulfilled' || !result.value.data) {
+                placeholder.className = 'results-row-error';
+                placeholder.innerHTML = `<td colspan="${4 + CONFIG.MAX_PLAYERS}" class="table-empty-state">Không thể tải giải đấu ${escapeHTML(ids[index])}.</td>`;
+                return;
+            }
 
             const entry = result.value;
-            const timestamp = entry.data.start_time || entry.data.startTime || 0;
+            const data = entry.data;
+            const settings = data.settings || {};
+            const timestamp = data.start_time || data.startTime || 0;
+            const rounds = settings.total_rounds || data.rounds || data.total_rounds || 0;
+            const playersCount = settings.registered_user_count || data.players_registered || data.players?.length || 0;
+            const timeClass = settings.time_class || data.time_class || 'classical';
+            let variant = settings.rules || data.rules || 'standard';
+            if ((variant === 'standard' || variant === 'chess') && settings.initial_setup) {
+                variant = 'custom';
+            }
+
+            placeholder.setAttribute('data-start-time', String(timestamp));
+            placeholder.setAttribute('data-players-count', String(playersCount));
+            placeholder.setAttribute('data-time-class', timeClass);
+            placeholder.setAttribute('data-variant', String(variant).toLowerCase());
+            placeholder.setAttribute('data-format', rounds === 1 ? 'arena' : 'swiss');
+
             const date = timestamp ? new Date(timestamp * 1000) : null;
             const monthKey = date && !isNaN(date)
                 ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
@@ -608,12 +641,20 @@
             monthsByKey.get(monthKey).push(entry);
         });
 
+        // Sort all tournament slots once, while they are still placeholders.
+        if (typeof window.sortTournamentRows === 'function') {
+            window.sortTournamentRows();
+        }
+        if (typeof window.searchTable === 'function') {
+            window.searchTable();
+        }
+
         let success = 0;
 
-        const monthJobs = Array.from(monthsByKey.values(), async monthEntries => {
-            // Keep each month independent: one slow month does not block another month's rows.
-            const processedResults = await Promise.allSettled(monthEntries.map(async entry => {
-                const { id, idx, data } = entry;
+        const processTournament = async entry => {
+            const { id, idx, data } = entry;
+
+            try {
                 const rounds = data.settings?.total_rounds || data.rounds || data.total_rounds || 0;
                 const pointsMap = new Map();
 
@@ -647,19 +688,8 @@
                     .sort((a, b) =>
                         (a.rank || Infinity) - (b.rank || Infinity) || b.points - a.points
                     );
+                const topPlayers = players.slice(0, CONFIG.MAX_PLAYERS);
 
-                return { id, idx, data, rounds, topPlayers: players.slice(0, CONFIG.MAX_PLAYERS) };
-            }));
-
-            const renderedRows = [];
-
-            for (const result of processedResults) {
-                if (result.status !== 'fulfilled') {
-                    console.error('Error processing tournament in month:', result.reason);
-                    continue;
-                }
-
-                const { id, idx, data, rounds, topPlayers } = result.value;
                 data.id = id;
 
                 let variant = data.settings?.rules || data.rules || 'standard';
@@ -693,6 +723,7 @@
                     row += renderPlayer(player?.username, player?.points || 0, data, rank + 1);
                 }
 
+                // Replace the tournament's own placeholder; no other row is moved.
                 const tableRow = skeletons[idx];
                 tableRow.innerHTML = row;
                 tableRow.setAttribute('data-start-time', data.start_time || data.startTime || 0);
@@ -701,26 +732,38 @@
                 tableRow.setAttribute('data-variant', variant.toLowerCase());
                 tableRow.setAttribute('data-format', rounds === 1 ? 'arena' : 'swiss');
                 tableRow.className = 'results-row-enter';
-                renderedRows.push(tableRow);
 
                 success++;
                 if (currentTournament) {
                     currentTournament.textContent = `${success}/${ids.length}`;
                 }
-            }
 
-            if (renderedRows.length) {
                 if (typeof window.searchTable === 'function') {
                     window.searchTable();
                 }
 
+                // Start avatar requests only after this specific tournament row has painted.
                 runAfterPaint(() => {
-                    loadMonthAvatars(renderedRows).catch(error => {
-                        console.error('Error loading player avatars for month:', error);
+                    loadMonthAvatars([tableRow]).catch(error => {
+                        console.error('Error loading player avatars for tournament:', id, error);
                     });
                 });
+            } catch (error) {
+                console.error('Error processing tournament:', id, error);
+
+                const failedRow = skeletons[idx];
+                if (failedRow) {
+                    failedRow.className = 'results-row-error';
+                    failedRow.innerHTML = `<td colspan="${4 + CONFIG.MAX_PLAYERS}" class="table-empty-state">Không thể tải giải đấu ${escapeHTML(id)}.</td>`;
+                }
             }
-        });
+        };
+
+        // Process every tournament independently: a slow event no longer blocks
+        // other completed events from replacing their own sorted placeholders.
+        const monthJobs = Array.from(monthsByKey.values(), monthEntries =>
+            Promise.allSettled(monthEntries.map(processTournament))
+        );
 
         await Promise.allSettled(monthJobs);
 
