@@ -1180,8 +1180,8 @@
 }.schedule-select-menu[hidden]{ display: none; }.schedule-select-option{
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    justify-content: flex-start;
+    gap: 0;
     width: 100%;
     min-height: 36px;
     box-sizing: border-box;

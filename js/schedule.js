@@ -526,7 +526,7 @@ function loadFiltersFromURL() {
 }
 
 function saveFiltersToURL() {
-    // Keep incoming parameters such as "mo" intact; month navigation is intentionally not URL-synced.
+    // Keep the initial "mo" query until the visitor explicitly changes the displayed month.
     const params = new URLSearchParams(window.location.search);
     ['search', 'prize', 'status', 'type'].forEach(key => params.delete(key));
     const filters = getFilterState();
@@ -540,6 +540,16 @@ function saveFiltersToURL() {
     }
     const newQuery = params.toString();
     const newURL = window.location.pathname + (newQuery ? '?' + newQuery : '') + window.location.hash;
+    window.history.replaceState(null, '', newURL);
+}
+
+function clearMonthQueryFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has('mo')) return;
+
+    params.delete('mo');
+    const query = params.toString();
+    const newURL = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
     window.history.replaceState(null, '', newURL);
 }
 
@@ -920,6 +930,9 @@ function renderActiveView() {
 }
 
 function changeMonth(offset) {
+    const previousMonth = STATE.displayMonth;
+    const previousYear = STATE.displayYear;
+
     STATE.displayMonth += offset;
     if (STATE.displayMonth < 0) {
         STATE.displayMonth = 11;
@@ -927,6 +940,10 @@ function changeMonth(offset) {
     } else if (STATE.displayMonth > 11) {
         STATE.displayMonth = 0;
         STATE.displayYear++;
+    }
+
+    if (STATE.displayMonth !== previousMonth || STATE.displayYear !== previousYear) {
+        clearMonthQueryFromURL();
     }
     renderActiveView();
 }
@@ -1131,9 +1148,16 @@ function moveFocusFromSelectMenu(event) {
 
 function selectFromMenu(kind, value) {
     if (!Number.isInteger(value)) return;
+    const previousMonth = STATE.displayMonth;
+    const previousYear = STATE.displayYear;
+
     if (kind === 'month' && value >= 0 && value <= 11) STATE.displayMonth = value;
     else if (kind === 'year' && value >= SELECT_MIN_YEAR && value <= SELECT_MAX_YEAR) STATE.displayYear = value;
     else return;
+
+    if (STATE.displayMonth !== previousMonth || STATE.displayYear !== previousYear) {
+        clearMonthQueryFromURL();
+    }
     closeSelectMenu({ restoreFocus: true });
     renderActiveView();
 }
