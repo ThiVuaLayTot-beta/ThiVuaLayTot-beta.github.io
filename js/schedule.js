@@ -78,6 +78,7 @@ const STATE = {
     currentView: 'calendar',
     displayYear: undefined,
     displayMonth: undefined,
+    initialMonth: null,
     lastFocusedElement: null,
     previousBodyOverflow: '',
     selectedStatusFilter: 'all',
@@ -504,6 +505,14 @@ function matchesFilters(tournament, filters) {
 
 function loadFiltersFromURL() {
     const params = new URLSearchParams(window.location.search);
+    const monthMatch = /^([0-9]{1,2})-([0-9]{4})$/.exec((params.get('mo') || '').trim());
+    if (monthMatch) {
+        const month = Number(monthMatch[1]);
+        const year = Number(monthMatch[2]);
+        if (month >= 1 && month <= 12 && year >= SELECT_MIN_YEAR && year <= SELECT_MAX_YEAR) {
+            STATE.initialMonth = { month: month - 1, year };
+        }
+    }
     if (params.has('search') && DOM.scheduleSearch) DOM.scheduleSearch.value = params.get('search');
     if (params.has('prize') && DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = (params.get('prize') === '1');
     const status = params.get('status');
@@ -517,7 +526,9 @@ function loadFiltersFromURL() {
 }
 
 function saveFiltersToURL() {
-    const params = new URLSearchParams();
+    // Keep incoming parameters such as "mo" intact; month navigation is intentionally not URL-synced.
+    const params = new URLSearchParams(window.location.search);
+    ['search', 'prize', 'status', 'type'].forEach(key => params.delete(key));
     const filters = getFilterState();
     if (filters.search) params.set('search', filters.search);
     if (DOM.schedulePrizeFilter?.checked) params.set('prize', '1');
@@ -528,7 +539,7 @@ function saveFiltersToURL() {
         params.set('type', filters.types.length ? filters.types.join(' ') : 'none');
     }
     const newQuery = params.toString();
-    const newURL = window.location.pathname + (newQuery ? '?' + newQuery : '');
+    const newURL = window.location.pathname + (newQuery ? '?' + newQuery : '') + window.location.hash;
     window.history.replaceState(null, '', newURL);
 }
 
@@ -979,28 +990,20 @@ function buildSelectMenu() {
 function getSelectOptions(kind) {
     const today = getVietnamNow();
     if (kind === 'month') {
-        const monthsWithEvents = new Set();
-        STATE.tournaments.forEach(tournament => {
-            const parts = getVietnamDateParts(tournament.startTime);
-            if (parts.year === STATE.displayYear) monthsWithEvents.add(parts.month);
-        });
         return CONFIG.MONTH_NAMES.map((name, month) => ({
             value: month,
             label: name,
             selected: month === STATE.displayMonth,
             current: STATE.displayYear === today.getUTCFullYear() && month === today.getUTCMonth(),
-            hasEvents: monthsWithEvents.has(month),
             aria: `${name}`
         }));
     }
 
-    const yearsWithEvents = new Set();
     let min = Math.min(today.getUTCFullYear() - 1, STATE.displayYear);
     let max = Math.max(today.getUTCFullYear() + 2, STATE.displayYear);
     STATE.tournaments.forEach(tournament => {
         const year = getVietnamDateParts(tournament.startTime).year;
         if (year <= 1970) return;
-        yearsWithEvents.add(year);
         min = Math.min(min, year);
         max = Math.max(max, year);
     });
@@ -1013,7 +1016,6 @@ function getSelectOptions(kind) {
             label: String(year),
             selected: year === STATE.displayYear,
             current: year === today.getUTCFullYear(),
-            hasEvents: yearsWithEvents.has(year),
             aria: `Năm ${year}`
         };
     });
@@ -1069,17 +1071,11 @@ function openSelectMenu(kind) {
         button.setAttribute('aria-selected', String(option.selected));
         button.tabIndex = option.selected ? 0 : -1;
         button.classList.toggle('is-current', option.current);
-        button.setAttribute('aria-label', `${option.aria}${option.current ? ', hiện tại' : ''}${option.hasEvents ? ', có sự kiện' : ''}`);
+        button.setAttribute('aria-label', `${option.aria}${option.current ? ', hiện tại' : ''}`);
 
         const text = document.createElement('span');
         text.textContent = option.label;
         button.appendChild(text);
-        if (option.hasEvents) {
-            const dot = document.createElement('span');
-            dot.className = 'schedule-select-dot';
-            dot.setAttribute('aria-hidden', 'true');
-            button.appendChild(dot);
-        }
         fragment.appendChild(button);
     });
     menu.replaceChildren(fragment);
@@ -1719,8 +1715,8 @@ function showSchedule() {
     updateViewSwitcherButtons();
 
     const today = getVietnamNow();
-    STATE.displayYear = today.getUTCFullYear();
-    STATE.displayMonth = today.getUTCMonth();
+    STATE.displayYear = STATE.initialMonth?.year ?? today.getUTCFullYear();
+    STATE.displayMonth = STATE.initialMonth?.month ?? today.getUTCMonth();
     renderActiveView();
 
     DOM.calendarWrapper?.classList.add('schedule-entrance');
