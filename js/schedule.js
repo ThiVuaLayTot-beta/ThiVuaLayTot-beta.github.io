@@ -1045,7 +1045,7 @@ function positionSelectMenu() {
 
     const margin = 8;
     const rect = trigger.getBoundingClientRect();
-    menu.style.minWidth = `${Math.max(rect.width, 132)}px`;
+    // Let the option labels determine the menu width instead of inheriting the wider trigger.
     const width = menu.offsetWidth;
     const height = menu.offsetHeight;
     const viewportWidth = document.documentElement.clientWidth;
