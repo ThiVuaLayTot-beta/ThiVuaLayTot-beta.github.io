@@ -16,8 +16,29 @@ title: Bảng tổng giải Đấu Trường Thí Vua
 </ul>
 
 <div class="tournament-page-context">
-    <p>Sự kiện được quản lý bởi <a href="/leaders#admin2">FR-CH_TheClanTeamIsMine</a>.</p>
-    <p><i>Nếu có đề xuất hoặc vấn đề gì thì hãy bình luận tại <a href="https://chess.com/clubs/forum/view/danh-sach-cac-giai-da-to-chuc-clb-tvlt?clubId=325849&quote_id=131524731&page=1#comment_box" target="_blank">forum này</a> hoặc liên hệ <a href="/leaders#admin3">Admin M-DinhHoangViet</a>.</i></p>
+    <div class="tournament-page-context__item">
+        <span class="tournament-page-context__icon" aria-hidden="true"><i class="bx bx-user-check"></i></span>
+        <div class="tournament-page-context__body">
+            <span class="tournament-page-context__label">Quản lý sự kiện</span>
+            <div class="tournament-page-context__details">
+                <a href="/leaders#admin2">FR-CH_TheClanTeamIsMine</a>
+                
+                
+            </div>
+        </div>
+    </div>
+    <div class="tournament-page-context__item">
+        <span class="tournament-page-context__icon" aria-hidden="true"><i class="bx bx-message-rounded-dots"></i></span>
+        <div class="tournament-page-context__body">
+            <span class="tournament-page-context__label">Góp ý &amp; hỗ trợ</span>
+            <div class="tournament-page-context__details">
+                <a href="https://chess.com/clubs/forum/view/danh-sach-cac-giai-da-to-chuc-clb-tvlt?clubId=325849&amp;quote_id=131524731&amp;page=1#comment_box" target="_blank" rel="noopener noreferrer">Diễn đàn CLB</a>
+                <span class="tournament-page-context__separator" aria-hidden="true">·</span>
+                <span>Liên hệ</span>
+                <a href="/leaders#admin3">Admin M-DinhHoangViet</a>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="filter-group-container" style="margin-bottom: 25px;">
 <div class="tour-top-grid">
