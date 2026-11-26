@@ -491,30 +491,32 @@
     }
 
     async function loadMonthAvatars(rows) {
-        const cells = rows.flatMap(row =>
-            Array.from(row.querySelectorAll('.player-cell[data-player-username]'))
-        );
-        const usernames = [...new Set(cells.map(cell => cell.dataset.playerUsername).filter(Boolean))];
+        const cellsByUsername = new Map();
+        rows.forEach(row => {
+            row.querySelectorAll('.player-cell[data-player-username]').forEach(cell => {
+                const username = cell.dataset.playerUsername?.trim();
+                if (!username) return;
+                const key = username.toLowerCase();
+                if (!cellsByUsername.has(key)) cellsByUsername.set(key, { username, cells: [] });
+                cellsByUsername.get(key).cells.push(cell);
+            });
+        });
 
-        await Promise.allSettled(usernames.map(async username => {
+        await Promise.allSettled(Array.from(cellsByUsername.values(), async ({ username, cells }) => {
             const profile = await getPlayer(username);
             if (!profile) return;
 
-            const avatar = profile.avatar || CONFIG.DEFAULT_AVATAR;
+            const avatar = safeHttpUrl(profile.avatar || CONFIG.DEFAULT_AVATAR, CONFIG.DEFAULT_AVATAR);
             const status = profile.status || 'N/A';
+            const badgeHtml = formatBadge(status);
             storePlayerData(username, { avatar, status, breakdown: [] });
 
-            cells
-                .filter(cell => cell.dataset.playerUsername?.toLowerCase() === username.toLowerCase())
-                .forEach(cell => {
-                    const image = cell.querySelector('.cc-avatar-img');
-                    if (image && profile.avatar) {
-                        image.src = safeHttpUrl(avatar, CONFIG.DEFAULT_AVATAR);
-                    }
-
-                    const statusElement = cell.querySelector('.player-status-badge');
-                    if (statusElement) statusElement.innerHTML = formatBadge(status);
-                });
+            cells.forEach(cell => {
+                const image = cell.querySelector('.cc-avatar-img');
+                if (image && profile.avatar) image.src = avatar;
+                const statusElement = cell.querySelector('.player-status-badge');
+                if (statusElement) statusElement.innerHTML = badgeHtml;
+            });
         }));
     }
 
