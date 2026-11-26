@@ -427,7 +427,7 @@ function getMappedOrganizer(rawOrganizer, organizerLinks = []) {
 
 function getCurrentMonthEvents(filters = getFilterState()) {
     return getSortedEvents().filter(tournament => {
-        const parts = getVietnamDateParts(tournament.startTime);
+        const parts = getTournamentDateParts(tournament);
         return parts.year === STATE.displayYear && parts.month === STATE.displayMonth && matchesFilters(tournament, filters);
     });
 }
@@ -446,17 +446,21 @@ function updateFilterControls(filters = getFilterState()) {
     }
 }
 
-function updateResultsSummary() {
+function updateResultsSummary(monthEvents = getCurrentMonthEvents(), carryOverEvents = []) {
     if (!DOM.resultsSummary || STATE.displayYear === undefined) return;
 
-    const count = getCurrentMonthEvents().length;
+    const count = monthEvents.length;
     const monthLabel = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
-    const carryOver = STATE.currentView === 'timeline' ? getTimelineCarryOverEvents().length : 0;
+    const carryOver = carryOverEvents.length;
     const extra = carryOver ? `, cùng ${carryOver} giải đang diễn ra từ trước` : '';
     DOM.resultsSummary.textContent = `Đang hiển thị ${count} sự kiện trong ${monthLabel}${extra}.`;
 }
 
+let scheduleSearchTimer = null;
+
 function resetFilters() {
+    window.clearTimeout(scheduleSearchTimer);
+    scheduleSearchTimer = null;
     if (DOM.scheduleSearch) DOM.scheduleSearch.value = '';
     if (DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = false;
     DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)').forEach(checkbox => { checkbox.checked = true; });
@@ -496,7 +500,7 @@ function setStatusFilter(status) {
 }
 
 function matchesFilters(tournament, filters) {
-    const name = removeVietnameseTones(tournament.eventName || '');
+    const name = tournament._normalizedEventName ?? removeVietnameseTones(tournament.eventName || '');
     const matchesSearch = !filters.search || name.includes(filters.search);
     const matchesPrize = !filters.onlyPrize || isPrizeEvent(tournament);
     const matchesType = filters.types.includes(tournament.eventType);
@@ -583,12 +587,23 @@ function getCalendarDays(year, month) {
 
 const dateKeyOf = (year, month, day) => `${year}-${month}-${day}`;
 
+function getTournamentDateParts(tournament) {
+    return tournament?._startDateParts || getVietnamDateParts(tournament?.startTime);
+}
+
+function getDayOfWeekFromParts(parts) {
+    return CONFIG.DAY_NAMES_VN[new Date(parts.year, parts.month, parts.date).getDay()];
+}
+
+let sortedTournamentsSource = null;
+let sortedTournamentsCache = [];
+
 /** Filters once and buckets events by Vietnam-local day: O(events) instead of O(cells x events). */
 function groupEventsByDay(filters) {
     const byDay = new Map();
     STATE.tournaments.forEach(tournament => {
         if (!matchesFilters(tournament, filters)) return;
-        const { year, month, date } = getVietnamDateParts(tournament.startTime);
+        const { year, month, date } = getTournamentDateParts(tournament);
         const key = dateKeyOf(year, month, date);
         if (!byDay.has(key)) byDay.set(key, []);
         byDay.get(key).push(tournament);
@@ -635,8 +650,9 @@ function showScheduleTooltip(icon) {
 }
 
 function hideScheduleTooltip() {
+    if (!activeTooltipTrigger) return;
     const tooltip = document.getElementById('schedule-event-tooltip');
-    activeTooltipTrigger?.removeAttribute('aria-describedby');
+    activeTooltipTrigger.removeAttribute('aria-describedby');
     activeTooltipTrigger = null;
     if (!tooltip) return;
     tooltip.classList.remove('is-visible');
@@ -648,7 +664,7 @@ document.addEventListener('scroll', hideScheduleTooltip, { capture: true, passiv
 window.addEventListener('resize', hideScheduleTooltip, { passive: true });
 
 function createEventIcon(tournament) {
-    const parts = getVietnamDateParts(tournament.startTime);
+    const parts = getTournamentDateParts(tournament);
     const status = getEventStatus(tournament);
     const eventName = tournament.eventName || 'sự kiện';
     const clock = `${padZero(parts.hours)}:${padZero(parts.minutes)}`;
@@ -691,10 +707,9 @@ function createEventIcon(tournament) {
     return icon;
 }
 
-function renderCalendar() {
+function renderCalendar(eventsByDay = groupEventsByDay(getFilterState())) {
     if (!DOM.calendarBody) return;
     const today = getVietnamNow();
-    const eventsByDay = groupEventsByDay(getFilterState());
     const days = getCalendarDays(STATE.displayYear, STATE.displayMonth);
     const rows = document.createDocumentFragment();
 
@@ -724,21 +739,27 @@ function renderCalendar() {
 }
 
 function getSortedEvents() {
-    return STATE.tournaments
-        .map(t => {
-            const tParts = getVietnamDateParts(t.startTime);
-            const time = new Date(tParts.year, tParts.month, tParts.date, tParts.hours, tParts.minutes).getTime();
-            return { t, time };
-        })
-        .sort((a, b) => a.time - b.time)
-        .map(item => item.t);
+    if (sortedTournamentsSource === STATE.tournaments) return sortedTournamentsCache;
+
+    // All events use the same Vietnam timezone offset, so cached epoch values
+    // preserve chronological order without rebuilding Date objects on each render.
+    sortedTournamentsCache = STATE.tournaments.slice().sort((a, b) =>
+        getEventStartTime(a) - getEventStartTime(b)
+    );
+    sortedTournamentsSource = STATE.tournaments;
+    return sortedTournamentsCache;
 }
 
 function getEventStartTime(tournament) {
+    if (Number.isFinite(tournament?._startTimestamp)) return tournament._startTimestamp;
     return parseEventDate(tournament?.startTime)?.getTime() || 0;
 }
 
 function getExplicitEventEnd(tournament) {
+    if (tournament && Object.prototype.hasOwnProperty.call(tournament, '_explicitEndTimestamp')) {
+        return tournament._explicitEndTimestamp;
+    }
+
     const start = getEventStartTime(tournament);
     const rawEnd = tournament?.endTime || tournament?.finishTime || tournament?.endDate;
     const parsedEnd = parseEventDate(rawEnd);
@@ -751,6 +772,7 @@ function getExplicitEventEnd(tournament) {
 }
 
 function getEventEndTime(tournament) {
+    if (Number.isFinite(tournament?._endTimestamp)) return tournament._endTimestamp;
     const explicitEnd = getExplicitEventEnd(tournament);
     if (explicitEnd !== null) return explicitEnd;
 
@@ -821,7 +843,7 @@ function openModal(tournament) {
     DOM.modalCategory.innerHTML = getEventBadgesHTML(tournament);
     DOM.modalOrganizer.innerHTML = getMappedOrganizer(tournament.organizer || '', tournament.organizerLinks);
 
-    const tParts = getVietnamDateParts(tournament.startTime);
+    const tParts = getTournamentDateParts(tournament);
     const dayVn = getDayOfWeekVn(tournament.startTime);
     const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
     const dateLabel = `${dayPrefix}${dayVn}, ngày ${padZero(tParts.date)} tháng ${padZero(tParts.month + 1)} năm ${tParts.year}`;
@@ -911,17 +933,20 @@ function renderActiveView() {
     }
 
     updateMonthHeading();
-    updateFilterControls();
-    updateResultsSummary();
 
+    const filters = getFilterState();
+    const monthEvents = getCurrentMonthEvents(filters);
     const isTimeline = STATE.currentView === 'timeline';
+    const carryOverEvents = isTimeline ? getTimelineCarryOverEvents(filters) : [];
+    updateFilterControls(filters);
+    updateResultsSummary(monthEvents, carryOverEvents);
+
     const wrapper = isTimeline ? DOM.timelineWrapper : DOM.calendarWrapper;
     if (wrapper) wrapper.style.display = 'block';
-    if (isTimeline) renderTimeline();
-    else renderCalendar();
+    if (isTimeline) renderTimeline(monthEvents, carryOverEvents);
+    else renderCalendar(groupEventsByDay(filters));
 
-    const hasVisibleEvents = getCurrentMonthEvents().length > 0 ||
-        (isTimeline && getTimelineCarryOverEvents().length > 0);
+    const hasVisibleEvents = monthEvents.length > 0 || carryOverEvents.length > 0;
     if (DOM.emptyState && !hasVisibleEvents) {
         const message = DOM.emptyState.querySelector('p');
         if (message) message.textContent = 'Không có sự kiện nào khớp với các bộ lọc trong tháng này.';
@@ -1019,7 +1044,7 @@ function getSelectOptions(kind) {
     let min = Math.min(today.getUTCFullYear() - 1, STATE.displayYear);
     let max = Math.max(today.getUTCFullYear() + 2, STATE.displayYear);
     STATE.tournaments.forEach(tournament => {
-        const year = getVietnamDateParts(tournament.startTime).year;
+        const year = getTournamentDateParts(tournament).year;
         if (year <= 1970) return;
         min = Math.min(min, year);
         max = Math.max(max, year);
@@ -1200,8 +1225,8 @@ const TIMELINE_STATUS_CLASS = Object.freeze({
 });
 
 function formatEventDateLabel(tournament) {
-    const parts = getVietnamDateParts(tournament.startTime);
-    const dayVn = getDayOfWeekVn(tournament.startTime);
+    const parts = getTournamentDateParts(tournament);
+    const dayVn = getDayOfWeekFromParts(parts);
     const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
     const dateLabel = `${dayPrefix}${dayVn}, ${padZero(parts.date)} thg ${padZero(parts.month + 1)}, ${parts.year}`;
     return tournament.hasStartTime ? `${dateLabel} lúc ${padZero(parts.hours)}h${padZero(parts.minutes)}` : dateLabel;
@@ -1212,8 +1237,8 @@ function formatEventEndLabel(tournament) {
     if (getExplicitEventEnd(tournament) === null) return '';
 
     const rawEnd = tournament.endTime || tournament.finishTime || tournament.endDate;
-    const startParts = getVietnamDateParts(tournament.startTime);
-    const endParts = getVietnamDateParts(rawEnd);
+    const startParts = getTournamentDateParts(tournament);
+    const endParts = tournament._endDateParts || getVietnamDateParts(rawEnd);
     const timed = hasEventTime(rawEnd);
     const timeText = `${padZero(endParts.hours)}h${padZero(endParts.minutes)}`;
     const sameDay = startParts.year === endParts.year &&
@@ -1234,7 +1259,7 @@ function getTimelineCarryOverEvents(filters = getFilterState()) {
     const today = getVietnamNow();
     if (STATE.displayYear !== today.getUTCFullYear() || STATE.displayMonth !== today.getUTCMonth()) return [];
     return getSortedEvents().filter(tournament => {
-        const parts = getVietnamDateParts(tournament.startTime);
+        const parts = getTournamentDateParts(tournament);
         const startsEarlier = parts.year < STATE.displayYear ||
             (parts.year === STATE.displayYear && parts.month < STATE.displayMonth);
         return startsEarlier && getEventStatus(tournament) === STATUS.ONGOING && matchesFilters(tournament, filters);
@@ -1242,7 +1267,7 @@ function getTimelineCarryOverEvents(filters = getFilterState()) {
 }
 
 function createTimelineEvent(tournament, { carryOver = false } = {}) {
-    const parts = getVietnamDateParts(tournament.startTime);
+    const parts = getTournamentDateParts(tournament);
     const status = getEventStatus(tournament);
     const isEnded = status === STATUS.ENDED;
     const joinUrl = safeUrl(tournament.joinLink);
@@ -1375,12 +1400,8 @@ function createTimelineDay({ key, parts, today, todayKey, events, carryOver = fa
     return dayItem;
 }
 
-function renderTimeline() {
+function renderTimeline(events = getCurrentMonthEvents(), carryOverEvents = getTimelineCarryOverEvents()) {
     if (!DOM.timelineContainer) return;
-
-    const filters = getFilterState();
-    const events = getCurrentMonthEvents(filters);
-    const carryOverEvents = getTimelineCarryOverEvents(filters);
     if (!events.length && !carryOverEvents.length) {
         DOM.timelineContainer.replaceChildren();
         return;
@@ -1390,7 +1411,7 @@ function renderTimeline() {
     const todayKey = dateKeyOf(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
     const groups = new Map();
     events.forEach(tournament => {
-        const parts = getVietnamDateParts(tournament.startTime);
+        const parts = getTournamentDateParts(tournament);
         const key = dateKeyOf(parts.year, parts.month, parts.date);
         if (!groups.has(key)) groups.set(key, { key, parts, events: [] });
         groups.get(key).events.push(tournament);
@@ -1514,12 +1535,28 @@ function normalizeTournament(record) {
 
     const rawStartTime = record.startTime;
     const rawEndTime = record.endTime || record.finishTime || record.endDate;
-    return {
+    const eventName = String(record.eventName || '').trim();
+    const startTime = normalizeEventDate(rawStartTime);
+    const endTime = normalizeEventDate(rawEndTime);
+    const hasStartTime = typeof record.hasStartTime === 'boolean' ? record.hasStartTime : hasEventTime(rawStartTime);
+    const startDate = parseEventDate(startTime);
+    const parsedEndDate = parseEventDate(endTime);
+    const startTimestamp = startDate?.getTime() || 0;
+
+    let explicitEndTimestamp = null;
+    if (parsedEndDate) {
+        let endTimestamp = parsedEndDate.getTime();
+        // A date-only end value includes that entire Vietnam-local day.
+        if (!hasEventTime(rawEndTime)) endTimestamp += 24 * 60 * 60 * 1000;
+        if (endTimestamp >= startTimestamp) explicitEndTimestamp = endTimestamp;
+    }
+
+    const tournament = {
         ...record,
-        eventName: String(record.eventName || '').trim(),
-        hasStartTime: typeof record.hasStartTime === 'boolean' ? record.hasStartTime : hasEventTime(rawStartTime),
-        startTime: normalizeEventDate(rawStartTime),
-        endTime: normalizeEventDate(rawEndTime),
+        eventName,
+        hasStartTime,
+        startTime,
+        endTime,
         eventType: String(record.eventType || '').trim().toLowerCase().replace(/\s+/g, '-') || 'other',
         status: String(record.status || '').trim(),
         organizerLinks: Array.isArray(record.organizerLinks) ? record.organizerLinks : [],
@@ -1527,6 +1564,17 @@ function normalizeTournament(record) {
             record.isTentative === STATUS.TENTATIVE || record.isTentative === 'Tentative',
         prize: record.prize ?? ''
     };
+
+    tournament._normalizedEventName = removeVietnameseTones(eventName);
+    tournament._startTimestamp = startTimestamp;
+    tournament._startDateParts = getVietnamDateParts(startTime);
+    tournament._explicitEndTimestamp = explicitEndTimestamp;
+    tournament._endDateParts = endTime ? getVietnamDateParts(endTime) : null;
+    tournament._endTimestamp = explicitEndTimestamp !== null
+        ? explicitEndTimestamp
+        : startTimestamp + (hasStartTime ? CONFIG.EVENT_DURATION_MS : 24 * 60 * 60 * 1000);
+
+    return tournament;
 }
 
 const FORUM_URL = 'https://chess.com/clubs/forum/view/lich-su-kien-hang-thang-clb-tvlt?clubId=325849&quote_id=125015758&page=1#comment_box';
@@ -1800,7 +1848,15 @@ function initializeEventListeners() {
         }
     });
 
-    if (DOM.scheduleSearch) DOM.scheduleSearch.addEventListener('input', filterSchedule);
+    if (DOM.scheduleSearch) {
+        DOM.scheduleSearch.addEventListener('input', () => {
+            window.clearTimeout(scheduleSearchTimer);
+            scheduleSearchTimer = window.setTimeout(() => {
+                scheduleSearchTimer = null;
+                filterSchedule();
+            }, 140);
+        });
+    }
     if (DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.addEventListener('change', filterSchedule);
     if (DOM.scheduleTypeGroup) DOM.scheduleTypeGroup.addEventListener('change', filterSchedule);
     if (DOM.resetFilters) DOM.resetFilters.addEventListener('click', resetFilters);
