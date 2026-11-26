@@ -10,8 +10,8 @@ title: Bảng tổng giải Đấu Trường Thí Vua
 
 <ul class="nav-tabs">
     <li><a href="tvlt">Thí Vua Lấy Tốt</a></li>
-    <li><a href="cbtt">Cờ Bí Thí Tốt</a></li>
     <li><a href="cttq">Chiến Trường Thí Quân</a></li>
+    <li><a href="cbtt">Cờ Bí Thí Tốt</a></li>
     <li><a href="dttv" class="active">Đấu Trường Thí Vua</a></li>
 </ul>
 
@@ -22,8 +22,6 @@ title: Bảng tổng giải Đấu Trường Thí Vua
             <span class="tournament-page-context__label">Quản lý sự kiện</span>
             <div class="tournament-page-context__details">
                 <a href="/leaders#admin2">FR-CH_TheClanTeamIsMine</a>
-                
-                
             </div>
         </div>
     </div>
@@ -61,7 +59,7 @@ title: Bảng tổng giải Đấu Trường Thí Vua
 </div>
 <div class="tour-search-row"><div class="tour-search-wrapper"><span class="bx bx-search tour-search-icon"></span><input type="text" id="searchInput" class="tour-search-input" placeholder="Tìm kiếm tên giải hoặc kỳ thủ..." onkeyup="searchTable()"></div>
 <div class="tour-misc">
-<div id="loading-status" class="loading-status-badge"><span id="statusIcon" class="bx bx-dots-horizontal-rounded" style="color:var(--primary-warning);font-size:medium"></span><span id="current-tournament">0</span> giải</div></div></div>
+<div id="loading-status" class="loading-status-badge"><span id="statusIcon" class="bx bx-dots-horizontal-rounded" style="color:var(--primary-warning);font-size:large"></span><span id="current-tournament">0</span> giải</div></div></div>
 </div>
 
 <section class="tournament-results-section">

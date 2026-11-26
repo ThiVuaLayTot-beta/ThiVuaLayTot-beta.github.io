@@ -1173,10 +1173,6 @@ footer .bottom-details .bottom_text {
     display: none;
   }
 
-  .nav-tabs li {
-    flex: 1 1 145px
-  }
-
   .nav-tabs a {
     justify-content: center
   }

@@ -133,7 +133,7 @@
 .loading { border: var(--border-width-base) solid rgba(56, 189, 248, .3); background: linear-gradient(135deg, rgba(56, 189, 248, .1), rgba(37, 99, 235, .08)); color: var(--color-primary-light); }
 .error { border: var(--border-width-base) solid rgba(239, 68, 68, .3); background: linear-gradient(135deg, rgba(239, 68, 68, .1), rgba(220, 38, 38, .08)); color: var(--red-300); }
 #loading-status { display: flex; align-items: center; justify-content: center; margin: var(--space-lg) 0; padding: var(--space-sm); border: var(--border-width-base) solid rgba(56, 189, 248, .2); border-radius: var(--border-radius-lg); background: rgba(30, 41, 59, .6); color: var(--neutral-200); font-size: var(--fs-sm); font-weight: var(--fw-medium); text-align: center; }
-#loading-status.loading-status-badge { display: inline-flex; gap: var(--space-xs); width: max-content; height: max-content; margin: 0; padding: 5px 10px; border-width: var(--border-width-thin); font-size: var(--fs-xs); white-space: nowrap; flex-shrink: 0; }
+#loading-status.loading-status-badge { display: inline-flex; gap: 0.25rem; width: max-content; height: max-content; margin: 0; padding: 5px 10px; border-width: var(--border-width-thin); font-size: var(--fs-xs); white-space: nowrap; flex-shrink: 0; }
 
 /* Tournament loading placeholders: animate a single composited highlight layer. */
 @keyframes tournament-skeleton-shimmer {
@@ -352,16 +352,16 @@
 .styled-table thead th.players-count { text-align:center; }
 
 /* Restore the established column proportions for desktop tables. */
-#tournament-table .styled-table th.name-tour { width:230px; }
-#tournament-table .styled-table th.organization-day { width:170px; }
+#tournament-table .styled-table th.name-tour { width:200px; }
+#tournament-table .styled-table th.organization-day { width:160px; }
 #tournament-table .styled-table th.rules { width:220px; }
 #tournament-table .styled-table th.players-count { width:85px; }
-#tournament-table .styled-table th.winner { width:190px; }
+#tournament-table .styled-table th.winner { width:222px; }
 
-#cttq-months-container .styled-table th.name-tour { width:155px; }
+#cttq-months-container .styled-table th.month-in4 { width:155px; }
 #cttq-months-container .styled-table th.organization-day { width:235px; }
 #cttq-months-container .styled-table th.players-count { width:86px; }
-#cttq-months-container .styled-table th.winner { width:180px; }
+#cttq-months-container .styled-table th.winner { width:222px; }
 
 #tournament-table .styled-table td,
 #cttq-months-container .styled-table td {

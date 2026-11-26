@@ -684,7 +684,7 @@ function createEventIcon(tournament) {
     const timeLabel = tournament.hasStartTime ? clock : 'Chưa có giờ bắt đầu';
     const tooltip = `${eventName}\n${timeLabel} · ${status}\n${tournament.eventRules || 'Chưa có thông tin thể lệ'}`;
     icon.dataset.tooltip = tooltip;
-    icon.title = tooltip;
+    icon.title = 'Nhấn vào để đọc thêm thông tin về giải này';
     if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
         icon.addEventListener('pointerenter', () => showScheduleTooltip(icon));
         icon.addEventListener('pointerleave', hideScheduleTooltip);

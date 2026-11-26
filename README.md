@@ -19,5 +19,3 @@
 - ▶️ [YouTube Channel](https://youtube.com/@tungjohnplayingchess)
 
 ---
-
-**Cơm Vua Lấy Tốt** 🎯♟️

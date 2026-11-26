@@ -72,7 +72,7 @@
     }
 
     function createImg(src, w = 15) {
-        return `<img src="${escapeHTML(safeHttpUrl(src))}" width="${w}" height="${w}" alt="" style="vertical-align:middle">`;
+        return `<img src="${escapeHTML(safeHttpUrl(src))}" width="${w}" height="${w}" alt="No internet" style="vertical-align:middle">`;
     }
 
     function formatVariantLink(variant, setup) {
@@ -707,8 +707,8 @@
                 data._formatLabel = formatLabel;
 
                 const formatHtml = rounds === 1
-                    ? `<span class="tournament-format-type"><a href="https://support.chess.com/articles/8562889-what-are-arena-tournaments" target="_blank" rel="noopener noreferrer">Đấu trường Arena</a><span class="tournament-format-detail">${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}</span> <img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" width="15" height="15" alt="Arena" style="vertical-align:middle"></span>`
-                    : `<span class="tournament-format-type"><a href="https://chess.com/terms/swiss-chess" target="_blank" rel="noopener noreferrer">Hệ Thụy Sĩ</a><span class="tournament-format-detail">${escapeHTML(rounds)} vòng</span><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" width="15" height="15" alt="Swiss" style="vertical-align:middle"></span>`;
+                    ? `<span class="tournament-format-type"><a href="https://support.chess.com/articles/8562889-what-are-arena-tournaments" target="_blank" rel="noopener noreferrer">Đấu trường Arena</a> <span class="tournament-format-detail">${calculateDuration(data.start_time || data.startTime, data.finish_time || data.endTime)}</span> <img src="https://chess.com/bundles/web/images/color-icons/arena-club.495ffa75.svg" width="15" height="15" alt="Arena" style="vertical-align:middle"></span>`
+                    : `<span class="tournament-format-type"><a href="https://chess.com/terms/swiss-chess" target="_blank" rel="noopener noreferrer">Hệ Thụy Sĩ</a> <span class="tournament-format-detail">${escapeHTML(rounds)} vòng</span><img src="https://chess.com/bundles/web/images/color-icons/tournaments.3a561883.svg" width="15" height="15" alt="Swiss" style="vertical-align:middle"></span>`;
 
                 const tournamentUrl = escapeHTML(safeHttpUrl(
                     data.url,

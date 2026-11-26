@@ -787,7 +787,7 @@
                 return;
             }
 
-            container.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"name-tour\">Tháng</th><th class=\"rules\">Thống kê</th><th class=\"players-count\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display: none\"><td colspan=\"9\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div>";
+            container.innerHTML = "<div class=\"table\"><table class=\"styled-table\" id=\"tournament-results-table\"><thead><tr><th class=\"month-in4\">Tháng</th><th class=\"rules\">Thống kê</th><th class=\"players-count\">Kỳ thủ</th><th class=\"winner\">🥇 Hạng 1</th><th class=\"winner\">🥈 Hạng 2</th><th class=\"winner\">🥉 Hạng 3</th><th class=\"winner\">🎖️ Hạng 4</th><th class=\"winner\">🏅 Hạng 5</th><th class=\"winner\">⭐ Hạng 6</th></tr></thead><tbody id=\"tournament-tbody\"><tr class=\"not-match\" style=\"display: none\"><td colspan=\"9\" class=\"table-empty-state\">Không tìm thấy kết quả nào phù hợp.</td></tr></tbody></table></div>";
 
             if (typeof window.loadTournamentFiltersFromURL === 'function') {
                 window.loadTournamentFiltersFromURL();
