@@ -49,11 +49,13 @@
                 <p class="page-decription">{{ page.description }} <a href="{{ '/atom.xml' | relative_url }}"><span class="bx bx-rss" title="Atom RSS"></span></a></p>
             </header>
 
+{% if page.category == "events" %}
             <div class="category-filter-container">
-                <label for="post-filter-input" class="visually-hidden">Lọc bài viết theo tiêu đề hoặc từ khóa</label>
-                <input type="search" id="post-filter-input" aria-describedby="category-filter-status placeholder="Lọc bài viết theo tiêu đề hoặc mô tả..." class="control-input search-input" style="width: 100%; margin-bottom: 12px;">
+                <label for="post-filter-input" class="visually-hidden">Lọc sự kiện theo tiêu đề hoặc từ khóa</label>
+                <input type="search" id="post-filter-input" aria-describedby="category-filter-status" placeholder="Lọc sự kiện theo tiêu đề hoặc mô tả..." class="control-input search-input">
                 <p id="category-filter-status" class="category-filter-status" role="status" aria-live="polite"></p>
             </div>
+            {% endif %}
             <nav class="nav-tabs" aria-label="Danh mục bài viết">
                 <a href="/blog" {% if page.category == "blog" %}class="active" aria-current="page"{% endif %}>
                     <span class="bx bx-edit-alt" style="color:var(--legacy-green)"></span>
@@ -82,7 +84,7 @@
 
                 {% for post in category_posts %}
                 <article class="category-card">
-                    <a href="{{ post.url }}" tabindex="-1" aria-hidden="true"><img src="{% if post.image %}{{ post.image }}{% else %}/images/{{ post.id | remove_first: '/' }}.png{% endif %}" data-fallback-src="/images/tvltlogo.png" alt="" class="category-card__image" width="640" height="360" loading="lazy" decoding="async"></a>
+                    <a class="category-card__media" href="{{ post.url }}" tabindex="-1" aria-hidden="true"><img src="{% if post.image %}{{ post.image }}{% else %}/images/{{ post.id | remove_first: '/' }}.png{% endif %}" data-fallback-src="/images/tvltlogo.png" alt="" class="category-card__image" width="640" height="360" loading="lazy" decoding="async"></a>
                     <div class="category-card__content">
                         <div class="post_in4">
                             <div class="category-card__detail">
@@ -107,7 +109,9 @@
     </div>
 
     {% include footer.html %}
+    {% if page.category == "events" %}
     <script src="/js/category-filter.js" defer></script>
+    {% endif %}
 </body>
 
 </html>
