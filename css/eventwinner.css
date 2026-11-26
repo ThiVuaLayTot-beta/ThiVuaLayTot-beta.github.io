@@ -91,11 +91,9 @@
   display: block;
   margin-bottom: 2px;
   color: var(--neutral-400, #94a3b8);
-  font-size: .66rem;
-  font-weight: 700;
-  letter-spacing: .055em;
-  line-height: 1.25;
-  text-transform: uppercase;
+  font-size: .76rem;
+  font-weight: 600;
+  line-height: 1.35;
 }
 .tournament-page-context__details {
   display: flex;
@@ -118,10 +116,6 @@
   border-radius: 2px;
   outline: 2px solid var(--color-primary-light, #7dd3fc);
   outline-offset: 3px;
-}
-.tournament-page-context__separator {
-  color: var(--neutral-500, #64748b);
-  user-select: none;
 }
 .tournament-page-brand { display: flex; justify-content: center; margin: 26px auto 4px; padding-top: 20px; border-top: 1px solid rgba(148, 163, 184, .1); }
 .tournament-page-brand > a { display: inline-flex; align-items: center; justify-content: center; max-width: 100%; text-decoration: none; }
