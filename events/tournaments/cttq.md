@@ -19,23 +19,23 @@ event_data_source: aggregated
     <div class="tournament-page-context__item">
         <span class="tournament-page-context__icon" aria-hidden="true"><i class="bx bx-user-check"></i></span>
         <div class="tournament-page-context__body">
-            <span class="tournament-page-context__label">Quản lý sự kiện</span>
+            <span class="tournament-page-context__label">Người phụ trách</span>
             <div class="tournament-page-context__details">
                 <a href="/leaders#admin3">M-DinhHoangViet</a>
-                <span class="tournament-page-context__separator" aria-hidden="true">·</span>
-                <a href="/events/cttq-chien-truong-thi-quan">Thông tin sự kiện</a>
+                <span>phụ trách giải đấu này.</span>
+                <a href="/events/cttq-chien-truong-thi-quan">Xem thông tin giải đấu</a>
             </div>
         </div>
     </div>
     <div class="tournament-page-context__item">
         <span class="tournament-page-context__icon" aria-hidden="true"><i class="bx bx-message-rounded-dots"></i></span>
         <div class="tournament-page-context__body">
-            <span class="tournament-page-context__label">Góp ý &amp; hỗ trợ</span>
+            <span class="tournament-page-context__label">Góp ý và hỗ trợ</span>
             <div class="tournament-page-context__details">
-                <a href="https://chess.com/clubs/forum/view/danh-sach-cac-giai-da-to-chuc-clb-tvlt?clubId=325849&amp;quote_id=131524731&amp;page=1#comment_box" target="_blank" rel="noopener noreferrer">Diễn đàn CLB</a>
-                <span class="tournament-page-context__separator" aria-hidden="true">·</span>
-                <span>Liên hệ</span>
-                <a href="/leaders#admin3">Admin M-DinhHoangViet</a>
+                <span>Bạn có thể</span>
+                <a href="https://chess.com/clubs/forum/view/danh-sach-cac-giai-da-to-chuc-clb-tvlt?clubId=325849&amp;quote_id=131524731&amp;page=1#comment_box" target="_blank" rel="noopener noreferrer">gửi góp ý trên diễn đàn của câu lạc bộ</a>
+                <span>hoặc liên hệ</span>
+                <a href="/leaders#admin3">quản trị viên M-DinhHoangViet</a><span>.</span>
             </div>
         </div>
     </div>
