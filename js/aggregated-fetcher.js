@@ -333,29 +333,31 @@
 
         buildPlayersMap(mainPlayers, pointsMap) {
             const playerMap = new Map();
-            pointsMap.forEach((points, username) => {
-                playerMap.set(username, { username: this.getOriginalUsername(username, mainPlayers), points });
-            });
-            mainPlayers.forEach(player => {
-                const username = typeof player === 'string' ? player : player.username;
-                const usernameLower = username.toLowerCase();
-                const points = player.points ?? pointsMap.get(usernameLower) ?? 0;
-                if (playerMap.has(usernameLower)) {
-                    const existing = playerMap.get(usernameLower);
-                    existing.points = Math.max(existing.points, points);
-                } else {
-                    playerMap.set(usernameLower, { username, points });
-                }
-            });
-            return Array.from(playerMap.values());
-        },
+            const originalNames = new Map();
 
-        getOriginalUsername(usernameLower, mainPlayers) {
             for (const player of mainPlayers) {
-                const username = typeof player === 'string' ? player : player.username;
-                if (username.toLowerCase() === usernameLower) return username;
+                const username = typeof player === 'string' ? player : player?.username;
+                if (!username) continue;
+                const key = username.toLowerCase();
+                if (!originalNames.has(key)) originalNames.set(key, username);
             }
-            return usernameLower;
+
+            pointsMap.forEach((points, username) => {
+                const key = username.toLowerCase();
+                playerMap.set(key, { username: originalNames.get(key) || key, points });
+            });
+
+            for (const player of mainPlayers) {
+                const username = typeof player === 'string' ? player : player?.username;
+                if (!username) continue;
+                const key = username.toLowerCase();
+                const points = player.points ?? pointsMap.get(key) ?? 0;
+                const existing = playerMap.get(key);
+                if (existing) existing.points = Math.max(existing.points, points);
+                else playerMap.set(key, { username, points });
+            }
+
+            return Array.from(playerMap.values());
         },
 
         async getMonthlyAggregation(monthId, eventType) {
@@ -566,34 +568,33 @@
         },
 
         async loadMonthAvatars(row) {
-            const cells = Array.from(row.querySelectorAll('.player-cell[data-player-username]'));
-            const usernames = [...new Set(cells.map(cell => cell.dataset.playerUsername).filter(Boolean))];
+            const cellsByUsername = new Map();
+            row.querySelectorAll('.player-cell[data-player-username]').forEach(cell => {
+                const username = cell.dataset.playerUsername?.trim();
+                if (!username) return;
+                const key = username.toLowerCase();
+                if (!cellsByUsername.has(key)) cellsByUsername.set(key, { username, cells: [] });
+                cellsByUsername.get(key).cells.push(cell);
+            });
 
-            await Promise.allSettled(usernames.map(async username => {
+            await Promise.allSettled(Array.from(cellsByUsername.values(), async ({ username, cells }) => {
                 const profile = await RequestManager.fetch(
                     `${API.CHESS_COM}/player/${encodeURIComponent(username)}`
                 );
                 if (!profile) return;
 
-                const avatar = profile.avatar || CONFIG.DEFAULT_AVATAR;
+                const avatar = safeHttpUrl(profile.avatar || CONFIG.DEFAULT_AVATAR, CONFIG.DEFAULT_AVATAR);
                 const status = profile.status || 'N/A';
+                const badgeHtml = this.formatBadge(status);
 
-                cells
-                    .filter(cell => cell.dataset.playerUsername?.toLowerCase() === username.toLowerCase())
-                    .forEach(cell => {
-                        const image = cell.querySelector('.cc-avatar-img');
-                        if (image && profile.avatar) {
-                            image.src = safeHttpUrl(avatar, CONFIG.DEFAULT_AVATAR);
-                        }
-
-                        cell.dataset.avatar = safeHttpUrl(avatar, CONFIG.DEFAULT_AVATAR);
-                        cell.dataset.status = status;
-
-                        const statusElement = cell.querySelector('.player-status-badge');
-                        if (statusElement) {
-                            statusElement.innerHTML = this.formatBadge(status);
-                        }
-                    });
+                cells.forEach(cell => {
+                    const image = cell.querySelector('.cc-avatar-img');
+                    if (image && profile.avatar) image.src = avatar;
+                    cell.dataset.avatar = avatar;
+                    cell.dataset.status = status;
+                    const statusElement = cell.querySelector('.player-status-badge');
+                    if (statusElement) statusElement.innerHTML = badgeHtml;
+                });
             }));
         }
     };
