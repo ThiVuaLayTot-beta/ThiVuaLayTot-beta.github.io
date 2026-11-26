@@ -620,16 +620,14 @@ function initializeGlobalSearch() {
     let previousOverflow = "";
 
     function showMessage(message) {
-        results.textContent = "";
         const p = document.createElement("p");
         p.className = "search-no-results";
         p.textContent = message;
-        results.appendChild(p);
+        results.replaceChildren(p);
         if (statusEl) statusEl.textContent = message;
     }
     function renderResults(query) {
         const normalized = removeVietnameseTones(query);
-        results.textContent = "";
         if (!normalized) {
             showMessage(
                 indexReady
@@ -644,26 +642,43 @@ function initializeGlobalSearch() {
         }
         const terms = normalized.split(/\s+/);
         const hasAll = (text) => terms.every((term) => text.includes(term));
-        const matches = index
-            .map((item) => {
-                // normalise each field once (not on every keystroke)
-                const text = item.normalized;
-                let score = 0;
-                if (text.title.startsWith(normalized)) score += 5;
-                else if (hasAll(text.title)) score += 4;
-                if (hasAll(text.summary)) score += 2;
-                if (hasAll(text.content)) score += 1;
-                if (hasAll(text.tags) || hasAll(text.category)) score += 2;
-                return { item, score };
-            })
-            .filter((result) => result.score > 0)
-            .sort((a, b) => b.score - a.score || a.item.title.localeCompare(b.item.title, "vi"))
-            .slice(0, 15);
+        const matches = [];
+
+        // Keep a sorted top-15 list while scanning; avoid allocating and sorting
+        // an intermediate result for every match in a large search index.
+        const compareMatches = (a, b) =>
+            b.score - a.score || a.item.title.localeCompare(b.item.title, "vi");
+
+        for (const item of index) {
+            const text = item.normalized;
+            let score = 0;
+            if (text.title.startsWith(normalized)) score += 5;
+            else if (hasAll(text.title)) score += 4;
+            if (hasAll(text.summary)) score += 2;
+            if (hasAll(text.content)) score += 1;
+            if (hasAll(text.tags) || hasAll(text.category)) score += 2;
+            if (!score) continue;
+
+            const candidate = { item, score };
+            let low = 0;
+            let high = matches.length;
+            while (low < high) {
+                const middle = (low + high) >>> 1;
+                if (compareMatches(candidate, matches[middle]) < 0) high = middle;
+                else low = middle + 1;
+            }
+
+            if (low < 15) {
+                matches.splice(low, 0, candidate);
+                if (matches.length > 15) matches.pop();
+            }
+        }
         if (!matches.length) {
             showMessage("Không tìm thấy kết quả phù hợp.");
             return;
         }
-        if (statusEl) statusEl.textContent = `${matches.length} kết quả phù hợp.`;
+        if (statusEl) statusEl.textContent = matches.length + " kết quả phù hợp.";
+        const fragment = document.createDocumentFragment();
         matches.forEach(({ item }) => {
             const row = document.createElement("div");
             row.setAttribute("role", "listitem");
@@ -677,8 +692,9 @@ function initializeGlobalSearch() {
             summary.textContent = description.length > 140 ? description.slice(0, 137) + "…" : description;
             link.append(title, summary);
             row.appendChild(link);
-            results.appendChild(row);
+            fragment.appendChild(row);
         });
+        results.replaceChildren(fragment);
     }
     function loadIndex() {
         if (indexReady) {
