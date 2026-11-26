@@ -96,12 +96,18 @@ document.addEventListener("error", (event) => {
 
     if (!targets.length) return;
 
+    const peersByParent = new Map();
     targets.forEach((element) => {
-      const peers = element.parentElement
-        ? Array.from(element.parentElement.children).filter((child) => child.matches(selector))
-        : [element];
-      const order = Math.max(0, Math.min(peers.indexOf(element), 4));
+      const parent = element.parentElement;
+      let peers = peersByParent.get(parent);
+      if (!peers) {
+        peers = parent
+          ? Array.from(parent.children).filter((child) => child.matches(selector))
+          : [element];
+        peersByParent.set(parent, peers);
+      }
 
+      const order = Math.max(0, Math.min(peers.indexOf(element), 4));
       element.setAttribute("data-home-reveal", "");
       element.style.setProperty("--home-reveal-delay", order * 85 + "ms");
     });
