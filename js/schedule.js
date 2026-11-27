@@ -1,11 +1,46 @@
-const CONFIG = {
+/**
+ * Lịch sự kiện TVLT (/schedule): dạng lịch tháng và dạng timeline.
+ *
+ * Bố cục file:
+ *  1. Hằng số & dữ liệu tĩnh
+ *  2. State & DOM
+ *  3. Tiện ích (escape, URL, văn bản)
+ *  4. Thời gian (múi giờ Việt Nam)
+ *  5. Mô hình sự kiện (chuẩn hoá, trạng thái)
+ *  6. Bộ lọc & URL
+ *  7. Lịch tháng, tooltip
+ *  8. Modal chi tiết
+ *  9. Menu chọn tháng/năm
+ * 10. Timeline
+ * 11. Tải dữ liệu & cache
+ * 12. Khởi tạo
+ *
+ * Đặt trong IIFE để không làm bẩn global scope; main.js cung cấp
+ * window.removeVietnameseTones.
+ */
+(() => {
+'use strict';
+
+/* ============================ 1. Hằng số ============================ */
+
+const HOUR_MS = 3600 * 1000;
+const DAY_MS = 24 * HOUR_MS;
+const NO_INFO = 'Chưa có thông tin';
+const DEFAULT_LOGO = '/images/tvltlogo.png';
+const DEFAULT_BANNER = '/images/events/dau-truong-thi-vua.svg';
+const FALLBACK_BANNER = 'https://chess.com/bundles/web/images/404-pawn.f17f262c.gif';
+const SUPPORT_URL = 'https://support.chess.com';
+const FORUM_URL = 'https://chess.com/clubs/forum/view/lich-su-kien-hang-thang-clb-tvlt?clubId=325849&quote_id=125015758&page=1#comment_box';
+const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+const CONFIG = Object.freeze({
     API_URL: 'https://script.google.com/macros/s/AKfycbzBFtevfcYM7MLEgpB2R5hn4_sS3RovSy_rBiuljJMRgOJ7KEl50lffXH46aEOd-uAX/exec',
-    VIETNAM_OFFSET_MS: 7 * 3600 * 1000,
-    EVENT_DURATION_MS: 2 * 60 * 60 * 1000,
-    MONTH_NAMES: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'],
-    DAY_NAMES_VN: ['Chủ Nhật', 'Hai', 'Ba', 'Tư', 'Năm', 'Sáu', 'Bảy'],
-    INTERNAL_EVENT_TYPES: ["cttq", "tvlt", "cbtt", "dttv"]
-};
+    VIETNAM_OFFSET_MS: 7 * HOUR_MS,
+    EVENT_DURATION_MS: 2 * HOUR_MS,
+    MONTH_NAMES: Array.from({ length: 12 }, (_, index) => `Tháng ${index + 1}`),
+    WEEKDAY_LABELS: ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'],
+    INTERNAL_EVENT_TYPES: new Set(['cttq', 'tvlt', 'cbtt', 'dttv'])
+});
 
 const STATUS = Object.freeze({
     ONGOING: 'Đang diễn ra',
@@ -13,6 +48,40 @@ const STATUS = Object.freeze({
     TENTATIVE: 'Dự kiến',
     ENDED: 'Đã kết thúc'
 });
+
+// Chuỗi trạng thái (API) -> trạng thái chuẩn. Khoá đã lowercase, "_" và "-" đổi thành khoảng trắng.
+const STATUS_ALIASES = new Map([
+    ['đã kết thúc', STATUS.ENDED], ['ended', STATUS.ENDED], ['finished', STATUS.ENDED], ['completed', STATUS.ENDED],
+    ['sắp diễn ra', STATUS.UPCOMING], ['upcoming', STATUS.UPCOMING], ['scheduled', STATUS.UPCOMING],
+    ['dự kiến', STATUS.TENTATIVE], ['tentative', STATUS.TENTATIVE], ['proposed', STATUS.TENTATIVE],
+    ['đang diễn ra', STATUS.ONGOING], ['in progress', STATUS.ONGOING], ['ongoing', STATUS.ONGOING],
+    ['live', STATUS.ONGOING], ['running', STATUS.ONGOING], ['active', STATUS.ONGOING]
+]);
+
+const STATUS_BADGES = Object.freeze({
+    [STATUS.TENTATIVE]: '<span class="badge-schedule badge-tentative"><i class="bx bx-time-five"></i> Dự kiến</span>',
+    [STATUS.UPCOMING]: '<span class="badge-schedule badge-upcoming"><i class="bx bx-calendar-event"></i> Sắp diễn ra</span>',
+    [STATUS.ONGOING]: '<span class="badge-schedule badge-ongoing"><i class="bx bx-play-circle"></i> Đang diễn ra</span>',
+    [STATUS.ENDED]: '<span class="badge-schedule badge-ended"><i class="bx bx-check-circle"></i> Đã kết thúc</span>'
+});
+
+const PRIZE_BADGES = Object.freeze({
+    'Đặc biệt+Có thưởng': '<span class="badge-schedule badge-special-prize"><i class="bx bxs-star"></i> Đặc biệt+Có thưởng</span>',
+    'Đặc biệt': '<span class="badge-schedule badge-special"><i class="bx bxs-star"></i> Đặc biệt</span>',
+    'Có thưởng': '<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>',
+    'Giao lưu': '<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>'
+});
+
+const TIMELINE_STATUS_CLASS = Object.freeze({
+    [STATUS.ONGOING]: 'is-ongoing',
+    [STATUS.UPCOMING]: 'is-upcoming',
+    [STATUS.TENTATIVE]: 'is-tentative',
+    [STATUS.ENDED]: 'is-ended'
+});
+
+const STATUS_FILTER_VALUES = ['all', 'upcoming', 'ongoing', 'ended'];
+const SELECT_MIN_YEAR = 1900;
+const SELECT_MAX_YEAR = 2100;
 
 const ORGANIZER_MAP = {
     'M-DinhHoangViet': '<a href="/leaders#admin3" target="_blank">M-DinhHoangViet</a> (CLB <a href="/leaders" target="_blank">Thí Vua Lấy Tốt</a>)',
@@ -72,6 +141,14 @@ const INFO_MAP = {
     "multi-club-arena": "https://support.chess.com/articles/8724653-how-can-i-create-a-multi-club-arena"
 };
 
+// Chuẩn hoá: icon của từng luật chỉ cần dựng HTML một lần.
+const ICON_RULES_COMPILED = ICON_RULES.map(({ keys, url }) => ({
+    keys,
+    html: `<img src="https://chess.com/bundles/web/images/${url}" width="17" height="17" alt="" style="vertical-align:middle;margin-left:4px;">`
+}));
+
+/* ============================ 2. State & DOM ============================ */
+
 const DOM = {};
 const STATE = {
     tournaments: [],
@@ -84,64 +161,109 @@ const STATE = {
     selectedStatusFilter: 'all',
     hasUsableData: false,
     hasShownSchedule: false,
-    refreshPromise: null,
+    refreshPromise: null
 };
 
+// Hộp kiểm thể loại (trừ "Chỉ có thưởng"); dựng lại khi có thể loại mới từ API.
+let typeCheckboxes = [];
+let searchTimer = 0;
+// Phần tử DOM -> sự kiện; dùng cho event delegation (không gắn listener cho từng icon/card).
+const eventByElement = new WeakMap();
+
 function cacheDOMElements() {
-    DOM.loadingState = document.getElementById('loading');
-    DOM.errorState = document.getElementById('error');
-    DOM.emptyState = document.getElementById('empty');
-    DOM.lastUpdated = document.getElementById('last-updated');
-    DOM.statusFilters = document.getElementById('schedule-status-filters');
-    DOM.viewSwitcherContainer = document.getElementById('view-switcher-container');
-    DOM.scheduleFilters = document.getElementById('schedule-filters');
-    DOM.calendarWrapper = document.getElementById('calendar-wrapper');
-    DOM.timelineWrapper = document.getElementById('timeline-wrapper');
-    DOM.timelineContainer = document.getElementById('timeline-container');
-    DOM.scheduleSkeleton = document.getElementById('schedule-skeleton');
-    DOM.calendarBody = document.getElementById('calendar-body');
-    DOM.monthTitle = document.getElementById('month-title');
-    DOM.previousMonthButton = document.getElementById('btn-prev-month');
-    DOM.nextMonthButton = document.getElementById('btn-next-month');
-    DOM.monthSelectButton = document.getElementById('btn-month-select');
-    DOM.yearSelectButton = document.getElementById('btn-year-select');
-    DOM.monthLabel = document.getElementById('month-select-label');
-    DOM.yearLabel = document.getElementById('year-select-label');
-    DOM.monthLive = document.getElementById('month-live');
-    DOM.resultsSummary = document.getElementById('schedule-results-summary');
-    DOM.resetFilters = document.getElementById('schedule-reset-filters');
-    DOM.categoryButton = document.getElementById('schedule-category-button');
-    DOM.calendarViewButton = document.getElementById('btn-view-calendar');
-    DOM.timelineViewButton = document.getElementById('btn-view-timeline');
-    DOM.scheduleSearch = document.getElementById('schedule-search');
-    DOM.schedulePrizeFilter = document.getElementById('schedule-prize-filter');
-    DOM.scheduleTypeGroup = document.getElementById('schedule-type-group');
-    DOM.eventModal = document.getElementById('eventModal');
+    const byId = id => document.getElementById(id);
+    Object.assign(DOM, {
+        loadingState: byId('loading'),
+        errorState: byId('error'),
+        emptyState: byId('empty'),
+        lastUpdated: byId('last-updated'),
+        statusFilters: byId('schedule-status-filters'),
+        viewSwitcherContainer: byId('view-switcher-container'),
+        scheduleFilters: byId('schedule-filters'),
+        calendarWrapper: byId('calendar-wrapper'),
+        timelineWrapper: byId('timeline-wrapper'),
+        timelineContainer: byId('timeline-container'),
+        scheduleSkeleton: byId('schedule-skeleton'),
+        calendarBody: byId('calendar-body'),
+        monthTitle: byId('month-title'),
+        previousMonthButton: byId('btn-prev-month'),
+        nextMonthButton: byId('btn-next-month'),
+        monthSelectButton: byId('btn-month-select'),
+        yearSelectButton: byId('btn-year-select'),
+        monthLabel: byId('month-select-label'),
+        yearLabel: byId('year-select-label'),
+        monthLive: byId('month-live'),
+        resultsSummary: byId('schedule-results-summary'),
+        resetFilters: byId('schedule-reset-filters'),
+        categoryButton: byId('schedule-category-button'),
+        calendarViewButton: byId('btn-view-calendar'),
+        timelineViewButton: byId('btn-view-timeline'),
+        scheduleSearch: byId('schedule-search'),
+        schedulePrizeFilter: byId('schedule-prize-filter'),
+        scheduleTypeGroup: byId('schedule-type-group'),
+        eventModal: byId('eventModal'),
+        modalName: byId('modal-name'),
+        modalCategory: byId('modal-category'),
+        modalOrganizer: byId('modal-organizer'),
+        modalTime: byId('modal-time'),
+        modalGameRules: byId('modal-game-rules'),
+        modalEventRules: byId('modal-event-rules'),
+        modalLogo: byId('modal-logo'),
+        modalLogoLink: byId('modal-logo-link'),
+        modalBanner: byId('modal-banner'),
+        modalJoinButton: byId('modal-join'),
+        modalInfoButton: byId('modal-rule'),
+        modalResultsButton: byId('modal-results')
+    });
     DOM.modalDialog = DOM.eventModal?.querySelector('.cc-modal-dialog') || null;
     DOM.modalCloseButton = DOM.eventModal?.querySelector('.cc-modal-close') || null;
-    DOM.modalName = document.getElementById('modal-name');
-    DOM.modalCategory = document.getElementById('modal-category');
-    DOM.modalOrganizer = document.getElementById('modal-organizer');
-    DOM.modalTime = document.getElementById('modal-time');
-    DOM.modalGameRules = document.getElementById('modal-game-rules');
-    DOM.modalEventRules = document.getElementById('modal-event-rules');
-    DOM.modalLogo = document.getElementById('modal-logo');
-    DOM.modalLogoLink = document.getElementById('modal-logo-link');
-    DOM.modalBanner = document.getElementById('modal-banner');
-    DOM.modalJoinButton = document.getElementById('modal-join');
-    DOM.modalInfoButton = document.getElementById('modal-rule');
-    DOM.modalResultsButton = document.getElementById('modal-results');
+    DOM.categoryLabel = DOM.categoryButton?.querySelector('[data-filter-label], .tour-dropdown-btn-content span') || null;
 }
 
+/* ============================ 3. Tiện ích ============================ */
+
+const HTML_ESCAPES = Object.freeze({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' });
+
+function escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => HTML_ESCAPES[character]);
+}
+
+function padZero(number) {
+    return String(number).padStart(2, '0');
+}
+
+function setDisplay(element, value) {
+    if (element) element.style.display = value;
+}
+
+function setText(element, text) {
+    if (element && element.textContent !== text) element.textContent = text;
+}
+
+function normalizeSearchText(value) {
+    if (typeof window.removeVietnameseTones === 'function') return window.removeVietnameseTones(value);
+    return String(value ?? '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/gi, 'd')
+        .toLowerCase()
+        .trim();
+}
+
+/** Chỉ chấp nhận http(s); trả về href tuyệt đối hoặc `fallback`. */
 function safeUrl(value, fallback = '') {
     const raw = String(value ?? '').trim();
     if (!raw) return fallback;
     try {
         const url = new URL(raw, window.location.origin);
-        return ['http:', 'https:'].includes(url.protocol) ? url.href : fallback;
+        return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : fallback;
     } catch {
         return fallback;
     }
+}
+
+function externalLinkHTML(href, label) {
+    return `<a href="${escapeHTML(href)}" target="_blank" rel="noopener noreferrer">${escapeHTML(label)}</a>`;
 }
 
 function setSafeImageSource(image, source, fallback) {
@@ -152,155 +274,192 @@ function setSafeImageSource(image, source, fallback) {
     };
     image.src = safeUrl(source, fallback);
 }
-function getVietnamNow() {
-    const now = new Date();
-    const vnTime = new Date(now.getTime() + CONFIG.VIETNAM_OFFSET_MS);
-    return vnTime;
-}
 
-function parseEventDate(dateStr) {
-    if (typeof dateStr !== 'string' || !dateStr.trim()) return null;
-    let formatted = dateStr.trim();
+const MARKDOWN_LINK = /\[([^\]]+)\]\(([^)]+)\)/g;
 
-    if (/^\d{4}-\d{2}-\d{2}$/.test(formatted)) {
-        formatted += 'T00:00:00+07:00';
-    } else {
-        formatted = formatted.replace(' ', 'T');
-        if (!/(Z|[+-]\d{2}:?\d{2})$/i.test(formatted)) formatted += '+07:00';
-    }
-
-    const date = new Date(formatted);
-    return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function getVietnamDateParts(dateStr) {
-    if (typeof dateStr === 'string') {
-        const dateOnly = dateStr.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
-        if (dateOnly) {
-            const year = Number(dateOnly[1]);
-            const month = Number(dateOnly[2]) - 1;
-            const day = Number(dateOnly[3]);
-            const check = new Date(Date.UTC(year, month, day));
-            if (check.getUTCFullYear() === year && check.getUTCMonth() === month && check.getUTCDate() === day) {
-                return { year, month, date: day, hours: 0, minutes: 0 };
-            }
-        }
-    }
-
-    const date = parseEventDate(dateStr);
-    if (!date) return { year: 1970, month: 0, date: 1, hours: 0, minutes: 0 };
-
-    const vnDate = new Date(date.getTime() + CONFIG.VIETNAM_OFFSET_MS);
-    return {
-        year: vnDate.getUTCFullYear(),
-        month: vnDate.getUTCMonth(),
-        date: vnDate.getUTCDate(),
-        hours: vnDate.getUTCHours(),
-        minutes: vnDate.getUTCMinutes()
-    };
-}
-
-function getDayOfWeekVn(dateStr) {
-    const parts = getVietnamDateParts(dateStr);
-    const date = new Date(parts.year, parts.month, parts.date);
-    return CONFIG.DAY_NAMES_VN[date.getDay()];
-}
-
-function padZero(n) {
-    return String(n).padStart(2, '0');
-}
-
-const parseMarkdownLinks = (() => {
+/** Escape văn bản và đổi [nhãn](url) thành thẻ <a> an toàn. Có memo theo chuỗi. */
+const renderMarkdownLinks = (() => {
     const cache = new Map();
-
-    return (input) => {
+    return input => {
         const text = String(input ?? '');
+        if (!text || text === NO_INFO) return escapeHTML(text);
+        const cached = cache.get(text);
+        if (cached !== undefined) return cached;
 
-        if (!text || text === 'Chưa có thông tin') {
-            return escapeHTML(text);
-        }
-
-        if (cache.has(text)) return cache.get(text);
-
-        const pattern = /\[([^\]]+)\]\(([^)]+)\)/g;
         let html = '';
         let lastIndex = 0;
-        let match;
-
-        while ((match = pattern.exec(text)) !== null) {
+        for (const match of text.matchAll(MARKDOWN_LINK)) {
             html += escapeHTML(text.slice(lastIndex, match.index));
-
-            let linkHTML = escapeHTML(match[0]);
-
-            try {
-                const url = new URL(match[2], window.location.origin);
-
-                if (['http:', 'https:'].includes(url.protocol)) {
-                    linkHTML =
-                        '<a href="' + escapeHTML(url.href) +
-                        '" target="_blank" rel="noopener noreferrer">' +
-                        escapeHTML(match[1]) + '</a>';
-                }
-            } catch {
-                // Keep malformed URLs as safely escaped text.
-            }
-
-            html += linkHTML;
-            lastIndex = pattern.lastIndex;
+            const href = safeUrl(match[2]);
+            html += href ? externalLinkHTML(href, match[1]) : escapeHTML(match[0]);
+            lastIndex = match.index + match[0].length;
         }
-
         html += escapeHTML(text.slice(lastIndex));
         cache.set(text, html);
-
         return html;
     };
 })();
 
+/** Gắn link giải thích cho thuật ngữ cờ vua, bỏ qua phần đã nằm trong thẻ <a>. Có memo. */
 const linkifyChessTerms = (() => {
     const cache = new Map();
-    return (text) => {
-        if (!text || text === 'Chưa có thông tin') return text;
-        if (cache.has(text)) return cache.get(text);
+    return html => {
+        if (!html || html === NO_INFO) return html;
+        const cached = cache.get(html);
+        if (cached !== undefined) return cached;
 
         const placeholders = [];
-        let result = text.replace(/<a\b[^>]*>.*?<\/a>/gi, (match) => {
-            placeholders.push(match);
-            return `___PH_${placeholders.length - 1}___`;
-        });
-
+        const stash = markup => `___PH_${placeholders.push(markup) - 1}___`;
+        let result = html.replace(/<a\b[^>]*>.*?<\/a>/gi, stash);
         CHESS_TERMS_RULES.forEach(({ regex, url }) => {
-            result = result.replace(regex, (match) => {
-                placeholders.push(`<a href="${url}" target="_blank" class="rule-helper-link">${match}</a>`);
-                return `___PH_${placeholders.length - 1}___`;
-            });
+            result = result.replace(regex, match => stash(`<a href="${url}" target="_blank" class="rule-helper-link">${match}</a>`));
         });
-
-        for (let i = placeholders.length - 1; i >= 0; i--) {
-            result = result.replace(`___PH_${i}___`, placeholders[i]);
+        for (let index = placeholders.length - 1; index >= 0; index--) {
+            result = result.replace(`___PH_${index}___`, placeholders[index]);
         }
-
-        cache.set(text, result);
+        cache.set(html, result);
         return result;
     };
 })();
 
-function getGameRulesWithIcon(rulesText) {
-    if (!rulesText || rulesText === 'Chưa có thông tin') return rulesText;
-    const lower = rulesText.toLowerCase();
-
-    const icons = ICON_RULES
-        .filter(rule => rule.keys.some(k => lower.includes(k)))
-        .map(rule => {
-            const fullUrl = `https://chess.com/bundles/web/images/${rule.url}`;
-            return `<img src="${fullUrl}" width="17" height="17" alt="" style="vertical-align:middle;margin-left:4px;">`;
-        })
+function appendGameRuleIcons(rulesHTML) {
+    if (!rulesHTML || rulesHTML === NO_INFO) return rulesHTML;
+    const lower = rulesHTML.toLowerCase();
+    return rulesHTML + ICON_RULES_COMPILED
+        .filter(rule => rule.keys.some(key => lower.includes(key)))
+        .map(rule => rule.html)
         .join('');
-
-    return rulesText + icons;
 }
 
-function getPrizeCategory(tournament) {
-    const prize = tournament?.prize;
+const formatGameRules = text => appendGameRuleIcons(linkifyChessTerms(renderMarkdownLinks(text)));
+
+function getOrganizerHTML(rawOrganizer, organizerLinks) {
+    if (organizerLinks.length) {
+        return organizerLinks.map(item => {
+            const label = item?.text || '';
+            const href = safeUrl(item?.url);
+            return href ? externalLinkHTML(href, label) : escapeHTML(label);
+        }).join(' · ');
+    }
+    return ORGANIZER_MAP[rawOrganizer] || renderMarkdownLinks(rawOrganizer) || 'Quản trị viên';
+}
+
+/* ============================ 4. Thời gian ============================ */
+
+const TIMEZONE_SUFFIX = /(?:Z|[+-]\d{2}:?\d{2})$/i;
+
+/** Chuỗi ngày (không có múi giờ => giờ Việt Nam) -> timestamp, hoặc null nếu không hợp lệ. */
+function parseEventTimestamp(value) {
+    if (typeof value !== 'string' || !value.trim()) return null;
+    let text = value.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+        text += 'T00:00:00+07:00';
+    } else {
+        text = text.replace(' ', 'T');
+        if (!TIMEZONE_SUFFIX.test(text)) text += '+07:00';
+    }
+    const timestamp = new Date(text).getTime();
+    return Number.isNaN(timestamp) ? null : timestamp;
+}
+
+/** Các thành phần ngày/giờ theo giờ Việt Nam, bất kể múi giờ của trình duyệt. */
+function getVietnamParts(timestamp) {
+    const date = new Date(timestamp + CONFIG.VIETNAM_OFFSET_MS);
+    return {
+        year: date.getUTCFullYear(),
+        month: date.getUTCMonth(),
+        date: date.getUTCDate(),
+        hours: date.getUTCHours(),
+        minutes: date.getUTCMinutes()
+    };
+}
+
+const getVietnamToday = () => getVietnamParts(Date.now());
+
+const dateKeyOf = (year, month, day) => `${year}-${month}-${day}`;
+
+const getWeekdayLabel = parts => CONFIG.WEEKDAY_LABELS[new Date(parts.year, parts.month, parts.date).getDay()];
+
+const formatClock = parts => `${padZero(parts.hours)}h${padZero(parts.minutes)}`;
+
+function eventValueToRaw(value) {
+    return value && typeof value === 'object'
+        ? value.start || value.date?.start || value.date || value.start_time
+        : value;
+}
+
+function hasEventTime(value) {
+    const raw = eventValueToRaw(value);
+    return typeof raw === 'string' && /(?:T|\s)\d{1,2}:\d{2}/i.test(raw.trim());
+}
+
+/** Đưa các định dạng ngày từ API/Notion (m/d/yyyy [h:mm[:ss]], timestamp, object) về chuỗi ISO. */
+function normalizeEventDate(value) {
+    value = eventValueToRaw(value);
+    if (typeof value === 'number') {
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
+    }
+    if (typeof value !== 'string') return '';
+
+    const raw = value.trim();
+    const notionDate = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+    if (!notionDate) return raw;
+
+    const [, monthText, dayText, yearText, hourText, minuteText, secondText = '0'] = notionDate;
+    const month = Number(monthText);
+    const day = Number(dayText);
+    const year = Number(yearText);
+    const hour = Number(hourText || 0);
+    const minute = Number(minuteText || 0);
+    const second = Number(secondText);
+    const check = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+
+    if (
+        month < 1 || month > 12 || day < 1 || day > 31 ||
+        hour > 23 || minute > 59 || second > 59 ||
+        check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day
+    ) return '';
+
+    const datePart = `${year}-${padZero(month)}-${padZero(day)}`;
+    return hourText === undefined || minuteText === undefined
+        ? datePart
+        : `${datePart}T${padZero(hour)}:${padZero(minute)}:${padZero(second)}+07:00`;
+}
+
+function formatModalDate(parts, withTime) {
+    const date = `${getWeekdayLabel(parts)}, ngày ${padZero(parts.date)} tháng ${padZero(parts.month + 1)} năm ${parts.year}`;
+    return withTime ? `${date} lúc ${formatClock(parts)}` : date;
+}
+
+function formatTimelineDate(tournament) {
+    const parts = tournament._startDateParts;
+    const date = `${getWeekdayLabel(parts)}, ${padZero(parts.date)} thg ${padZero(parts.month + 1)}, ${parts.year}`;
+    return tournament.hasStartTime ? `${date} lúc ${formatClock(parts)}` : date;
+}
+
+/** Đoạn "đến ..." ngắn gọn; chỉ có khi dữ liệu thật sự có thời điểm kết thúc. */
+function formatEventEndLabel(tournament) {
+    if (tournament._explicitEndTimestamp === null) return '';
+
+    const start = tournament._startDateParts;
+    const end = tournament._endDateParts;
+    const timed = tournament._endHasTime;
+    const timeText = formatClock(end);
+    const sameDay = start.year === end.year && start.month === end.month && start.date === end.date;
+
+    if (sameDay) {
+        if (timed) return `đến ${timeText}`;
+        return tournament.hasStartTime ? 'đến hết ngày' : '';
+    }
+    const yearSuffix = end.year !== start.year ? `/${end.year}` : '';
+    const dateText = `${padZero(end.date)}/${padZero(end.month + 1)}${yearSuffix}`;
+    return `đến ${timed ? `${timeText} ` : ''}${dateText}`;
+}
+
+/* ============================ 5. Mô hình sự kiện ============================ */
+
+function getPrizeCategory(prize) {
     if (typeof prize === 'boolean') return prize ? 'Có thưởng' : 'Giao lưu';
     if (typeof prize === 'number') return prize > 0 ? 'Có thưởng' : 'Giao lưu';
 
@@ -308,207 +467,133 @@ function getPrizeCategory(tournament) {
     if (['đặc biệt+có thưởng', 'đặc biệt có thưởng', 'special+prize'].includes(value)) return 'Đặc biệt+Có thưởng';
     if (['đặc biệt', 'special'].includes(value)) return 'Đặc biệt';
     if (['giao lưu', 'không', 'không có', 'false', '0', ''].includes(value)) return 'Giao lưu';
-    if (['có thưởng', 'co thuong', 'prize', 'true', '1'].includes(value)) return 'Có thưởng';
-
     return 'Có thưởng';
 }
 
-function getEventBadgesHTML(tournament) {
-    let html = '';
-    const category = getPrizeCategory(tournament);
+function getExplicitStatus(status) {
+    const key = String(status || '').trim().toLowerCase().replace(/[_-]+/g, ' ');
+    return STATUS_ALIASES.get(key) || '';
+}
 
-    if (category === 'Đặc biệt+Có thưởng') {
-        html += `<span class="badge-schedule badge-special-prize"><i class="bx bxs-star"></i> Đặc biệt+Có thưởng</span>`;
-    } else if (category === 'Đặc biệt') {
-        html += `<span class="badge-schedule badge-special"><i class="bx bxs-star"></i> Đặc biệt</span>`;
-    } else if (category === 'Có thưởng') {
-        html += `<span class="badge-schedule badge-co-thuong"><i class="bx bxs-award"></i> Có thưởng</span>`;
-    } else {
-        html += `<span class="badge-schedule badge-giao-luu"><i class="bx bx-coffee"></i> Giao lưu</span>`;
+/**
+ * Chuẩn hoá một bản ghi API và tính sẵn mọi thứ cần cho lọc/hiển thị
+ * (timestamp, thành phần ngày, tên không dấu, hạng mục thưởng...), để các
+ * lần render sau chỉ còn so sánh số. Trả về null nếu không có ngày bắt đầu hợp lệ.
+ */
+function normalizeTournament(record) {
+    if (!record || typeof record !== 'object') return null;
+
+    const rawEndTime = record.endTime || record.finishTime || record.endDate;
+    const startTime = normalizeEventDate(record.startTime);
+    const endTime = normalizeEventDate(rawEndTime);
+    const startTimestamp = parseEventTimestamp(startTime);
+    if (startTimestamp === null) return null;
+
+    const endTimestampRaw = parseEventTimestamp(endTime);
+    const endHasTime = hasEventTime(rawEndTime);
+    let explicitEndTimestamp = null;
+    if (endTimestampRaw !== null) {
+        // Ngày kết thúc không kèm giờ nghĩa là hết cả ngày hôm đó (giờ Việt Nam).
+        const endTimestamp = endHasTime ? endTimestampRaw : endTimestampRaw + DAY_MS;
+        if (endTimestamp >= startTimestamp) explicitEndTimestamp = endTimestamp;
     }
 
-    const status = getEventStatus(tournament);
-    if (status === STATUS.TENTATIVE) {
-        html += `<span class="badge-schedule badge-tentative"><i class="bx bx-time-five"></i> Dự kiến</span>`;
-    } else if (status === STATUS.UPCOMING) {
-        html += `<span class="badge-schedule badge-upcoming"><i class="bx bx-calendar-event"></i> Sắp diễn ra</span>`;
-    } else if (status === STATUS.ONGOING) {
-        html += `<span class="badge-schedule badge-ongoing"><i class="bx bx-play-circle"></i> Đang diễn ra</span>`;
-    } else if (status === STATUS.ENDED) {
-        html += `<span class="badge-schedule badge-ended"><i class="bx bx-check-circle"></i> Đã kết thúc</span>`;
-    }
+    const eventName = String(record.eventName || '').trim();
+    const hasStartTime = typeof record.hasStartTime === 'boolean' ? record.hasStartTime : hasEventTime(record.startTime);
+    const prizeCategory = getPrizeCategory(record.prize ?? '');
 
-    return html;
-}
-
-function isPrizeEvent(tournament) {
-    const category = getPrizeCategory(tournament);
-    return category === 'Có thưởng' || category === 'Đặc biệt+Có thưởng';
-}
-
-function getExplicitEventStatus(tournament) {
-    const value = String(tournament?.status || '')
-        .trim()
-        .toLowerCase()
-        .replace(/[_-]+/g, ' ');
-
-    if (['đã kết thúc', 'ended', 'finished', 'completed'].includes(value)) return STATUS.ENDED;
-    if (['sắp diễn ra', 'upcoming', 'scheduled'].includes(value)) return STATUS.UPCOMING;
-    if (['dự kiến', 'tentative', 'proposed'].includes(value)) return STATUS.TENTATIVE;
-    if (['đang diễn ra', 'in progress', 'ongoing', 'live', 'running', 'active'].includes(value)) {
-        return STATUS.ONGOING;
-    }
-
-    return '';
-}
-
-function getEventStatus(tournament) {
-    const explicitStatus = getExplicitEventStatus(tournament);
-
-    // Explicit terminal/tentative states are authoritative.
-    if ([STATUS.ENDED, STATUS.TENTATIVE].includes(explicitStatus)) return explicitStatus;
-
-    const tentative = tournament?.isTentative;
-    if (tentative === true || tentative === 'true' || tentative === STATUS.TENTATIVE || tentative === 'Tentative') {
-        return STATUS.TENTATIVE;
-    }
-
-    const now = Date.now();
-    const start = getEventStartTime(tournament);
-
-    // A future start date wins over a stale "ongoing" API label.
-    if (start > now) return STATUS.UPCOMING;
-
-    const explicitEnd = getExplicitEventEnd(tournament);
-    // The default two-hour duration is only a display fallback; it must not
-    // terminate an event explicitly marked as ongoing.
-    if (explicitStatus === STATUS.ONGOING && explicitEnd === null) return STATUS.ONGOING;
-
-    return getEventEndTime(tournament) > now ? STATUS.ONGOING : STATUS.ENDED;
-}
-
-function isTentativeEvent(tournament) {
-    return getEventStatus(tournament) === STATUS.TENTATIVE;
-}
-
-function isEndedEvent(tournament) {
-    return getEventStatus(tournament) === STATUS.ENDED;
-}
-
-function escapeHTML(value) {
-    return String(value ?? '').replace(/[&<>"']/g, character => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-    })[character]);
-}
-
-function getMappedOrganizer(rawOrganizer, organizerLinks = []) {
-    if (Array.isArray(organizerLinks) && organizerLinks.length) {
-        return organizerLinks.map(item => {
-            const label = escapeHTML(item?.text || '');
-            const rawUrl = String(item?.url || '').trim();
-            if (!rawUrl) return label;
-
-            try {
-                const url = new URL(rawUrl, window.location.origin);
-                if (!['http:', 'https:'].includes(url.protocol)) return label;
-                return `<a href="${escapeHTML(url.href)}" target="_blank" rel="noopener noreferrer">${label}</a>`;
-            } catch {
-                return label;
-            }
-        }).join(' · ');
-    }
-
-    return ORGANIZER_MAP[rawOrganizer] || parseMarkdownLinks(rawOrganizer) || 'Quản trị viên';
-}
-
-function getCurrentMonthEvents(filters = getFilterState()) {
-    return getSortedEvents().filter(tournament => {
-        const parts = getTournamentDateParts(tournament);
-        return parts.year === STATE.displayYear && parts.month === STATE.displayMonth && matchesFilters(tournament, filters);
-    });
-}
-
-function updateFilterControls(filters = getFilterState()) {
-    const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter):not([data-internal-filter])') || []);
-    const selectedVisibleTypes = allTypes.filter(checkbox => checkbox.checked);
-    const hasActiveFilters = Boolean(filters.search || filters.onlyPrize ||
-        selectedVisibleTypes.length !== allTypes.length || STATE.selectedStatusFilter !== 'all');
-    if (DOM.resetFilters) DOM.resetFilters.hidden = !hasActiveFilters;
-    if (DOM.categoryButton) {
-        const categoryLabel = DOM.categoryButton.querySelector('[data-filter-label], .tour-dropdown-btn-content span');
-        const categoryText = `Thể loại (${selectedVisibleTypes.length}/${allTypes.length})`;
-        if (categoryLabel) categoryLabel.textContent = categoryText;
-        DOM.categoryButton.setAttribute('aria-label', `${categoryText}. Mở bộ lọc thể loại`);
-    }
-}
-
-function updateResultsSummary(monthEvents = getCurrentMonthEvents(), carryOverEvents = []) {
-    if (!DOM.resultsSummary || STATE.displayYear === undefined) return;
-
-    const count = monthEvents.length;
-    const monthLabel = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
-    const carryOver = carryOverEvents.length;
-    const extra = carryOver ? `, cùng ${carryOver} giải đang diễn ra từ trước` : '';
-    DOM.resultsSummary.textContent = `Đang hiển thị ${count} sự kiện trong ${monthLabel}${extra}.`;
-}
-
-let scheduleSearchTimer = null;
-
-function resetFilters() {
-    window.clearTimeout(scheduleSearchTimer);
-    scheduleSearchTimer = null;
-    if (DOM.scheduleSearch) DOM.scheduleSearch.value = '';
-    if (DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = false;
-    DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)').forEach(checkbox => { checkbox.checked = true; });
-    STATE.selectedStatusFilter = 'all';
-    updateStatusFilterButtons();
-    filterSchedule();
-}
-
-function getFilterState() {
     return {
-        search: removeVietnameseTones(DOM.scheduleSearch?.value || ''),
-        onlyPrize: DOM.schedulePrizeFilter?.checked || false,
-        types: Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter):checked') || []).map(cb => cb.value)
+        ...record,
+        eventName,
+        hasStartTime,
+        startTime,
+        endTime,
+        eventType: String(record.eventType || '').trim().toLowerCase().replace(/\s+/g, '-') || 'other',
+        status: String(record.status || '').trim(),
+        organizerLinks: Array.isArray(record.organizerLinks) ? record.organizerLinks : [],
+        isTentative: record.isTentative === true || record.isTentative === 'true' ||
+            record.isTentative === STATUS.TENTATIVE || record.isTentative === 'Tentative',
+        prize: record.prize ?? '',
+        _normalizedEventName: normalizeSearchText(eventName),
+        _startTimestamp: startTimestamp,
+        _startDateParts: getVietnamParts(startTimestamp),
+        _explicitEndTimestamp: explicitEndTimestamp,
+        _endTimestamp: explicitEndTimestamp !== null
+            ? explicitEndTimestamp
+            : startTimestamp + (hasStartTime ? CONFIG.EVENT_DURATION_MS : DAY_MS),
+        _endDateParts: endTimestampRaw !== null ? getVietnamParts(endTimestampRaw) : null,
+        _endHasTime: endHasTime,
+        _explicitStatus: getExplicitStatus(record.status),
+        _prizeCategory: prizeCategory,
+        _isPrize: prizeCategory === 'Có thưởng' || prizeCategory === 'Đặc biệt+Có thưởng'
     };
 }
 
-function updateStatusFilterButtons() {
-    if (DOM.statusFilters instanceof HTMLSelectElement) {
-        DOM.statusFilters.value = STATE.selectedStatusFilter;
-    }
+/**
+ * Trạng thái tại thời điểm `now`:
+ * - "Đã kết thúc"/"Dự kiến" khai báo rõ là quyết định cuối cùng;
+ * - ngày bắt đầu ở tương lai thắng nhãn "đang diễn ra" đã cũ của API;
+ * - thời lượng mặc định 2 giờ chỉ để hiển thị, không được tự kết thúc một giải
+ *   đã được đánh dấu "đang diễn ra" mà không có giờ kết thúc.
+ */
+function getEventStatus(tournament, now = Date.now()) {
+    const explicit = tournament._explicitStatus;
+    if (explicit === STATUS.ENDED || explicit === STATUS.TENTATIVE) return explicit;
+    if (tournament.isTentative) return STATUS.TENTATIVE;
+    if (tournament._startTimestamp > now) return STATUS.UPCOMING;
+    if (explicit === STATUS.ONGOING && tournament._explicitEndTimestamp === null) return STATUS.ONGOING;
+    return tournament._endTimestamp > now ? STATUS.ONGOING : STATUS.ENDED;
+}
+
+function getEventBadgesHTML(tournament) {
+    return PRIZE_BADGES[tournament._prizeCategory] + (STATUS_BADGES[getEventStatus(tournament)] || '');
+}
+
+const byStartTime = (a, b) => a._startTimestamp - b._startTimestamp;
+
+/* ============================ 6. Bộ lọc & URL ============================ */
+
+const isInternalCheckbox = checkbox => Boolean(checkbox.closest('[data-internal-filter]'));
+const getVisibleTypeCheckboxes = () => typeCheckboxes.filter(checkbox => !isInternalCheckbox(checkbox));
+
+function refreshTypeCheckboxes() {
+    typeCheckboxes = Array.from(
+        DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)') ?? []
+    );
+}
+
+function readFilters() {
+    return {
+        search: normalizeSearchText(DOM.scheduleSearch?.value || ''),
+        onlyPrize: Boolean(DOM.schedulePrizeFilter?.checked),
+        types: new Set(typeCheckboxes.filter(checkbox => checkbox.checked).map(checkbox => checkbox.value))
+    };
 }
 
 function statusMatchesFilter(tournament) {
+    const filter = STATE.selectedStatusFilter;
+    if (filter === 'all') return true;
     const status = getEventStatus(tournament);
-    if (STATE.selectedStatusFilter === 'upcoming') return status === STATUS.UPCOMING || status === STATUS.TENTATIVE;
-    if (STATE.selectedStatusFilter === 'ongoing') return status === STATUS.ONGOING;
-    if (STATE.selectedStatusFilter === 'ended') return status === STATUS.ENDED;
-    return true;
-}
-
-function setStatusFilter(status) {
-    if (!['all', 'upcoming', 'ongoing', 'ended'].includes(status)) return;
-    STATE.selectedStatusFilter = status;
-    saveFiltersToURL();
-    updateStatusFilterButtons();
-    renderActiveView();
+    if (filter === 'upcoming') return status === STATUS.UPCOMING || status === STATUS.TENTATIVE;
+    if (filter === 'ongoing') return status === STATUS.ONGOING;
+    return status === STATUS.ENDED;
 }
 
 function matchesFilters(tournament, filters) {
-    const name = tournament._normalizedEventName ?? removeVietnameseTones(tournament.eventName || '');
-    const matchesSearch = !filters.search || name.includes(filters.search);
-    const matchesPrize = !filters.onlyPrize || isPrizeEvent(tournament);
-    const matchesType = filters.types.includes(tournament.eventType);
-    return matchesSearch && matchesPrize && matchesType && statusMatchesFilter(tournament);
+    return (!filters.search || tournament._normalizedEventName.includes(filters.search)) &&
+        (!filters.onlyPrize || tournament._isPrize) &&
+        filters.types.has(tournament.eventType) &&
+        statusMatchesFilter(tournament);
+}
+
+function replaceURLQuery(params) {
+    const query = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (query ? `?${query}` : '') + window.location.hash);
 }
 
 function loadFiltersFromURL() {
     const params = new URLSearchParams(window.location.search);
+
     const monthMatch = /^([0-9]{1,2})-([0-9]{4})$/.exec((params.get('mo') || '').trim());
     if (monthMatch) {
         const month = Number(monthMatch[1]);
@@ -518,99 +603,170 @@ function loadFiltersFromURL() {
         }
     }
     if (params.has('search') && DOM.scheduleSearch) DOM.scheduleSearch.value = params.get('search');
-    if (params.has('prize') && DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = (params.get('prize') === '1');
+    if (params.has('prize') && DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = params.get('prize') === '1';
+
     const status = params.get('status');
     if (['upcoming', 'ongoing', 'ended'].includes(status)) STATE.selectedStatusFilter = status;
-    if (params.has('type') && DOM.scheduleTypeGroup) {
-        const selectedTypes = params.get('type').toLowerCase().split(/[\s+]+/);
-        DOM.scheduleTypeGroup.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)').forEach(cb => {
-            cb.checked = cb.dataset.internalFilter === 'true' || selectedTypes.includes(cb.value.toLowerCase());
+
+    if (params.has('type')) {
+        const selected = new Set(params.get('type').toLowerCase().split(/[\s+]+/));
+        typeCheckboxes.forEach(checkbox => {
+            // Thể loại nội bộ bị ẩn khỏi UI nên luôn được bật.
+            checkbox.checked = isInternalCheckbox(checkbox) || selected.has(checkbox.value.toLowerCase());
         });
     }
 }
 
-function saveFiltersToURL() {
-    // Keep the initial "mo" query until the visitor explicitly changes the displayed month.
+function saveFiltersToURL(filters) {
+    // Giữ tham số "mo" cho tới khi người dùng chủ động đổi tháng.
     const params = new URLSearchParams(window.location.search);
     ['search', 'prize', 'status', 'type'].forEach(key => params.delete(key));
-    const filters = getFilterState();
+
     if (filters.search) params.set('search', filters.search);
-    if (DOM.schedulePrizeFilter?.checked) params.set('prize', '1');
+    if (filters.onlyPrize) params.set('prize', '1');
     if (STATE.selectedStatusFilter !== 'all') params.set('status', STATE.selectedStatusFilter);
-    const allTypes = Array.from(DOM.scheduleTypeGroup?.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)') || [])
-        .map(cb => cb.value);
-    if (filters.types.length < allTypes.length) {
-        params.set('type', filters.types.length ? filters.types.join(' ') : 'none');
-    }
-    const newQuery = params.toString();
-    const newURL = window.location.pathname + (newQuery ? '?' + newQuery : '') + window.location.hash;
-    window.history.replaceState(null, '', newURL);
+
+    const visible = getVisibleTypeCheckboxes();
+    const selected = visible.filter(checkbox => checkbox.checked).map(checkbox => checkbox.value);
+    if (selected.length < visible.length) params.set('type', selected.length ? selected.join(' ') : 'none');
+    replaceURLQuery(params);
 }
 
 function clearMonthQueryFromURL() {
     const params = new URLSearchParams(window.location.search);
     if (!params.has('mo')) return;
-
     params.delete('mo');
-    const query = params.toString();
-    const newURL = window.location.pathname + (query ? '?' + query : '') + window.location.hash;
-    window.history.replaceState(null, '', newURL);
+    replaceURLQuery(params);
 }
 
+function updateStatusFilterControl() {
+    if (DOM.statusFilters instanceof HTMLSelectElement) DOM.statusFilters.value = STATE.selectedStatusFilter;
+}
+
+function updateFilterControls(filters) {
+    const visible = getVisibleTypeCheckboxes();
+    const selectedCount = visible.filter(checkbox => checkbox.checked).length;
+    const hasActiveFilters = Boolean(filters.search || filters.onlyPrize ||
+        selectedCount !== visible.length || STATE.selectedStatusFilter !== 'all');
+    if (DOM.resetFilters) DOM.resetFilters.hidden = !hasActiveFilters;
+
+    if (DOM.categoryButton) {
+        const text = `Thể loại (${selectedCount}/${visible.length})`;
+        setText(DOM.categoryLabel, text);
+        DOM.categoryButton.setAttribute('aria-label', `${text}. Mở bộ lọc thể loại`);
+    }
+}
+
+function updateResultsSummary(monthCount, carryOverCount) {
+    if (!DOM.resultsSummary || STATE.displayYear === undefined) return;
+    const monthLabel = `${CONFIG.MONTH_NAMES[STATE.displayMonth]}/${STATE.displayYear}`;
+    const extra = carryOverCount ? `, cùng ${carryOverCount} giải đang diễn ra từ trước` : '';
+    setText(DOM.resultsSummary, `Đang hiển thị ${monthCount} sự kiện trong ${monthLabel}${extra}.`);
+}
+
+function applyFilters() {
+    const filters = readFilters();
+    saveFiltersToURL(filters);
+    renderActiveView(filters);
+}
+
+function resetFilters() {
+    window.clearTimeout(searchTimer);
+    searchTimer = 0;
+    if (DOM.scheduleSearch) DOM.scheduleSearch.value = '';
+    if (DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.checked = false;
+    typeCheckboxes.forEach(checkbox => { checkbox.checked = true; });
+    STATE.selectedStatusFilter = 'all';
+    updateStatusFilterControl();
+    applyFilters();
+}
+
+function setStatusFilter(status) {
+    if (!STATUS_FILTER_VALUES.includes(status)) return;
+    STATE.selectedStatusFilter = status;
+    applyFilters();
+}
+
+/** Thêm hộp kiểm cho thể loại mới xuất hiện trong dữ liệu mà HTML chưa có. */
+function ensureEventTypeFilters(events) {
+    const group = DOM.scheduleTypeGroup;
+    if (!group) return;
+
+    const existingTypes = new Set(typeCheckboxes.map(checkbox => checkbox.value.toLowerCase()));
+    const typeParam = new URLSearchParams(window.location.search).get('type');
+    const selectedFromURL = typeParam === null ? null : new Set(typeParam.toLowerCase().split(/[\s+]+/));
+    const allExistingSelected = typeCheckboxes.length > 0 && typeCheckboxes.every(checkbox => checkbox.checked);
+
+    const unknownTypes = [...new Set(events.map(event => event.eventType))]
+        .filter(type => type && !existingTypes.has(type))
+        .sort();
+    if (!unknownTypes.length) return;
+
+    unknownTypes.forEach(type => {
+        const internal = CONFIG.INTERNAL_EVENT_TYPES.has(type);
+        const label = document.createElement('label');
+        label.className = 'custom-checkbox-container';
+        if (internal) {
+            label.hidden = true;
+            label.dataset.internalFilter = 'true';
+            label.style.display = 'none';
+        }
+
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = type;
+        checkbox.checked = internal || (selectedFromURL ? selectedFromURL.has(type) : allExistingSelected);
+
+        const mark = document.createElement('span');
+        mark.className = 'checkmark';
+
+        const labelText = type === 'other' ? ' Khác (chưa phân loại)' : ` Khác — ${type}`;
+        label.append(checkbox, mark, document.createTextNode(labelText));
+        group.appendChild(label);
+    });
+    refreshTypeCheckboxes();
+}
+
+function toggleTourDropdown(id) {
+    const element = document.getElementById(id);
+    if (!element) return;
+    document.querySelectorAll('.tour-dropdown').forEach(dropdown => {
+        if (dropdown.id !== id) dropdown.classList.remove('open');
+    });
+    const isOpen = element.classList.toggle('open');
+    DOM.categoryButton?.setAttribute('aria-expanded', String(isOpen));
+}
+
+function closeTourDropdowns() {
+    document.querySelectorAll('.tour-dropdown.open').forEach(dropdown => dropdown.classList.remove('open'));
+    DOM.categoryButton?.setAttribute('aria-expanded', 'false');
+}
+
+/* ============================ 7. Lịch tháng & tooltip ============================ */
+
+/** Lưới 6 tuần (42 ô), tuần bắt đầu từ thứ Hai. */
 function getCalendarDays(year, month) {
-    const firstDay = new Date(year, month, 1).getDay();
-    const startDay = firstDay === 0 ? 6 : firstDay - 1;
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const daysInPrevMonth = new Date(year, month, 0).getDate();
-    const days = [];
-
-    let prevMonth = month - 1, prevYear = year;
-    if (prevMonth < 0) { prevMonth = 11; prevYear--; }
-    for (let i = startDay - 1; i >= 0; i--) {
-        days.push({ day: daysInPrevMonth - i, month: prevMonth, year: prevYear, isCurrentMonth: false });
-    }
-
-    for (let i = 1; i <= daysInMonth; i++) {
-        days.push({ day: i, month, year, isCurrentMonth: true });
-    }
-
-    let nextMonth = month + 1, nextYear = year;
-    if (nextMonth > 11) { nextMonth = 0; nextYear++; }
-    const totalCells = 42;
-    const remainingDays = totalCells - days.length;
-    for (let i = 1; i <= remainingDays; i++) {
-        days.push({ day: i, month: nextMonth, year: nextYear, isCurrentMonth: false });
-    }
-
-    return days;
+    const leadingDays = (new Date(year, month, 1).getDay() + 6) % 7;
+    return Array.from({ length: 42 }, (_, index) => {
+        const date = new Date(year, month, 1 - leadingDays + index);
+        return { day: date.getDate(), month: date.getMonth(), year: date.getFullYear(), isCurrentMonth: date.getMonth() === month };
+    });
 }
 
-const dateKeyOf = (year, month, day) => `${year}-${month}-${day}`;
-
-function getTournamentDateParts(tournament) {
-    return tournament?._startDateParts || getVietnamDateParts(tournament?.startTime);
-}
-
-function getDayOfWeekFromParts(parts) {
-    return CONFIG.DAY_NAMES_VN[new Date(parts.year, parts.month, parts.date).getDay()];
-}
-
-let sortedTournamentsSource = null;
-let sortedTournamentsCache = [];
-
-/** Filters once and buckets events by Vietnam-local day: O(events) instead of O(cells x events). */
-function groupEventsByDay(filters) {
+/** Gom sự kiện theo ngày (giờ Việt Nam) trong một lượt duyệt: O(sự kiện) thay vì O(ô × sự kiện). */
+function groupEventsByDay(events) {
     const byDay = new Map();
-    STATE.tournaments.forEach(tournament => {
-        if (!matchesFilters(tournament, filters)) return;
-        const { year, month, date } = getTournamentDateParts(tournament);
+    events.forEach(tournament => {
+        const { year, month, date } = tournament._startDateParts;
         const key = dateKeyOf(year, month, date);
-        if (!byDay.has(key)) byDay.set(key, []);
-        byDay.get(key).push(tournament);
+        const bucket = byDay.get(key);
+        if (bucket) bucket.push(tournament);
+        else byDay.set(key, [tournament]);
     });
     return byDay;
 }
 
+const HOVER_QUERY = window.matchMedia('(hover: hover) and (pointer: fine)');
 let activeTooltipTrigger = null;
 
 function getScheduleTooltipElement() {
@@ -627,7 +783,7 @@ function getScheduleTooltipElement() {
 }
 
 function showScheduleTooltip(icon) {
-    if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    if (!HOVER_QUERY.matches) return;
     const tooltip = getScheduleTooltipElement();
     tooltip.textContent = icon.dataset.tooltip || '';
     tooltip.style.left = '0px';
@@ -660,156 +816,130 @@ function hideScheduleTooltip() {
     tooltip.hidden = true;
 }
 
-document.addEventListener('scroll', hideScheduleTooltip, { capture: true, passive: true });
-window.addEventListener('resize', hideScheduleTooltip, { passive: true });
-
 function createEventIcon(tournament) {
-    const parts = getTournamentDateParts(tournament);
+    const parts = tournament._startDateParts;
     const status = getEventStatus(tournament);
     const eventName = tournament.eventName || 'sự kiện';
-    const clock = `${padZero(parts.hours)}:${padZero(parts.minutes)}`;
 
     const icon = document.createElement('button');
     icon.type = 'button';
-    icon.className = 'event-icon';
-    icon.classList.toggle('ended', isEndedEvent(tournament));
-    icon.classList.toggle('tentative', isTentativeEvent(tournament));
-    icon.classList.toggle('upcoming', status === STATUS.UPCOMING);
-    icon.classList.toggle('ongoing', status === STATUS.ONGOING);
-    icon.classList.toggle('has-prize', isPrizeEvent(tournament));
+    icon.className = [
+        'event-icon',
+        status === STATUS.ENDED && 'ended',
+        status === STATUS.TENTATIVE && 'tentative',
+        status === STATUS.UPCOMING && 'upcoming',
+        status === STATUS.ONGOING && 'ongoing',
+        tournament._isPrize && 'has-prize'
+    ].filter(Boolean).join(' ');
 
     const spokenTime = tournament.hasStartTime ? ` lúc ${padZero(parts.hours)} giờ ${padZero(parts.minutes)}` : '';
     icon.setAttribute('aria-label', `Xem chi tiết ${eventName}${spokenTime}`);
 
-    const timeLabel = tournament.hasStartTime ? clock : 'Chưa có giờ bắt đầu';
-    const tooltip = `${eventName}\n${timeLabel} · ${status}\n${tournament.eventRules || 'Chưa có thông tin thể lệ'}`;
-    icon.dataset.tooltip = tooltip;
+    const timeLabel = tournament.hasStartTime ? `${padZero(parts.hours)}:${padZero(parts.minutes)}` : 'Chưa có giờ bắt đầu';
+    icon.dataset.tooltip = `${eventName}\n${timeLabel} · ${status}\n${tournament.eventRules || 'Chưa có thông tin thể lệ'}`;
     icon.title = 'Nhấn vào để đọc thêm thông tin về giải này';
-    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        icon.addEventListener('pointerenter', () => showScheduleTooltip(icon));
-        icon.addEventListener('pointerleave', hideScheduleTooltip);
-        icon.addEventListener('focus', () => showScheduleTooltip(icon));
-        icon.addEventListener('blur', hideScheduleTooltip);
-    }
 
-    const img = document.createElement('img');
-    img.src = safeUrl(tournament.logo, '/images/tvltlogo.png');
-    img.addEventListener('error', () => {
-        img.src = '/images/tvltlogo.png';
-    }, { once: true });
-    img.alt = '';
-    icon.appendChild(img);
+    const image = document.createElement('img');
+    image.alt = '';
+    image.decoding = 'async';
+    setSafeImageSource(image, tournament.logo, DEFAULT_LOGO);
+    icon.appendChild(image);
 
-    icon.addEventListener('click', event => {
-        event.stopPropagation();
-        openModal(tournament);
-    });
+    eventByElement.set(icon, tournament);
     return icon;
 }
 
-function renderCalendar(eventsByDay = groupEventsByDay(getFilterState())) {
+function renderCalendar(eventsByDay) {
     if (!DOM.calendarBody) return;
-    const today = getVietnamNow();
+    const today = getVietnamToday();
+    const todayKey = dateKeyOf(today.year, today.month, today.date);
     const days = getCalendarDays(STATE.displayYear, STATE.displayMonth);
     const rows = document.createDocumentFragment();
 
-    for (let i = 0; i < days.length; i += 7) {
-        const tr = document.createElement('tr');
-        days.slice(i, i + 7).forEach(({ day, month, year, isCurrentMonth }) => {
-            const td = document.createElement('td');
-            td.classList.toggle('other-month', !isCurrentMonth);
-            td.classList.toggle('today', today.getUTCFullYear() === year && today.getUTCMonth() === month && today.getUTCDate() === day);
+    for (let index = 0; index < days.length; index += 7) {
+        const row = document.createElement('tr');
+        days.slice(index, index + 7).forEach(({ day, month, year, isCurrentMonth }) => {
+            const key = dateKeyOf(year, month, day);
+            const cell = document.createElement('td');
+            cell.classList.toggle('other-month', !isCurrentMonth);
+            cell.classList.toggle('today', key === todayKey);
 
-            const dayNum = document.createElement('div');
-            dayNum.className = 'day-number';
-            dayNum.textContent = day;
+            const dayNumber = document.createElement('div');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = day;
 
-            const eventsDiv = document.createElement('div');
-            eventsDiv.className = 'events-container';
-            (eventsByDay.get(dateKeyOf(year, month, day)) || []).forEach(tournament => {
-                eventsDiv.appendChild(createEventIcon(tournament));
-            });
-            td.append(dayNum, eventsDiv);
-            tr.appendChild(td);
+            const eventsContainer = document.createElement('div');
+            eventsContainer.className = 'events-container';
+            (eventsByDay.get(key) || []).forEach(tournament => eventsContainer.appendChild(createEventIcon(tournament)));
+
+            cell.append(dayNumber, eventsContainer);
+            row.appendChild(cell);
         });
-        rows.appendChild(tr);
+        rows.appendChild(row);
     }
-
     DOM.calendarBody.replaceChildren(rows);
 }
 
-function getSortedEvents() {
-    if (sortedTournamentsSource === STATE.tournaments) return sortedTournamentsCache;
+/** Một bộ listener uỷ quyền trên <tbody> thay cho 4-5 listener trên mỗi icon. */
+function bindCalendarEvents() {
+    const body = DOM.calendarBody;
+    if (!body) return;
+    const iconOf = event => event.target.closest?.('.event-icon') || null;
+    const isInternalMove = (event, icon) => icon.contains(event.relatedTarget);
 
-    // All events use the same Vietnam timezone offset, so cached epoch values
-    // preserve chronological order without rebuilding Date objects on each render.
-    sortedTournamentsCache = STATE.tournaments.slice().sort((a, b) =>
-        getEventStartTime(a) - getEventStartTime(b)
-    );
-    sortedTournamentsSource = STATE.tournaments;
-    return sortedTournamentsCache;
+    body.addEventListener('click', event => {
+        const icon = iconOf(event);
+        if (!icon) return;
+        event.stopPropagation();
+        openModal(eventByElement.get(icon));
+    });
+    body.addEventListener('pointerover', event => {
+        const icon = iconOf(event);
+        if (icon && !isInternalMove(event, icon)) showScheduleTooltip(icon);
+    });
+    body.addEventListener('pointerout', event => {
+        const icon = iconOf(event);
+        if (icon && !isInternalMove(event, icon)) hideScheduleTooltip();
+    });
+    body.addEventListener('focusin', event => {
+        const icon = iconOf(event);
+        if (icon) showScheduleTooltip(icon);
+    });
+    body.addEventListener('focusout', event => {
+        if (iconOf(event)) hideScheduleTooltip();
+    });
 }
 
-function getEventStartTime(tournament) {
-    if (Number.isFinite(tournament?._startTimestamp)) return tournament._startTimestamp;
-    return parseEventDate(tournament?.startTime)?.getTime() || 0;
-}
-
-function getExplicitEventEnd(tournament) {
-    if (tournament && Object.prototype.hasOwnProperty.call(tournament, '_explicitEndTimestamp')) {
-        return tournament._explicitEndTimestamp;
-    }
-
-    const start = getEventStartTime(tournament);
-    const rawEnd = tournament?.endTime || tournament?.finishTime || tournament?.endDate;
-    const parsedEnd = parseEventDate(rawEnd);
-    if (!parsedEnd) return null;
-
-    let end = parsedEnd.getTime();
-    // A date-only end value includes that entire Vietnam-local day.
-    if (!hasEventTime(rawEnd)) end += 24 * 60 * 60 * 1000;
-    return end >= start ? end : null;
-}
-
-function getEventEndTime(tournament) {
-    if (Number.isFinite(tournament?._endTimestamp)) return tournament._endTimestamp;
-    const explicitEnd = getExplicitEventEnd(tournament);
-    if (explicitEnd !== null) return explicitEnd;
-
-    // Without an explicit end, timed events default to two hours; date-only events are all-day.
-    const duration = tournament?.hasStartTime === false
-        ? 24 * 60 * 60 * 1000
-        : CONFIG.EVENT_DURATION_MS;
-    return getEventStartTime(tournament) + duration;
-}
+/* ============================ 8. Modal chi tiết ============================ */
 
 function getDefaultResultUrl(type) {
-    if (CONFIG.INTERNAL_EVENT_TYPES.includes(type)) {
-        return `/events/tournaments/${type}`;
-    }
-    return `https://chess.com/clubs/events/thi-vua-lay-tot-tungjohn-playing-chess?clubId=325849&ref_id=89365835&type=${type}`;
+    return CONFIG.INTERNAL_EVENT_TYPES.has(type)
+        ? `/events/tournaments/${type}`
+        : `https://chess.com/clubs/events/thi-vua-lay-tot-tungjohn-playing-chess?clubId=325849&ref_id=89365835&type=${type}`;
 }
 
 function getModalURLs(tournament) {
     const type = tournament.eventType;
-    const resultUrl = tournament.resultLink !== undefined
-        ? tournament.resultLink
-        : getDefaultResultUrl(type);
+    const internal = CONFIG.INTERNAL_EVENT_TYPES.has(type);
+    return {
+        // Giải nội bộ luôn có banner/info trong map; chỉ giải ngoài mới cần URL dự phòng.
+        bannerUrl: tournament.bannerLink || BANNER_MAP[type] || (internal ? '' : FALLBACK_BANNER),
+        newsUrl: tournament.newsLink || INFO_MAP[type] || (internal ? '' : SUPPORT_URL),
+        resultUrl: tournament.resultLink !== undefined ? tournament.resultLink : getDefaultResultUrl(type),
+        rulesPageUrl: INFO_MAP[type] || SUPPORT_URL
+    };
+}
 
-    if (CONFIG.INTERNAL_EVENT_TYPES.includes(type)) {
-        return {
-            bannerUrl: tournament.bannerLink || BANNER_MAP[type],
-            newsUrl: tournament.newsLink || INFO_MAP[type],
-            resultUrl: resultUrl,
-            rulesPageUrl: INFO_MAP[type] || "https://support.chess.com"
-        };
+function setModalJoinLink(joinUrl) {
+    const button = DOM.modalJoinButton;
+    if (joinUrl) {
+        button.href = joinUrl;
+        button.removeAttribute('aria-disabled');
+        button.tabIndex = 0;
     } else {
-        return {
-            bannerUrl: tournament.bannerLink || BANNER_MAP[type] || "https://chess.com/bundles/web/images/404-pawn.f17f262c.gif",
-            newsUrl: tournament.newsLink || INFO_MAP[type] || "https://support.chess.com",
-            resultUrl: resultUrl,
-            rulesPageUrl: INFO_MAP[type] || "https://support.chess.com"
-        };
+        button.removeAttribute('href');
+        button.setAttribute('aria-disabled', 'true');
+        button.tabIndex = -1;
     }
 }
 
@@ -822,60 +952,37 @@ function openModal(tournament) {
         STATE.previousBodyOverflow = document.body.style.overflow;
     }
     const urls = getModalURLs(tournament);
-    const isTentative = isTentativeEvent(tournament);
+    const tentative = getEventStatus(tournament) === STATUS.TENTATIVE;
     const eventName = tournament.eventName || 'Chi tiết giải đấu';
     const joinUrl = safeUrl(tournament.joinLink);
 
-    if (DOM.modalName) {
-        DOM.modalName.textContent = '';
-        if (joinUrl) {
-            const titleLink = document.createElement('a');
-            titleLink.href = joinUrl;
-            titleLink.target = '_blank';
-            titleLink.rel = 'noopener noreferrer';
-            titleLink.textContent = eventName;
-            DOM.modalName.appendChild(titleLink);
-        } else {
-            DOM.modalName.textContent = eventName;
-        }
+    DOM.modalName.textContent = '';
+    if (joinUrl) {
+        const titleLink = document.createElement('a');
+        titleLink.href = joinUrl;
+        titleLink.target = '_blank';
+        titleLink.rel = 'noopener noreferrer';
+        titleLink.textContent = eventName;
+        DOM.modalName.appendChild(titleLink);
+    } else {
+        DOM.modalName.textContent = eventName;
     }
+
+    const withTentativePrefix = text => (tentative && text !== NO_INFO ? `Dự kiến ${text}` : text);
+    const gameRules = withTentativePrefix(tournament.gameRules || NO_INFO);
+    const eventRules = withTentativePrefix(tournament.eventRules || NO_INFO);
+    const dateText = formatModalDate(tournament._startDateParts, tournament.hasStartTime);
 
     DOM.modalCategory.innerHTML = getEventBadgesHTML(tournament);
-    DOM.modalOrganizer.innerHTML = getMappedOrganizer(tournament.organizer || '', tournament.organizerLinks);
-
-    const tParts = getTournamentDateParts(tournament);
-    const dayVn = getDayOfWeekVn(tournament.startTime);
-    const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
-    const dateLabel = `${dayPrefix}${dayVn}, ngày ${padZero(tParts.date)} tháng ${padZero(tParts.month + 1)} năm ${tParts.year}`;
-    let formattedTime = tournament.hasStartTime
-        ? `${dateLabel} lúc ${padZero(tParts.hours)}h${padZero(tParts.minutes)}`
-        : dateLabel;
-
-    let gameRulesText = tournament.gameRules || 'Chưa có thông tin';
-    let eventRulesText = tournament.eventRules || 'Chưa có thông tin';
-    if (isTentative) {
-        formattedTime = `Dự kiến ${formattedTime}`;
-        if (gameRulesText !== 'Chưa có thông tin') gameRulesText = `Dự kiến ${gameRulesText}`;
-        if (eventRulesText !== 'Chưa có thông tin') eventRulesText = `Dự kiến ${eventRulesText}`;
-    }
-
-    DOM.modalTime.textContent = formattedTime;
-    DOM.modalGameRules.innerHTML = getGameRulesWithIcon(linkifyChessTerms(parseMarkdownLinks(gameRulesText)));
-    DOM.modalEventRules.innerHTML = linkifyChessTerms(parseMarkdownLinks(eventRulesText));
-    setSafeImageSource(DOM.modalLogo, tournament.logo, '/images/tvltlogo.png');
-    setSafeImageSource(DOM.modalBanner, urls.bannerUrl, '/images/events/dau-truong-thi-vua.svg');
+    DOM.modalOrganizer.innerHTML = getOrganizerHTML(tournament.organizer || '', tournament.organizerLinks);
+    DOM.modalTime.textContent = tentative ? `Dự kiến ${dateText}` : dateText;
+    DOM.modalGameRules.innerHTML = formatGameRules(gameRules);
+    DOM.modalEventRules.innerHTML = linkifyChessTerms(renderMarkdownLinks(eventRules));
+    setSafeImageSource(DOM.modalLogo, tournament.logo, DEFAULT_LOGO);
+    setSafeImageSource(DOM.modalBanner, urls.bannerUrl, DEFAULT_BANNER);
     DOM.modalLogoLink.href = safeUrl(urls.rulesPageUrl, '/events');
     DOM.modalLogoLink.rel = 'noopener noreferrer';
-
-    if (joinUrl) {
-        DOM.modalJoinButton.href = joinUrl;
-        DOM.modalJoinButton.removeAttribute('aria-disabled');
-        DOM.modalJoinButton.tabIndex = 0;
-    } else {
-        DOM.modalJoinButton.removeAttribute('href');
-        DOM.modalJoinButton.setAttribute('aria-disabled', 'true');
-        DOM.modalJoinButton.tabIndex = -1;
-    }
+    setModalJoinLink(joinUrl);
     DOM.modalInfoButton.href = safeUrl(urls.newsUrl, '/events');
     DOM.modalResultsButton.href = safeUrl(urls.resultUrl, '/events/tournaments');
 
@@ -895,11 +1002,35 @@ function closeModal() {
     STATE.lastFocusedElement = null;
 }
 
+function trapModalFocus(event) {
+    const dialog = DOM.modalDialog;
+    if (!dialog) return;
+    const focusable = Array.from(dialog.querySelectorAll(FOCUSABLE_SELECTOR))
+        .filter(element => element.getClientRects().length > 0 && !element.closest('[hidden]'));
+    if (!focusable.length) {
+        event.preventDefault();
+        dialog.focus();
+        return;
+    }
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = document.activeElement;
+    if (!dialog.contains(active)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+    } else if (event.shiftKey && (active === first || active === dialog)) {
+        event.preventDefault();
+        last.focus();
+    } else if (!event.shiftKey && (active === last || active === dialog)) {
+        event.preventDefault();
+        first.focus();
+    }
+}
+
+/* ============================ Điều hướng & render chính ============================ */
+
 function updateViewSwitcherButtons() {
-    [
-        ['calendar', DOM.calendarViewButton],
-        ['timeline', DOM.timelineViewButton]
-    ].forEach(([view, button]) => {
+    [['calendar', DOM.calendarViewButton], ['timeline', DOM.timelineViewButton]].forEach(([view, button]) => {
         if (!button) return;
         const isActive = STATE.currentView === view;
         button.classList.toggle('active', isActive);
@@ -908,87 +1039,94 @@ function updateViewSwitcherButtons() {
 }
 
 function updateMonthHeading() {
-    const monthStr = padZero(STATE.displayMonth + 1);
-    const yearStr = String(STATE.displayYear);
-    const key = `${monthStr}-${yearStr}`;
-    if (DOM.monthTitle && DOM.monthTitle.dataset.monthKey !== key) {
-        DOM.monthTitle.dataset.monthKey = key;
-        if (DOM.monthLabel) DOM.monthLabel.textContent = `Tháng ${STATE.displayMonth + 1}`;
-        if (DOM.yearLabel) DOM.yearLabel.textContent = yearStr;
-        DOM.monthSelectButton?.setAttribute('aria-label', `Chọn tháng. Đang xem tháng ${STATE.displayMonth + 1}`);
-        DOM.yearSelectButton?.setAttribute('aria-label', `Chọn năm. Đang xem năm ${yearStr}`);
-        if (DOM.monthLive) DOM.monthLive.textContent = `Đang xem tháng ${STATE.displayMonth + 1} năm ${yearStr}`;
-    }
+    const key = `${padZero(STATE.displayMonth + 1)}-${STATE.displayYear}`;
+    if (!DOM.monthTitle || DOM.monthTitle.dataset.monthKey === key) return;
+
+    const monthText = `${STATE.displayMonth + 1}`;
+    DOM.monthTitle.dataset.monthKey = key;
+    if (DOM.monthLabel) DOM.monthLabel.textContent = `Tháng ${monthText}`;
+    if (DOM.yearLabel) DOM.yearLabel.textContent = String(STATE.displayYear);
+    DOM.monthSelectButton?.setAttribute('aria-label', `Chọn tháng. Đang xem tháng ${monthText}`);
+    DOM.yearSelectButton?.setAttribute('aria-label', `Chọn năm. Đang xem năm ${STATE.displayYear}`);
+    if (DOM.monthLive) DOM.monthLive.textContent = `Đang xem tháng ${monthText} năm ${STATE.displayYear}`;
 }
 
-function renderActiveView() {
-    if (DOM.calendarWrapper) DOM.calendarWrapper.style.display = 'none';
-    if (DOM.timelineWrapper) DOM.timelineWrapper.style.display = 'none';
-    if (DOM.emptyState) DOM.emptyState.style.display = 'none';
-    updateStatusFilterButtons();
+/** Giải bắt đầu từ tháng trước nhưng vẫn đang diễn ra; chỉ hiện khi xem tháng hiện tại. */
+function getCarryOverEvents(visibleEvents) {
+    const today = getVietnamToday();
+    if (STATE.displayYear !== today.year || STATE.displayMonth !== today.month) return [];
+    return visibleEvents
+        .filter(tournament => {
+            const { year, month } = tournament._startDateParts;
+            const startsEarlier = year < STATE.displayYear || (year === STATE.displayYear && month < STATE.displayMonth);
+            return startsEarlier && getEventStatus(tournament) === STATUS.ONGOING;
+        })
+        .sort(byStartTime);
+}
 
-    if (STATE.tournaments.length === 0) {
-        if (DOM.emptyState) DOM.emptyState.style.display = 'block';
+function renderActiveView(filters = readFilters()) {
+    updateStatusFilterControl();
+
+    if (!STATE.tournaments.length) {
+        setDisplay(DOM.calendarWrapper, 'none');
+        setDisplay(DOM.timelineWrapper, 'none');
+        setDisplay(DOM.emptyState, 'block');
         return;
     }
 
     updateMonthHeading();
 
-    const filters = getFilterState();
-    const monthEvents = getCurrentMonthEvents(filters);
+    // Lọc đúng một lượt; lịch, timeline và bản tóm tắt cùng dùng kết quả này.
+    const visibleEvents = STATE.tournaments.filter(tournament => matchesFilters(tournament, filters));
+    const monthEvents = visibleEvents
+        .filter(({ _startDateParts: { year, month } }) => year === STATE.displayYear && month === STATE.displayMonth)
+        .sort(byStartTime);
     const isTimeline = STATE.currentView === 'timeline';
-    const carryOverEvents = isTimeline ? getTimelineCarryOverEvents(filters) : [];
+    const carryOverEvents = isTimeline ? getCarryOverEvents(visibleEvents) : [];
+
     updateFilterControls(filters);
-    updateResultsSummary(monthEvents, carryOverEvents);
+    updateResultsSummary(monthEvents.length, carryOverEvents.length);
 
-    const wrapper = isTimeline ? DOM.timelineWrapper : DOM.calendarWrapper;
-    if (wrapper) wrapper.style.display = 'block';
+    setDisplay(DOM.calendarWrapper, isTimeline ? 'none' : 'block');
+    setDisplay(DOM.timelineWrapper, isTimeline ? 'block' : 'none');
     if (isTimeline) renderTimeline(monthEvents, carryOverEvents);
-    else renderCalendar(groupEventsByDay(filters));
+    else renderCalendar(groupEventsByDay(visibleEvents));
 
-    const hasVisibleEvents = monthEvents.length > 0 || carryOverEvents.length > 0;
-    if (DOM.emptyState && !hasVisibleEvents) {
-        const message = DOM.emptyState.querySelector('p');
-        if (message) message.textContent = 'Không có sự kiện nào khớp với các bộ lọc trong tháng này.';
-        DOM.emptyState.style.display = 'block';
+    if (monthEvents.length || carryOverEvents.length) {
+        setDisplay(DOM.emptyState, 'none');
+    } else if (DOM.emptyState) {
+        setText(DOM.emptyState.querySelector('p'), 'Không có sự kiện nào khớp với các bộ lọc trong tháng này.');
+        setDisplay(DOM.emptyState, 'block');
     }
 }
 
-function changeMonth(offset) {
-    const previousMonth = STATE.displayMonth;
-    const previousYear = STATE.displayYear;
-
-    STATE.displayMonth += offset;
-    if (STATE.displayMonth < 0) {
-        STATE.displayMonth = 11;
-        STATE.displayYear--;
-    } else if (STATE.displayMonth > 11) {
-        STATE.displayMonth = 0;
-        STATE.displayYear++;
-    }
-
-    if (STATE.displayMonth !== previousMonth || STATE.displayYear !== previousYear) {
-        clearMonthQueryFromURL();
-    }
+function setDisplayedMonth({ month = STATE.displayMonth, year = STATE.displayYear }) {
+    const changed = month !== STATE.displayMonth || year !== STATE.displayYear;
+    STATE.displayMonth = month;
+    STATE.displayYear = year;
+    if (changed) clearMonthQueryFromURL();
     renderActiveView();
 }
 
+function changeMonth(offset) {
+    // Date tự cuộn tháng/năm (0 - 1 => tháng 12 năm trước).
+    const next = new Date(STATE.displayYear, STATE.displayMonth + offset, 1);
+    setDisplayedMonth({ month: next.getMonth(), year: next.getFullYear() });
+}
+
 function switchView(view) {
-    if (!['calendar', 'timeline'].includes(view)) return;
+    if (view !== 'calendar' && view !== 'timeline') return;
     STATE.currentView = view;
     updateViewSwitcherButtons();
     renderActiveView();
 }
 
-/* ---------- Month / year dropdowns ---------- */
+/* ============================ 9. Menu chọn tháng/năm ============================ */
+
 const SELECT_MENU = { el: null, kind: '', trigger: null, isOpen: false };
 let selectMenuPositionFrame = 0;
-const SELECT_MIN_YEAR = 1900;
-const SELECT_MAX_YEAR = 2100;
 
-function getSelectTrigger(kind) {
-    return kind === 'month' ? DOM.monthSelectButton : DOM.yearSelectButton;
-}
+const getSelectTrigger = kind => (kind === 'month' ? DOM.monthSelectButton : DOM.yearSelectButton);
 
 function buildSelectMenu() {
     if (SELECT_MENU.el) return SELECT_MENU.el;
@@ -1005,24 +1143,20 @@ function buildSelectMenu() {
         if (option) selectFromMenu(SELECT_MENU.kind, Number(option.dataset.value));
     });
     menu.addEventListener('keydown', event => {
-        const options = Array.from(menu.querySelectorAll('[role="option"]'));
-        const index = options.indexOf(document.activeElement);
-        let next = null;
-        if (event.key === 'ArrowDown') next = index + 1;
-        else if (event.key === 'ArrowUp') next = index - 1;
-        else if (event.key === 'Home') next = 0;
-        else if (event.key === 'End') next = options.length - 1;
-        else if (event.key === 'Tab') {
+        if (event.key === 'Tab') {
             moveFocusFromSelectMenu(event);
             return;
         }
-        if (next === null || !options.length) return;
+        const options = Array.from(menu.querySelectorAll('[role="option"]'));
+        if (!options.length) return;
+        const index = options.indexOf(document.activeElement);
+        const targets = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: options.length - 1 };
+        if (!(event.key in targets)) return;
+
         event.preventDefault();
-        const nextIndex = Math.min(Math.max(next, 0), options.length - 1);
-        options.forEach((option, optionIndex) => {
-            option.tabIndex = optionIndex === nextIndex ? 0 : -1;
-        });
-        options[nextIndex]?.focus();
+        const nextIndex = Math.min(Math.max(targets[event.key], 0), options.length - 1);
+        options.forEach((option, optionIndex) => { option.tabIndex = optionIndex === nextIndex ? 0 : -1; });
+        options[nextIndex].focus();
     });
 
     SELECT_MENU.el = menu;
@@ -1030,21 +1164,20 @@ function buildSelectMenu() {
 }
 
 function getSelectOptions(kind) {
-    const today = getVietnamNow();
+    const today = getVietnamToday();
     if (kind === 'month') {
         return CONFIG.MONTH_NAMES.map((name, month) => ({
             value: month,
             label: name,
             selected: month === STATE.displayMonth,
-            current: STATE.displayYear === today.getUTCFullYear() && month === today.getUTCMonth(),
-            aria: `${name}`
+            current: STATE.displayYear === today.year && month === today.month,
+            aria: name
         }));
     }
 
-    let min = Math.min(today.getUTCFullYear() - 1, STATE.displayYear);
-    let max = Math.max(today.getUTCFullYear() + 2, STATE.displayYear);
-    STATE.tournaments.forEach(tournament => {
-        const year = getTournamentDateParts(tournament).year;
+    let min = Math.min(today.year - 1, STATE.displayYear);
+    let max = Math.max(today.year + 2, STATE.displayYear);
+    STATE.tournaments.forEach(({ _startDateParts: { year } }) => {
         if (year <= 1970) return;
         min = Math.min(min, year);
         max = Math.max(max, year);
@@ -1053,37 +1186,27 @@ function getSelectOptions(kind) {
     max = Math.min(max, SELECT_MAX_YEAR);
     return Array.from({ length: max - min + 1 }, (_, index) => {
         const year = min + index;
-        return {
-            value: year,
-            label: String(year),
-            selected: year === STATE.displayYear,
-            current: year === today.getUTCFullYear(),
-            aria: `Năm ${year}`
-        };
+        return { value: year, label: String(year), selected: year === STATE.displayYear, current: year === today.year, aria: `Năm ${year}` };
     });
 }
 
 function positionSelectMenu() {
-    const menu = SELECT_MENU.el;
-    const trigger = SELECT_MENU.trigger;
+    const { el: menu, trigger } = SELECT_MENU;
     if (!menu || !trigger || menu.hidden) return;
 
     const margin = 8;
     const rect = trigger.getBoundingClientRect();
-    // Let the option labels determine the menu width instead of inheriting the wider trigger.
+    // Để nhãn quyết định chiều rộng menu thay vì kế thừa nút kích hoạt rộng hơn.
     const width = menu.offsetWidth;
     const height = menu.offsetHeight;
     const viewportWidth = document.documentElement.clientWidth;
     const left = Math.min(Math.max(rect.left, margin), Math.max(margin, viewportWidth - width - margin));
     const roomBelow = window.innerHeight - rect.bottom - margin;
-    const preferredTop = roomBelow >= height || rect.top < height + margin
-        ? rect.bottom + 6
-        : rect.top - height - 6;
+    const preferredTop = roomBelow >= height || rect.top < height + margin ? rect.bottom + 6 : rect.top - height - 6;
     const maxTop = Math.max(margin, window.innerHeight - height - margin);
-    const top = Math.min(Math.max(margin, preferredTop), maxTop);
 
     menu.style.left = `${left}px`;
-    menu.style.top = `${top}px`;
+    menu.style.top = `${Math.min(Math.max(margin, preferredTop), maxTop)}px`;
 }
 
 function scheduleSelectMenuPosition() {
@@ -1140,51 +1263,42 @@ function closeSelectMenu({ restoreFocus = false } = {}) {
         window.cancelAnimationFrame(selectMenuPositionFrame);
         selectMenuPositionFrame = 0;
     }
-    const trigger = SELECT_MENU.trigger;
+    const { trigger } = SELECT_MENU;
     SELECT_MENU.isOpen = false;
+    SELECT_MENU.trigger = null;
     if (SELECT_MENU.el) SELECT_MENU.el.hidden = true;
     trigger?.setAttribute('aria-expanded', 'false');
-    SELECT_MENU.trigger = null;
     if (restoreFocus) trigger?.focus();
 }
 
 function moveFocusFromSelectMenu(event) {
-    const trigger = SELECT_MENU.trigger;
+    const { trigger } = SELECT_MENU;
     event.preventDefault();
     closeSelectMenu();
     if (!trigger) return;
 
-    const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-    const focusable = Array.from(document.querySelectorAll(focusableSelector)).filter(element =>
-        !element.closest('#schedule-select-menu, [hidden], [aria-hidden="true"]') &&
-        element.getClientRects().length > 0
+    const focusable = Array.from(document.querySelectorAll(FOCUSABLE_SELECTOR)).filter(element =>
+        !element.closest('#schedule-select-menu, [hidden], [aria-hidden="true"]') && element.getClientRects().length > 0
     );
     const index = focusable.indexOf(trigger);
     if (index < 0) {
         trigger.focus();
         return;
     }
-
     const direction = event.shiftKey ? -1 : 1;
-    const next = focusable[index + direction] ||
-        (direction > 0 ? focusable[0] : focusable[focusable.length - 1]);
+    const next = focusable[index + direction] || (direction > 0 ? focusable[0] : focusable[focusable.length - 1]);
     next?.focus();
 }
 
 function selectFromMenu(kind, value) {
     if (!Number.isInteger(value)) return;
-    const previousMonth = STATE.displayMonth;
-    const previousYear = STATE.displayYear;
-
-    if (kind === 'month' && value >= 0 && value <= 11) STATE.displayMonth = value;
-    else if (kind === 'year' && value >= SELECT_MIN_YEAR && value <= SELECT_MAX_YEAR) STATE.displayYear = value;
+    let target;
+    if (kind === 'month' && value >= 0 && value <= 11) target = { month: value };
+    else if (kind === 'year' && value >= SELECT_MIN_YEAR && value <= SELECT_MAX_YEAR) target = { year: value };
     else return;
 
-    if (STATE.displayMonth !== previousMonth || STATE.displayYear !== previousYear) {
-        clearMonthQueryFromURL();
-    }
     closeSelectMenu({ restoreFocus: true });
-    renderActiveView();
+    setDisplayedMonth(target);
 }
 
 function initializeSelectMenus() {
@@ -1216,61 +1330,13 @@ function initializeSelectMenus() {
     window.addEventListener('scroll', scheduleSelectMenuPosition, { passive: true });
 }
 
-/* ---------- Timeline view ---------- */
-const TIMELINE_STATUS_CLASS = Object.freeze({
-    [STATUS.ONGOING]: 'is-ongoing',
-    [STATUS.UPCOMING]: 'is-upcoming',
-    [STATUS.TENTATIVE]: 'is-tentative',
-    [STATUS.ENDED]: 'is-ended'
-});
-
-function formatEventDateLabel(tournament) {
-    const parts = getTournamentDateParts(tournament);
-    const dayVn = getDayOfWeekFromParts(parts);
-    const dayPrefix = dayVn === 'Chủ Nhật' ? '' : 'Thứ ';
-    const dateLabel = `${dayPrefix}${dayVn}, ${padZero(parts.date)} thg ${padZero(parts.month + 1)}, ${parts.year}`;
-    return tournament.hasStartTime ? `${dateLabel} lúc ${padZero(parts.hours)}h${padZero(parts.minutes)}` : dateLabel;
-}
-
-// Short "đến ..." text, only when the data really contains an end time/date.
-function formatEventEndLabel(tournament) {
-    if (getExplicitEventEnd(tournament) === null) return '';
-
-    const rawEnd = tournament.endTime || tournament.finishTime || tournament.endDate;
-    const startParts = getTournamentDateParts(tournament);
-    const endParts = tournament._endDateParts || getVietnamDateParts(rawEnd);
-    const timed = hasEventTime(rawEnd);
-    const timeText = `${padZero(endParts.hours)}h${padZero(endParts.minutes)}`;
-    const sameDay = startParts.year === endParts.year &&
-        startParts.month === endParts.month &&
-        startParts.date === endParts.date;
-
-    if (sameDay) {
-        if (timed) return `đến ${timeText}`;
-        return tournament.hasStartTime ? 'đến hết ngày' : '';
-    }
-
-    const yearSuffix = endParts.year !== startParts.year ? `/${endParts.year}` : '';
-    const dateText = `${padZero(endParts.date)}/${padZero(endParts.month + 1)}${yearSuffix}`;
-    return `đến ${timed ? `${timeText} ` : ''}${dateText}`;
-}
-
-function getTimelineCarryOverEvents(filters = getFilterState()) {
-    const today = getVietnamNow();
-    if (STATE.displayYear !== today.getUTCFullYear() || STATE.displayMonth !== today.getUTCMonth()) return [];
-    return getSortedEvents().filter(tournament => {
-        const parts = getTournamentDateParts(tournament);
-        const startsEarlier = parts.year < STATE.displayYear ||
-            (parts.year === STATE.displayYear && parts.month < STATE.displayMonth);
-        return startsEarlier && getEventStatus(tournament) === STATUS.ONGOING && matchesFilters(tournament, filters);
-    });
-}
+/* ============================ 10. Timeline ============================ */
 
 function createTimelineEvent(tournament, { carryOver = false } = {}) {
-    const parts = getTournamentDateParts(tournament);
+    const parts = tournament._startDateParts;
     const status = getEventStatus(tournament);
-    const isEnded = status === STATUS.ENDED;
     const joinUrl = safeUrl(tournament.joinLink);
+    const endLabel = formatEventEndLabel(tournament);
 
     const item = document.createElement('li');
     item.className = `timeline-event ${TIMELINE_STATUS_CLASS[status] || ''}`.trim();
@@ -1278,10 +1344,9 @@ function createTimelineEvent(tournament, { carryOver = false } = {}) {
     const time = document.createElement('span');
     time.className = 'timeline-event-time';
     const timeMain = document.createElement('strong');
-    timeMain.textContent = tournament.hasStartTime ? `${padZero(parts.hours)}h${padZero(parts.minutes)}` : 'Cả ngày';
+    timeMain.textContent = tournament.hasStartTime ? formatClock(parts) : 'Cả ngày';
     time.appendChild(timeMain);
-    const endLabel = formatEventEndLabel(tournament);
-    const timeNote = carryOver ? `Từ ${padZero(parts.date)}/${padZero(parts.month + 1)}` : (endLabel.startsWith('đến') ? endLabel : '');
+    const timeNote = carryOver ? `Từ ${padZero(parts.date)}/${padZero(parts.month + 1)}` : endLabel;
     if (timeNote) {
         const small = document.createElement('small');
         small.textContent = timeNote;
@@ -1294,6 +1359,7 @@ function createTimelineEvent(tournament, { carryOver = false } = {}) {
 
     const card = document.createElement('article');
     card.className = 'timeline-card';
+    eventByElement.set(card, tournament);
 
     const head = document.createElement('div');
     head.className = 'timeline-card-head';
@@ -1304,7 +1370,7 @@ function createTimelineEvent(tournament, { carryOver = false } = {}) {
     logo.height = 48;
     logo.loading = 'lazy';
     logo.decoding = 'async';
-    setSafeImageSource(logo, tournament.logo, '/images/tvltlogo.png');
+    setSafeImageSource(logo, tournament.logo, DEFAULT_LOGO);
     const titleGroup = document.createElement('div');
     titleGroup.className = 'timeline-card-title-group';
     const badges = document.createElement('div');
@@ -1316,25 +1382,24 @@ function createTimelineEvent(tournament, { carryOver = false } = {}) {
     titleGroup.append(badges, title);
     head.append(logo, titleGroup);
 
-    const timeText = `${formatEventDateLabel(tournament)}${endLabel ? ` ${endLabel}` : ''}`;
-    const whenText = isTentativeEvent(tournament) ? `Dự kiến: ${timeText}` : timeText;
+    const timeText = `${formatTimelineDate(tournament)}${endLabel ? ` ${endLabel}` : ''}`;
+    const whenText = status === STATUS.TENTATIVE ? `Dự kiến: ${timeText}` : timeText;
     const details = document.createElement('div');
     details.className = 'timeline-card-details';
     details.innerHTML = `
         <div class="event-card-detail-item"><i class="bx bx-calendar" aria-hidden="true"></i><span><strong>Thời gian:</strong> ${escapeHTML(whenText)}</span></div>
-        <div class="event-card-detail-item"><i class="bx bx-grid-alt" aria-hidden="true"></i><span><strong>Thể lệ:</strong> ${parseMarkdownLinks(tournament.eventRules || 'Chưa có thông tin')}</span></div>
-        <div class="event-card-detail-item"><i class="bx bxs-chess" aria-hidden="true"></i><span><strong>Ván đấu:</strong> ${getGameRulesWithIcon(linkifyChessTerms(parseMarkdownLinks(tournament.gameRules || 'Chưa có thông tin')))}</span></div>
-        <div class="event-card-detail-item"><i class="bx bxs-user-check" aria-hidden="true"></i><span><strong>Tổ chức:</strong> ${getMappedOrganizer(tournament.organizer || '', tournament.organizerLinks)}</span></div>`;
+        <div class="event-card-detail-item"><i class="bx bx-grid-alt" aria-hidden="true"></i><span><strong>Thể lệ:</strong> ${renderMarkdownLinks(tournament.eventRules || NO_INFO)}</span></div>
+        <div class="event-card-detail-item"><i class="bx bxs-chess" aria-hidden="true"></i><span><strong>Ván đấu:</strong> ${formatGameRules(tournament.gameRules || NO_INFO)}</span></div>
+        <div class="event-card-detail-item"><i class="bx bxs-user-check" aria-hidden="true"></i><span><strong>Tổ chức:</strong> ${getOrganizerHTML(tournament.organizer || '', tournament.organizerLinks)}</span></div>`;
 
     const footer = document.createElement('div');
     footer.className = 'timeline-card-footer';
-    const detailBtn = document.createElement('button');
-    detailBtn.type = 'button';
-    detailBtn.className = 'btn btn-secondary timeline-card-btn';
-    detailBtn.innerHTML = '<i class="bx bx-info-circle" aria-hidden="true"></i> Chi tiết';
-    detailBtn.addEventListener('click', () => openModal(tournament));
-    footer.appendChild(detailBtn);
-    if (joinUrl && !isEnded) {
+    const detailButton = document.createElement('button');
+    detailButton.type = 'button';
+    detailButton.className = 'btn btn-secondary timeline-card-btn';
+    detailButton.innerHTML = '<i class="bx bx-info-circle" aria-hidden="true"></i> Chi tiết';
+    footer.appendChild(detailButton);
+    if (joinUrl && status !== STATUS.ENDED) {
         const joinLink = document.createElement('a');
         joinLink.className = 'btn btn-primary timeline-card-btn';
         joinLink.href = joinUrl;
@@ -1345,10 +1410,6 @@ function createTimelineEvent(tournament, { carryOver = false } = {}) {
     }
 
     card.append(head, details, footer);
-    card.addEventListener('click', event => {
-        if (event.target.closest('a, button')) return;
-        openModal(tournament);
-    });
     item.append(time, node, card);
     return item;
 }
@@ -1364,6 +1425,7 @@ function createTimelineDay({ key, parts, today, todayKey, events, carryOver = fa
     meta.className = 'timeline-day-meta';
     const heading = document.createElement('strong');
     const sub = document.createElement('small');
+    let isToday = false;
 
     if (carryOver) {
         dayItem.classList.add('timeline-day--ongoing');
@@ -1371,26 +1433,22 @@ function createTimelineDay({ key, parts, today, todayKey, events, carryOver = fa
         heading.textContent = 'Đang diễn ra';
         sub.textContent = 'Bắt đầu từ trước tháng này';
     } else {
-        const isToday = key === todayKey;
-        const isPast = Date.UTC(parts.year, parts.month, parts.date) <
-            Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+        isToday = key === todayKey;
+        const isPast = Date.UTC(parts.year, parts.month, parts.date) < Date.UTC(today.year, today.month, today.date);
         dayItem.classList.toggle('is-today', isToday);
         dayItem.classList.toggle('is-past', isPast);
-        const dayName = getDayOfWeekVn(`${parts.year}-${padZero(parts.month + 1)}-${padZero(parts.date)}`);
         number.textContent = padZero(parts.date);
-        heading.textContent = dayName === 'Chủ Nhật' ? dayName : `Thứ ${dayName}`;
+        heading.textContent = getWeekdayLabel(parts);
         sub.textContent = `thg ${padZero(parts.month + 1)}, ${parts.year}`;
-        if (isToday) {
-            const chip = document.createElement('span');
-            chip.className = 'timeline-today-chip';
-            chip.textContent = 'Hôm nay';
-            meta.append(heading, sub);
-            head.append(number, meta, chip);
-        }
     }
-    if (!head.childElementCount) {
-        meta.append(heading, sub);
-        head.append(number, meta);
+
+    meta.append(heading, sub);
+    head.append(number, meta);
+    if (isToday) {
+        const chip = document.createElement('span');
+        chip.className = 'timeline-today-chip';
+        chip.textContent = 'Hôm nay';
+        head.appendChild(chip);
     }
 
     const eventList = document.createElement('ul');
@@ -1400,21 +1458,22 @@ function createTimelineDay({ key, parts, today, todayKey, events, carryOver = fa
     return dayItem;
 }
 
-function renderTimeline(events = getCurrentMonthEvents(), carryOverEvents = getTimelineCarryOverEvents()) {
+function renderTimeline(events, carryOverEvents) {
     if (!DOM.timelineContainer) return;
     if (!events.length && !carryOverEvents.length) {
         DOM.timelineContainer.replaceChildren();
         return;
     }
 
-    const today = getVietnamNow();
-    const todayKey = dateKeyOf(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+    const today = getVietnamToday();
+    const todayKey = dateKeyOf(today.year, today.month, today.date);
     const groups = new Map();
     events.forEach(tournament => {
-        const parts = getTournamentDateParts(tournament);
+        const parts = tournament._startDateParts;
         const key = dateKeyOf(parts.year, parts.month, parts.date);
-        if (!groups.has(key)) groups.set(key, { key, parts, events: [] });
-        groups.get(key).events.push(tournament);
+        const group = groups.get(key);
+        if (group) group.events.push(tournament);
+        else groups.set(key, { key, parts, events: [tournament] });
     });
 
     const list = document.createElement('ol');
@@ -1427,171 +1486,28 @@ function renderTimeline(events = getCurrentMonthEvents(), carryOverEvents = getT
     DOM.timelineContainer.replaceChildren(list);
 }
 
-function toggleTourDropdown(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    document.querySelectorAll('.tour-dropdown').forEach(d => {
-        if (d.id !== id) d.classList.remove('open');
-    });
-
-    const isOpen = el.classList.toggle('open');
-    DOM.categoryButton?.setAttribute('aria-expanded', String(isOpen));
-}
-
-function filterSchedule() {
-    saveFiltersToURL();
-    renderActiveView();
-}
-
-function normalizeEventDate(value) {
-    if (value && typeof value === 'object') {
-        value = value.start || value.date?.start || value.date || value.start_time;
-    }
-    if (typeof value === 'number') {
-        const date = new Date(value);
-        return Number.isNaN(date.getTime()) ? '' : date.toISOString();
-    }
-    if (typeof value !== 'string') return '';
-
-    const raw = value.trim();
-    const notionDate = raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
-    if (!notionDate) return raw;
-
-    const [, monthText, dayText, yearText, hourText, minuteText, secondText = '0'] = notionDate;
-    const month = Number(monthText);
-    const day = Number(dayText);
-    const year = Number(yearText);
-    const hasTime = hourText !== undefined && minuteText !== undefined;
-    const hour = Number(hourText || 0);
-    const minute = Number(minuteText || 0);
-    const second = Number(secondText);
-    const check = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
-
-    if (
-        month < 1 || month > 12 || day < 1 || day > 31 ||
-        hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59 ||
-        check.getUTCFullYear() !== year || check.getUTCMonth() !== month - 1 ||
-        check.getUTCDate() !== day
-    ) return '';
-
-    const pad = number => String(number).padStart(2, '0');
-    const datePart = `${year}-${pad(month)}-${pad(day)}`;
-    if (!hasTime) return datePart;
-    return `${datePart}T${pad(hour)}:${pad(minute)}:${pad(second)}+07:00`;
-}
-
-function hasEventTime(value) {
-    if (value && typeof value === 'object') {
-        return hasEventTime(value.start || value.date?.start || value.date || value.start_time);
-    }
-    return typeof value === 'string' && /(?:T|\s)\d{1,2}:\d{2}/i.test(value.trim());
-}
-
-function ensureEventTypeFilters(events) {
-    const group = DOM.scheduleTypeGroup;
-    if (!group) return;
-
-    const existingCheckboxes = Array.from(group.querySelectorAll('input[type="checkbox"]:not(#schedule-prize-filter)'));
-    const existingTypes = new Set(existingCheckboxes.map(checkbox => checkbox.value.toLowerCase()));
-    const params = new URLSearchParams(window.location.search);
-    const typeParam = params.get('type');
-    const selectedFromURL = typeParam === null
-        ? null
-        : new Set(typeParam.toLowerCase().split(/[\s+]+/));
-    const allExistingTypesSelected = existingCheckboxes.length > 0 &&
-        existingCheckboxes.every(checkbox => checkbox.checked);
-
-    const unknownTypes = Array.from(new Set(
-        events.map(event => event.eventType).filter(type => type && !existingTypes.has(type))
-    )).sort();
-
-    unknownTypes.forEach(type => {
-        const label = document.createElement('label');
-        label.className = 'custom-checkbox-container';
-        if (CONFIG.INTERNAL_EVENT_TYPES.includes(type)) {
-            label.hidden = true;
-            label.dataset.internalFilter = 'true';
-            label.style.display = 'none';
-        }
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.value = type;
-        checkbox.checked = CONFIG.INTERNAL_EVENT_TYPES.includes(type) ||
-            (selectedFromURL ? selectedFromURL.has(type) : allExistingTypesSelected);
-
-        const mark = document.createElement('span');
-        mark.className = 'checkmark';
-
-        const labelText = type === 'other' ? ' Khác (chưa phân loại)' : ` Khác — ${type}`;
-        label.append(checkbox, mark, document.createTextNode(labelText));
-        group.appendChild(label);
+/** Click vào vùng trống của card mở modal; link bên trong card giữ hành vi riêng. */
+function bindTimelineEvents() {
+    DOM.timelineContainer?.addEventListener('click', event => {
+        if (event.target.closest('a')) return;
+        const card = event.target.closest('.timeline-card');
+        if (card) openModal(eventByElement.get(card));
     });
 }
 
-function normalizeTournament(record) {
-    if (!record || typeof record !== 'object') return null;
+/* ============================ 11. Tải dữ liệu & cache ============================ */
 
-    const rawStartTime = record.startTime;
-    const rawEndTime = record.endTime || record.finishTime || record.endDate;
-    const eventName = String(record.eventName || '').trim();
-    const startTime = normalizeEventDate(rawStartTime);
-    const endTime = normalizeEventDate(rawEndTime);
-    const hasStartTime = typeof record.hasStartTime === 'boolean' ? record.hasStartTime : hasEventTime(rawStartTime);
-    const startDate = parseEventDate(startTime);
-    const parsedEndDate = parseEventDate(endTime);
-    const startTimestamp = startDate?.getTime() || 0;
-
-    let explicitEndTimestamp = null;
-    if (parsedEndDate) {
-        let endTimestamp = parsedEndDate.getTime();
-        // A date-only end value includes that entire Vietnam-local day.
-        if (!hasEventTime(rawEndTime)) endTimestamp += 24 * 60 * 60 * 1000;
-        if (endTimestamp >= startTimestamp) explicitEndTimestamp = endTimestamp;
-    }
-
-    const tournament = {
-        ...record,
-        eventName,
-        hasStartTime,
-        startTime,
-        endTime,
-        eventType: String(record.eventType || '').trim().toLowerCase().replace(/\s+/g, '-') || 'other',
-        status: String(record.status || '').trim(),
-        organizerLinks: Array.isArray(record.organizerLinks) ? record.organizerLinks : [],
-        isTentative: record.isTentative === true || record.isTentative === 'true' ||
-            record.isTentative === STATUS.TENTATIVE || record.isTentative === 'Tentative',
-        prize: record.prize ?? ''
-    };
-
-    tournament._normalizedEventName = removeVietnameseTones(eventName);
-    tournament._startTimestamp = startTimestamp;
-    tournament._startDateParts = getVietnamDateParts(startTime);
-    tournament._explicitEndTimestamp = explicitEndTimestamp;
-    tournament._endDateParts = endTime ? getVietnamDateParts(endTime) : null;
-    tournament._endTimestamp = explicitEndTimestamp !== null
-        ? explicitEndTimestamp
-        : startTimestamp + (hasStartTime ? CONFIG.EVENT_DURATION_MS : 24 * 60 * 60 * 1000);
-
-    return tournament;
-}
-
-const FORUM_URL = 'https://chess.com/clubs/forum/view/lich-su-kien-hang-thang-clb-tvlt?clubId=325849&quote_id=125015758&page=1#comment_box';
-
-function setDisplay(element, value) {
-    if (element) element.style.display = value;
-}
+const SCHEDULE_CACHE_KEY = 'tvlt_schedule_cache_v1';
+const SCHEDULE_CACHE_TTL_MS = 5 * 60 * 1000;
+const SCHEDULE_CACHE_MAX_STALE_MS = DAY_MS;
 
 /**
- * Keep the transport behind one adapter so a future Notion-backed source can
- * replace it without changing schedule normalization, filtering or rendering.
+ * Nguồn dữ liệu nằm sau một adapter để sau này thay bằng Notion mà không phải
+ * sửa phần chuẩn hoá, lọc hay hiển thị.
  */
 const scheduleDataAdapter = {
     async fetch() {
-        const response = await fetch(CONFIG.API_URL, {
-            headers: { Accept: 'application/json' }
-        });
+        const response = await fetch(CONFIG.API_URL, { headers: { Accept: 'application/json' } });
         if (!response.ok) throw new Error(`Mã phản hồi từ máy chủ: ${response.status}`);
 
         const text = await response.text();
@@ -1604,9 +1520,7 @@ const scheduleDataAdapter = {
                 : 'Dữ liệu phản hồi từ máy chủ không đúng định dạng JSON.');
         }
 
-        if (data?.status === 'error') {
-            throw new Error(data.message || 'Nguồn dữ liệu lịch trả về lỗi.');
-        }
+        if (data?.status === 'error') throw new Error(data.message || 'Nguồn dữ liệu lịch trả về lỗi.');
         if (!Array.isArray(data?.events)) {
             throw new Error('JSON API không đúng cấu trúc: cần có thuộc tính "events" là một mảng.');
         }
@@ -1614,16 +1528,20 @@ const scheduleDataAdapter = {
     }
 };
 
-function fetchScheduleData() {
-    return scheduleDataAdapter.fetch();
-}
-
-/** "Last updated" timestamp from the API (Vietnam time when no zone is given); falls back to now. */
+/** Thời điểm cập nhật từ API (không có múi giờ => giờ Việt Nam); thiếu/sai thì dùng giờ hiện tại. */
 function parseLastUpdated(data) {
     let value = String(data.lastUpdated || data.events[0]?.timestamp || '').trim().replace(' ', 'T');
-    if (value && !/(Z|[+-]\d{2}:?\d{2})$/i.test(value)) value += '+07:00';
+    if (value && !TIMEZONE_SUFFIX.test(value)) value += '+07:00';
     const date = new Date(value);
     return Number.isNaN(date.getTime()) ? new Date() : date;
+}
+
+function setLastUpdated(data) {
+    if (!DOM.lastUpdated) return;
+    DOM.lastUpdated.textContent = parseLastUpdated(data).toLocaleString('vi-VN', {
+        year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
 }
 
 function setScheduleState(state) {
@@ -1638,31 +1556,17 @@ function setScheduleState(state) {
     }
 }
 
-function setLastUpdated(data) {
-    if (!DOM.lastUpdated) return;
-    DOM.lastUpdated.textContent = parseLastUpdated(data).toLocaleString('vi-VN', {
-        year: 'numeric', month: 'long', day: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit'
-    });
-}
-
 function applyScheduleData(data) {
-    const tournaments = data.events
-        .map(normalizeTournament)
-        .filter(tournament => tournament && parseEventDate(tournament.startTime));
+    const tournaments = data.events.map(normalizeTournament).filter(Boolean);
     if (data.events.length && !tournaments.length) {
         throw new Error(`Nguồn dữ liệu trả về ${data.events.length} sự kiện nhưng không có ngày bắt đầu hợp lệ.`);
     }
 
     STATE.tournaments = tournaments;
-    ensureEventTypeFilters(STATE.tournaments);
+    ensureEventTypeFilters(tournaments);
     setLastUpdated(data);
     STATE.hasUsableData = true;
 }
-
-const SCHEDULE_CACHE_KEY = 'tvlt_schedule_cache_v1';
-const SCHEDULE_CACHE_TTL_MS = 5 * 60 * 1000;
-const SCHEDULE_CACHE_MAX_STALE_MS = 24 * 60 * 60 * 1000;
 
 function readScheduleCache() {
     try {
@@ -1678,14 +1582,14 @@ function readScheduleCache() {
 
 function writeScheduleCache(data) {
     try {
-        localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify({
-            version: 1,
-            savedAt: Date.now(),
-            data
-        }));
+        localStorage.setItem(SCHEDULE_CACHE_KEY, JSON.stringify({ version: 1, savedAt: Date.now(), data }));
     } catch {
-        // Storage restrictions or quota limits must not block schedule rendering.
+        // Bị chặn storage hoặc hết dung lượng không được làm hỏng việc hiển thị lịch.
     }
+}
+
+function clearScheduleCache() {
+    try { localStorage.removeItem(SCHEDULE_CACHE_KEY); } catch { /* storage không khả dụng */ }
 }
 
 function showScheduleError(error) {
@@ -1714,30 +1618,44 @@ function showScheduleError(error) {
     DOM.errorState.replaceChildren(wrapper);
 }
 
+function showSchedule() {
+    STATE.hasShownSchedule = true;
+    setScheduleState('ready');
+    setDisplay(DOM.viewSwitcherContainer, 'inline-flex');
+    setDisplay(DOM.scheduleFilters, 'grid');
+    STATE.currentView = 'calendar';
+    updateViewSwitcherButtons();
+
+    const today = getVietnamToday();
+    STATE.displayYear = STATE.initialMonth?.year ?? today.year;
+    STATE.displayMonth = STATE.initialMonth?.month ?? today.month;
+    renderActiveView();
+
+    DOM.calendarWrapper?.classList.add('schedule-entrance');
+}
+
 async function refreshScheduleData({ background = false } = {}) {
     if (STATE.refreshPromise) return STATE.refreshPromise;
     if (!background) setScheduleState('loading');
 
     STATE.refreshPromise = (async () => {
         try {
-            const data = await fetchScheduleData();
+            const data = await scheduleDataAdapter.fetch();
             applyScheduleData(data);
             writeScheduleCache(data);
 
-            if (STATE.tournaments.length) {
-                if (background && STATE.hasShownSchedule) {
-                    // Keep the visitor's month, view and filters; just redraw with fresh data.
-                    setScheduleState('ready');
-                    renderActiveView();
-                } else {
-                    showSchedule();
-                }
-            } else {
+            if (!STATE.tournaments.length) {
                 setScheduleState('empty');
+            } else if (background && STATE.hasShownSchedule) {
+                // Giữ tháng, chế độ xem và bộ lọc của người dùng; chỉ vẽ lại với dữ liệu mới.
+                setScheduleState('ready');
+                renderActiveView();
+            } else {
+                showSchedule();
             }
         } catch (error) {
             if (STATE.hasUsableData) {
-                // Keep the last usable calendar visible while a refresh is unavailable.
+                // Giữ lịch dùng được gần nhất khi làm mới thất bại.
                 setScheduleState(STATE.tournaments.length ? 'ready' : 'empty');
                 return;
             }
@@ -1762,62 +1680,20 @@ async function loadTournaments() {
                 setScheduleState('empty');
             }
 
-            const cacheIsFresh = Date.now() - cached.savedAt <= SCHEDULE_CACHE_TTL_MS;
-            if (!cacheIsFresh && DOM.lastUpdated) {
-                DOM.lastUpdated.textContent += ' · đang dùng dữ liệu lưu tạm';
-            }
-            // Render immediately from cache; refresh the source in the background.
+            const isFresh = Date.now() - cached.savedAt <= SCHEDULE_CACHE_TTL_MS;
+            if (!isFresh && DOM.lastUpdated) DOM.lastUpdated.textContent += ' · đang dùng dữ liệu lưu tạm';
+            // Vẽ ngay từ cache, làm mới nguồn ở nền.
             void refreshScheduleData({ background: true });
             return;
         } catch {
-            try { localStorage.removeItem(SCHEDULE_CACHE_KEY); } catch { /* storage unavailable */ }
+            clearScheduleCache();
             STATE.hasUsableData = false;
         }
     }
-
     await refreshScheduleData({ background: false });
 }
 
-function showSchedule() {
-    STATE.hasShownSchedule = true;
-    setScheduleState('ready');
-    setDisplay(DOM.viewSwitcherContainer, 'inline-flex');
-    setDisplay(DOM.scheduleFilters, 'grid');
-    STATE.currentView = 'calendar';
-    updateViewSwitcherButtons();
-
-    const today = getVietnamNow();
-    STATE.displayYear = STATE.initialMonth?.year ?? today.getUTCFullYear();
-    STATE.displayMonth = STATE.initialMonth?.month ?? today.getUTCMonth();
-    renderActiveView();
-
-    DOM.calendarWrapper?.classList.add('schedule-entrance');
-}
-
-function trapModalFocus(event) {
-    if (!DOM.modalDialog) return;
-    const focusable = Array.from(DOM.modalDialog.querySelectorAll(
-        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    )).filter(element => element.getClientRects().length > 0 && !element.closest('[hidden]'));
-    if (!focusable.length) {
-        event.preventDefault();
-        DOM.modalDialog.focus();
-        return;
-    }
-    const first = focusable[0];
-    const last = focusable[focusable.length - 1];
-    const active = document.activeElement;
-    if (!DOM.modalDialog.contains(active)) {
-        event.preventDefault();
-        (event.shiftKey ? last : first).focus();
-    } else if (event.shiftKey && (active === first || active === DOM.modalDialog)) {
-        event.preventDefault();
-        last.focus();
-    } else if (!event.shiftKey && (active === last || active === DOM.modalDialog)) {
-        event.preventDefault();
-        first.focus();
-    }
-}
+/* ============================ 12. Khởi tạo ============================ */
 
 function initializeEventListeners() {
     window.addEventListener('keydown', event => {
@@ -1826,13 +1702,9 @@ function initializeEventListeners() {
                 closeSelectMenu({ restoreFocus: true });
             } else if (DOM.eventModal?.classList.contains('open')) {
                 closeModal();
-            } else {
-                const openDropdown = document.querySelector('.tour-dropdown.open');
-                if (openDropdown) {
-                    openDropdown.classList.remove('open');
-                    DOM.categoryButton?.setAttribute('aria-expanded', 'false');
-                    DOM.categoryButton?.focus();
-                }
+            } else if (document.querySelector('.tour-dropdown.open')) {
+                closeTourDropdowns();
+                DOM.categoryButton?.focus();
             }
         } else if (event.key === 'Tab' && DOM.eventModal?.classList.contains('open')) {
             trapModalFocus(event);
@@ -1842,49 +1714,45 @@ function initializeEventListeners() {
         if (event.target === DOM.eventModal) closeModal();
     });
     document.addEventListener('click', event => {
-        if (!event.target.closest('.tour-dropdown')) {
-            document.querySelectorAll('.tour-dropdown').forEach(dropdown => dropdown.classList.remove('open'));
-            DOM.categoryButton?.setAttribute('aria-expanded', 'false');
-        }
+        if (!event.target.closest('.tour-dropdown')) closeTourDropdowns();
     });
+    document.addEventListener('scroll', hideScheduleTooltip, { capture: true, passive: true });
+    window.addEventListener('resize', hideScheduleTooltip, { passive: true });
 
-    if (DOM.scheduleSearch) {
-        DOM.scheduleSearch.addEventListener('input', () => {
-            window.clearTimeout(scheduleSearchTimer);
-            scheduleSearchTimer = window.setTimeout(() => {
-                scheduleSearchTimer = null;
-                filterSchedule();
-            }, 140);
-        });
-    }
-    if (DOM.schedulePrizeFilter) DOM.schedulePrizeFilter.addEventListener('change', filterSchedule);
-    if (DOM.scheduleTypeGroup) DOM.scheduleTypeGroup.addEventListener('change', filterSchedule);
-    if (DOM.resetFilters) DOM.resetFilters.addEventListener('click', resetFilters);
-    if (DOM.categoryButton) DOM.categoryButton.addEventListener('click', () => toggleTourDropdown('schedule-category-dropdown'));
-    if (DOM.previousMonthButton) DOM.previousMonthButton.addEventListener('click', () => changeMonth(-1));
-    if (DOM.nextMonthButton) DOM.nextMonthButton.addEventListener('click', () => changeMonth(1));
-    if (DOM.calendarViewButton) DOM.calendarViewButton.addEventListener('click', () => switchView('calendar'));
-    if (DOM.timelineViewButton) DOM.timelineViewButton.addEventListener('click', () => switchView('timeline'));
-    initializeSelectMenus();
-    if (DOM.modalCloseButton) DOM.modalCloseButton.addEventListener('click', closeModal);
+    DOM.scheduleSearch?.addEventListener('input', () => {
+        window.clearTimeout(searchTimer);
+        searchTimer = window.setTimeout(() => {
+            searchTimer = 0;
+            applyFilters();
+        }, 140);
+    });
+    DOM.schedulePrizeFilter?.addEventListener('change', applyFilters);
+    DOM.scheduleTypeGroup?.addEventListener('change', applyFilters);
+    DOM.resetFilters?.addEventListener('click', resetFilters);
+    DOM.categoryButton?.addEventListener('click', () => toggleTourDropdown('schedule-category-dropdown'));
+    DOM.previousMonthButton?.addEventListener('click', () => changeMonth(-1));
+    DOM.nextMonthButton?.addEventListener('click', () => changeMonth(1));
+    DOM.calendarViewButton?.addEventListener('click', () => switchView('calendar'));
+    DOM.timelineViewButton?.addEventListener('click', () => switchView('timeline'));
+    DOM.modalCloseButton?.addEventListener('click', closeModal);
     if (DOM.statusFilters instanceof HTMLSelectElement) {
         DOM.statusFilters.addEventListener('change', () => setStatusFilter(DOM.statusFilters.value));
     }
-    updateStatusFilterButtons();
+
+    initializeSelectMenus();
+    bindCalendarEvents();
+    bindTimelineEvents();
+    updateStatusFilterControl();
 }
 
-
-document.addEventListener('DOMContentLoaded', () => {
+function initialize() {
     cacheDOMElements();
+    refreshTypeCheckboxes();
     loadFiltersFromURL();
-    loadTournaments();
     initializeEventListeners();
-});
+    loadTournaments();
+}
 
-window.switchView = switchView;
-window.changeMonth = changeMonth;
-window.toggleTourDropdown = toggleTourDropdown;
-window.filterSchedule = filterSchedule;
-window.openModal = openModal;
-window.closeModal = closeModal;
-window.renderActiveView = renderActiveView;
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize);
+else initialize();
+})();
