@@ -1,6 +1,7 @@
 ---
 layout: event
 title: Bảng tổng giải Chiến Trường Thí Quân
+event_data_source: aggregated
 ---
 
 <header>
@@ -9,14 +10,35 @@ title: Bảng tổng giải Chiến Trường Thí Quân
 </header>
 <ul class="nav-tabs">
     <li><a href="tvlt">Thí Vua Lấy Tốt</a></li>
-    <li><a href="cbtt">Cờ Bí Thí Tốt</a></li>
     <li><a href="cttq" class="active">Chiến Trường Thí Quân</a></li>
+    <li><a href="cbtt">Cờ Bí Thí Tốt</a></li>
     <li><a href="dttv">Đấu Trường Thí Vua</a></li>
 </ul>
 
 <div class="tournament-page-context">
-    <p>Sự kiện được quản lý bởi <a href="/leaders#admin3">M-DinhHoangViet</a>. Xem <a href="/events/cttq-chien-truong-thi-quan">Thông tin chi tiết về sự kiện</a>.</p>
-    <p><i>Nếu có đề xuất hoặc vấn đề gì thì hãy bình luận tại <a href="https://chess.com/clubs/forum/view/danh-sach-cac-giai-da-to-chuc-clb-tvlt?clubId=325849&quote_id=131524731&page=1#comment_box" target="_blank">forum này</a> hoặc liên hệ <a href="/leaders#admin3">Admin M-DinhHoangViet</a>.</i></p>
+    <div class="tournament-page-context__item">
+        <span class="tournament-page-context__icon" aria-hidden="true"><i class="bx bx-user-check"></i></span>
+        <div class="tournament-page-context__body">
+            <span class="tournament-page-context__label">Người phụ trách</span>
+            <div class="tournament-page-context__details">
+                <a href="/leaders#admin3">M-DinhHoangViet</a>
+                <span>phụ trách giải đấu này.</span>
+                <a href="/events/cttq-chien-truong-thi-quan">Xem thông tin giải đấu</a>
+            </div>
+        </div>
+    </div>
+    <div class="tournament-page-context__item">
+        <span class="tournament-page-context__icon" aria-hidden="true"><i class="bx bx-message-rounded-dots"></i></span>
+        <div class="tournament-page-context__body">
+            <span class="tournament-page-context__label">Góp ý và hỗ trợ</span>
+            <div class="tournament-page-context__details">
+                <span>Bạn có thể</span>
+                <a href="https://chess.com/clubs/forum/view/danh-sach-cac-giai-da-to-chuc-clb-tvlt?clubId=325849&amp;quote_id=131524731&amp;page=1#comment_box" target="_blank" rel="noopener noreferrer">gửi góp ý trên diễn đàn của câu lạc bộ</a>
+                <span>hoặc liên hệ</span>
+                <a href="/leaders#admin3">quản trị viên M-DinhHoangViet</a><span>.</span>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="filter-group-container" style="margin-bottom: 25px;">
 <div class="tour-top-grid">
@@ -24,7 +46,7 @@ title: Bảng tổng giải Chiến Trường Thí Quân
 <div class="tour-select-container" style="grid-column: span 2;"><select id="cttq-status-filter" class="tour-select-btn" onchange="searchTable()"><option value="all">Tất cả trạng thái</option><option value="finished">Đã hoàn thành</option><option value="unfinished">Chưa hoàn thành</option></select></div>
 </div>
 <div class="tour-search-row"><div class="tour-search-wrapper"><span class="bx bx-search tour-search-icon"></span><input type="text" id="searchInput" class="tour-search-input" placeholder="Tìm kiếm..." onkeyup="searchTable()"></div>
-<div class="tour-misc"><label class="tour-switch-container"><span class="tour-switch"><input type="checkbox" id="premiumToggle" checked onchange="searchTable()"><span class="tour-slider"></span></span><span>Hiện Premium Badge</span></label><div id="loading-status" class="loading-status-badge"><span id="statusIcon" class="bx bx-dots-horizontal-rounded" style="color:var(--primary-warning)"></span><span id="current-tournament">0</span> tháng</div></div></div>
+<div class="tour-misc"><div id="loading-status" class="loading-status-badge"><span id="statusIcon" class="bx bx-dots-horizontal-rounded" style="color:var(--primary-warning);font-size:large"></span><span id="current-tournament">0</span> tháng</div></div></div>
 </div>
 <section class="tournament-results-section">
     <div id="cttq-months-container" data-fetch-aggregated="cttq"></div>
@@ -35,4 +57,3 @@ title: Bảng tổng giải Chiến Trường Thí Quân
     </a>
 </div>
 
-<script src="/js/aggregated-fetcher.js"></script>

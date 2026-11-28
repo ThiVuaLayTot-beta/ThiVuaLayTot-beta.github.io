@@ -3,6 +3,9 @@
 
 <head>
     <title>{{ page.title }} - CLB Thí Vua Lấy Tốt</title>
+    {% if page.schedule_css %}
+    <link rel="stylesheet" href="{{ page.schedule_css }}">
+    {% endif %}
     {% include head.html %}
 </head>
 
@@ -17,12 +20,11 @@
             </header>
             {{ content }}
             <br><br>
-            <button id="back-to-top" title="Quay lại đầu trang"><span class="bx bxs-to-top"></span></button>
+            <button type="button" id="back-to-top" title="Quay lại đầu trang" aria-label="Quay lại đầu trang"><span class="bx bxs-to-top" aria-hidden="true"></span></button>
         </div>
     </div>
 
     {% include footer.html %}
-    <script src="/js/main.js"></script>
 </body>
 
 </html>

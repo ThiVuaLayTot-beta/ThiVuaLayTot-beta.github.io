@@ -1,16 +1,19 @@
 ---
 layout: post
 title: Sự kiện Chiến Trường Thí Quân
+image: /images/events/giai-chien-truong-thi-quan.png
 category: events
 tags: Giải đấu
 author: M-DinhHoangViet
 description: Chuỗi giải đấu tích điểm hàng tháng với giải thưởng là <a href="https://chess.com/membership">tư cách thành viên kim cương Chess.com</a> 1 tháng.
 permalink: /events/cttq-chien-truong-thi-quan
+date: 2024-08-03
 ---
 
-# ⚔️ Chiến Trường Thí Quân
+**Thể lệ đã được thay đổi và áp dụng từ tháng /2026*
+## ⚔️ Chiến Trường Thí Quân
 
-**Chiến Trường Thí Quân (CTTQ)** được tổ chức lần đầu vào [**08/2024**](/events/tournaments/cbtt?sort=date-asc), dành cho các kỳ thủ muốn thi đấu nhiều giải và tích lũy điểm tổng. Giải do **M-DinhHoangViet** quản lý.
+**Chiến Trường Thí Quân (CTTQ)** được tổ chức lần đầu vào [**08/2024**](/events/tournaments/cbtt?sort=date-asc), dành cho các kỳ thủ muốn thi đấu nhiều giải và tích lũy điểm tổng. Giải do [**M-DinhHoangViet**](/leaders#admin3) quản lý.
 
 👉 [Xem các giải đã tổ chức](/events/tournaments/cttq)
 

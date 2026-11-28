@@ -49,7 +49,7 @@ description: Tham gia CLB của chúng tôi trên các nền tảng mạng xã h
                 </div>
                 <span class="bx bx-chevron-right arrow-icon"></span>
             </a>
-            <a href="https://zalo.me/g/zhrwtn779" target="_blank" class="social-link-item zalo">
+            <a href="https://zalo.me/g/wm5lcwsgnjut1jstq9ar" target="_blank" class="social-link-item zalo">
                 <div class="link-icon">
                     <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Icon_of_Zalo.svg" alt="Zalo">
                 </div>

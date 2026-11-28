@@ -4,6 +4,33 @@
 <head>
     <title>{{ page.title }} - Blog posts - CLB Thí Vua Lấy Tốt</title>
     {% include head.html %}
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Trang chủ",
+          "item": {{ '/' | absolute_url | jsonify }}
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Bài viết",
+          "item": {{ '/blog' | absolute_url | jsonify }}
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": {{ page.title | jsonify }},
+          "item": {{ page.url | absolute_url | jsonify }}
+        }
+      ]
+    }
+    </script>
+
     <link rel="stylesheet" type="text/css" href="/css/posts.css">
 </head>
 
@@ -13,11 +40,20 @@
     <div id="section-page">
         <div class="container">
             <div id="post">
+                <nav aria-label="Breadcrumb"><ul class="breadcrumb">
+                    <li><a href="/"><span class="bx bx-home-alt-2"></span>Trang chủ</a></li>
+                    <li><a href="/blog">Bài viết</a></li>
+                    <li aria-current="page">{{ page.title }}</li>
+                </ul></nav>
                 <div class="information" style="text-align: center">
-                    <img src="/images/{{ page.id }}.png" alt="{{ page.title }}" class="post-banner">
+                    <img src="{% if page.image %}{{ page.image }}{% else %}/images/{{ page.id | remove_first: '/' }}.png{% endif %}" data-fallback-src="/images/tvltlogo.png" alt="{{ page.title }}" class="post-banner" loading="eager" fetchpriority="high" decoding="async" width="1200" height="630">
                     <h1 class="page-title">{{ page.title }}</h1>
                     <i class="short_text" style="display: block; margin-bottom: var(--space-md);">{{ page.description }}</i>
                 <p align="center" style="text-align: center"><a href="/{{ page.category }}" class="post-tag"><span class="bx bx-purchase-tag-alt"></span> {{ page.tags }}</a> - <i style="color: var(--color-text-muted)">bởi <span style="color: var(--green-500)">{{ page.author }}</span></i></p>
+                <div class="post-reading-meta">
+                    <span class="reading-time" aria-live="polite"></span>
+                    <button type="button" id="copy-page-link" class="post-copy-link"><span class="bx bx-link" aria-hidden="true"></span> Sao chép liên kết</button>
+                </div>
                 <ul class="nav-tabs">
                     <li><a href="/blog"><span class="bx bx-edit-alt" style="color:var(--legacy-green)"></span>Tất cả bài đăng</a></li>
                     <li><a href="/chess"><span class="bx bxs-chess" style="color:var(--color-accent-dark)"></span>Kiến thức cờ vua</a></li>
@@ -33,12 +69,11 @@
                 <div class="main"><a href="/blog"><span class="btn">Đọc thêm một số bài đăng khác</span></a></div>
             </div>
             <br>
-            <button id="back-to-top" title="Quay lại đầu trang"><span class="bx bxs-to-top"></span></button>
+            <button type="button" id="back-to-top" title="Quay lại đầu trang" aria-label="Quay lại đầu trang"><span class="bx bxs-to-top" aria-hidden="true"></span></button>
         </div>
     </div>
 
     {% include footer.html %}
-    <script src="/js/main.js"></script>
 </body>
 
 </html>
