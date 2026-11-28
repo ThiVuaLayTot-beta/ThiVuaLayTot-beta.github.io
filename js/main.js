@@ -28,6 +28,9 @@
     let finishTimer = null;
     let container = null;
     let bar = null;
+    // Giá trị đã vẽ gần nhất, để tick 120ms không ghi lại DOM khi chưa có gì đổi.
+    let renderedPercent = -1;
+    let renderedVisible = null;
 
     function getElements() {
         if (!container) container = document.getElementById("page-progress");
@@ -38,10 +41,16 @@
     function render() {
         if (!getElements()) return;
         const percent = Math.round(progress * 100);
-        bar.style.width = percent + "%";
-        container.setAttribute("aria-valuenow", String(percent));
-        container.classList.toggle("is-active", visible);
-        container.setAttribute("aria-hidden", visible ? "false" : "true");
+        if (percent !== renderedPercent) {
+            bar.style.width = percent + "%";
+            container.setAttribute("aria-valuenow", String(percent));
+            renderedPercent = percent;
+        }
+        if (visible !== renderedVisible) {
+            container.classList.toggle("is-active", visible);
+            container.setAttribute("aria-hidden", visible ? "false" : "true");
+            renderedVisible = visible;
+        }
     }
 
     function estimateProgress() {
@@ -85,6 +94,8 @@
             bar.style.transition = "";
         }
 
+        renderedPercent = -1;
+        renderedVisible = null;
         render();
     }
 
@@ -242,335 +253,29 @@
         track: track
     };
 })();
-
-/** 
- * Main site navigation
- */
-const menuBtn = document.getElementById("mobile-menu-btn");
-const mobileNav = document.getElementById("mobile-nav-menu");
-const dropdowns = document.querySelectorAll(".section.dropdown");
-
-// Handle image fallbacks without inline HTML event attributes.
-document.addEventListener("error", (event) => {
-    const image = event.target;
-    if (!(image instanceof HTMLImageElement) || !image.dataset.fallbackSrc ||
-        image.dataset.fallbackAttempted === "true") return;
-    image.dataset.fallbackAttempted = "true";
-    image.src = image.dataset.fallbackSrc;
-}, true);
-const isMobileNav = () => window.matchMedia("(max-width: 1024px)").matches;
-let dropdownCloseTimer = null;
-
-function cancelDropdownClose() {
-    if (dropdownCloseTimer !== null) {
-        window.clearTimeout(dropdownCloseTimer);
-        dropdownCloseTimer = null;
-    }
-}
-
-function setDropdownState(dropdown, open) {
-    const trigger = dropdown.querySelector(".dropdown-trigger");
-    dropdown.classList.toggle("active", open);
-    if (trigger) trigger.setAttribute("aria-expanded", String(open));
-    if (open) delete dropdown.dataset.escapeClosed;
-}
-
-function closeDropdowns() {
-    cancelDropdownClose();
-    dropdowns.forEach(dropdown => setDropdownState(dropdown, false));
-}
-
-function closeMobileNav({ restoreFocus = false } = {}) {
-    if (!mobileNav || !menuBtn) return;
-
-    mobileNav.classList.remove("active");
-    menuBtn.setAttribute("aria-expanded", "false");
-    menuBtn.setAttribute("aria-label", "Mở menu điều hướng");
-    document.documentElement.classList.remove("nav-open");
-    document.body.classList.remove("nav-open");
-    closeDropdowns();
-
-    const menuIcon = document.getElementById("mobile-menu-icon");
-    if (menuIcon) {
-        menuIcon.classList.remove("bx-x");
-        menuIcon.classList.add("bx-menu");
-    }
-
-    if (restoreFocus) menuBtn.focus();
-}
-
-function openMobileNav() {
-    if (!mobileNav || !menuBtn) return;
-
-    mobileNav.classList.add("active");
-    menuBtn.setAttribute("aria-expanded", "true");
-    menuBtn.setAttribute("aria-label", "Đóng menu điều hướng");
-    document.documentElement.classList.add("nav-open");
-    document.body.classList.add("nav-open");
-
-    const menuIcon = document.getElementById("mobile-menu-icon");
-    if (menuIcon) {
-        menuIcon.classList.remove("bx-menu");
-        menuIcon.classList.add("bx-x");
-    }
-}
-
-if (menuBtn) {
-    menuBtn.addEventListener("click", () => {
-        if (!mobileNav || !isMobileNav()) return;
-
-        if (mobileNav.classList.contains("active")) {
-            closeMobileNav();
-        } else {
-            openMobileNav();
-        }
-    });
-}
-
-dropdowns.forEach(dropdown => {
-    const trigger = dropdown.querySelector(".dropdown-trigger");
-    if (!trigger) return;
-
-    trigger.addEventListener("click", event => {
-        event.preventDefault();
-
-        const shouldOpen = !dropdown.classList.contains("active");
-
-        closeDropdowns();
-        setDropdownState(dropdown, shouldOpen);
-
-        if (!shouldOpen && !isMobileNav()) {
-            dropdown.dataset.escapeClosed = "true";
-            trigger.blur();
-        }
-    });
-
-    dropdown.addEventListener("pointerenter", () => {
-        if (isMobileNav()) return;
-
-        closeDropdowns();
-        if (dropdown.dataset.escapeClosed !== "true") {
-            setDropdownState(dropdown, true);
-        }
-    });
-
-    dropdown.addEventListener("pointerleave", () => {
-        if (isMobileNav()) return;
-
-        cancelDropdownClose();
-        dropdownCloseTimer = window.setTimeout(() => {
-            dropdownCloseTimer = null;
-
-            if (!dropdown.matches(":hover") && !dropdown.contains(document.activeElement)) {
-                delete dropdown.dataset.escapeClosed;
-                setDropdownState(dropdown, false);
-            }
-        }, 160);
-    });
-
-    dropdown.addEventListener("focusin", () => {
-        if (isMobileNav()) return;
-
-        closeDropdowns();
-        if (dropdown.dataset.escapeClosed !== "true") {
-            setDropdownState(dropdown, true);
-        }
-    });
-
-    dropdown.addEventListener("focusout", event => {
-        if (isMobileNav() || dropdown.contains(event.relatedTarget)) return;
-
-        cancelDropdownClose();
-        dropdownCloseTimer = window.setTimeout(() => {
-            dropdownCloseTimer = null;
-
-            if (!dropdown.contains(document.activeElement) && !dropdown.matches(":hover")) {
-                delete dropdown.dataset.escapeClosed;
-                setDropdownState(dropdown, false);
-            }
-        }, 100);
-    });
-});
-
-document.addEventListener("click", event => {
-    if (isMobileNav() && mobileNav?.classList.contains("active")) {
-        if (mobileNav.contains(event.target) || menuBtn?.contains(event.target)) return;
-        closeMobileNav();
-        return;
-    }
-
-    if (!Array.from(dropdowns).some(dropdown => dropdown.contains(event.target))) {
-        closeDropdowns();
-    }
-});
-
-document.addEventListener("keydown", event => {
-    if (event.key !== "Escape") return;
-
-    const openDropdown = Array.from(dropdowns)
-        .find(dropdown => dropdown.classList.contains("active"));
-
-    if (openDropdown) {
-        const trigger = openDropdown.querySelector(".dropdown-trigger");
-        setDropdownState(openDropdown, false);
-        openDropdown.dataset.escapeClosed = "true";
-        trigger?.focus();
-        return;
-    }
-
-    if (mobileNav?.classList.contains("active")) {
-        closeMobileNav({ restoreFocus: true });
-    }
-});
-
-let lastViewportWidth = window.innerWidth;
-window.addEventListener("resize", () => {
-    // Mobile browsers fire "resize" when the URL bar shows/hides while scrolling;
-    // only react to real width changes so open menus are not closed mid-scroll.
-    if (window.innerWidth === lastViewportWidth) return;
-    lastViewportWidth = window.innerWidth;
-    closeDropdowns();
-    if (!isMobileNav()) closeMobileNav();
-});
-
-if (mobileNav) {
-    mobileNav.querySelectorAll("a").forEach(link => {
-        link.addEventListener("click", () => {
-            if (isMobileNav()) closeMobileNav();
-        });
-    });
-}
-
-function normalizePath(path) {
-    const normalized = path.replace(/\/+$/, "");
-    return normalized || "/";
-}
-
-function markCurrentRoute() {
-    if (!mobileNav) return;
-
-    const currentPath = normalizePath(window.location.pathname.toLowerCase());
-    const currentHash = window.location.hash;
-    const links = Array.from(
-        document.querySelectorAll(".page-header .nav-link, .page-header .dropdown-menu a")
-    );
-
-    links.forEach(link => {
-        link.classList.remove("nav-link--active");
-        link.removeAttribute("aria-current");
-    });
-    dropdowns.forEach(dropdown => dropdown.classList.remove("has-current"));
-
-    const candidates = links.filter(link => {
-        const url = new URL(link.href, window.location.origin);
-        if (url.origin !== window.location.origin) return false;
-
-        const linkPath = normalizePath(url.pathname.toLowerCase());
-        if (url.hash && url.hash !== currentHash) return false;
-        if (linkPath === "/" && currentPath !== "/") return false;
-
-        return currentPath === linkPath ||
-            (linkPath !== "/" && currentPath.startsWith(linkPath + "/"));
-    });
-
-    candidates.sort((a, b) => {
-        const urlA = new URL(a.href, window.location.origin);
-        const urlB = new URL(b.href, window.location.origin);
-        const scoreA = normalizePath(urlA.pathname).length +
-            (urlA.hash && urlA.hash === currentHash ? 10000 : 0);
-        const scoreB = normalizePath(urlB.pathname).length +
-            (urlB.hash && urlB.hash === currentHash ? 10000 : 0);
-        return scoreB - scoreA;
-    });
-
-    const activeLink = candidates[0];
-    if (!activeLink) return;
-
-    activeLink.classList.add("nav-link--active");
-    activeLink.setAttribute("aria-current", "page");
-    activeLink.closest(".section.dropdown")?.classList.add("has-current");
-}
-
-markCurrentRoute();
-
-
 /**
- * Page Load Events
+ * Phần còn lại của main.js: các tính năng dùng chung cho mọi trang.
+ *
+ *  1. Tiện ích (chuẩn hoá tiếng Việt, ảnh dự phòng, hiện dần khi cuộn tới)
+ *  2. Điều hướng (menu mobile, dropdown, đánh dấu trang hiện tại)
+ *  3. Cuộn trang (nút lên đầu, timeline)
+ *  4. Tìm kiếm toàn site (Ctrl+K)
+ *  5. Tiện ích đọc bài (thời gian đọc, mục lục, nút sao chép)
+ *  6. Hiệu ứng thẻ (ánh sáng theo con trỏ, hiện dần)
+ *
+ * Số liệu thống kê trang chủ do home.js xử lý. Toàn bộ nằm trong IIFE; chỉ
+ * window.removeVietnameseTones được công khai (schedule.js, category-filter.js dùng).
  */
-window.addEventListener("load", function() {
-    handleScrollEffects();
-});
+(() => {
+"use strict";
 
-/**
- * Scroll Events and Performance Optimization
- */
-const backToTopBtn = document.getElementById("back-to-top");
-const timeline = document.querySelector('.timeline');
-const timelineItems = document.querySelectorAll('[data-timeline-item]');
+/* ============================ 1. Tiện ích ============================ */
 
-if (timelineItems.length) {
-    if ('IntersectionObserver' in window) {
-        const timelineObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('is-visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.18 });
+const byId = (id) => document.getElementById(id);
+const mobileNavQuery = window.matchMedia("(max-width: 1024px)");
+const isMobileNav = () => mobileNavQuery.matches;
 
-        timelineItems.forEach(item => timelineObserver.observe(item));
-    } else {
-        timelineItems.forEach(item => item.classList.add('is-visible'));
-    }
-}
-
-let isScrolling = false;
-
-window.addEventListener("scroll", () => {
-    if (!isScrolling) {
-        window.requestAnimationFrame(() => {
-            handleScrollEffects();
-            isScrolling = false;
-        });
-        isScrolling = true;
-    }
-}, { passive: true });
-
-/**
- * Handles scroll-based UI updates
- */
-function handleScrollEffects() {
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-    if (backToTopBtn) if(scrollTop > 100) { backToTopBtn.classList.add("show"); } else { backToTopBtn.classList.remove("show"); }
-
-    if (timeline) {
-        const rect = timeline.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-
-        if (rect.top < windowHeight && rect.bottom > 0) {
-            const start = rect.top;
-            const end = rect.bottom;
-            const current = windowHeight * 0.7;
-            let scrollPercent = ((current - start) / (end - start)) * 100;
-            scrollPercent = Math.min(Math.max(scrollPercent, 0), 100);
-            timeline.style.setProperty('--timeline-progress', scrollPercent + '%');
-        }
-    }
-}
-
-/**
- * Back to Top Button
- */
-if (backToTopBtn) {
-    backToTopBtn.addEventListener("click", function() {
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-    });
-}
-
-/** Normalize Vietnamese text once for the entire site. */
+/** Chuẩn hoá văn bản tiếng Việt (bỏ dấu, thường hoá) dùng chung cho cả site. */
 function removeVietnameseTones(value) {
     return String(value ?? "")
         .normalize("NFD")
@@ -581,14 +286,291 @@ function removeVietnameseTones(value) {
 }
 window.removeVietnameseTones = removeVietnameseTones;
 
-/** Global search dialog with request de-duplication and race-free first results. */
-function initializeGlobalSearch() {
-    const trigger = document.getElementById("open-search-btn");
-    if (!trigger || document.getElementById("search-modal")) return;
+/**
+ * Ảnh lỗi -> data-fallback-src (mỗi ảnh thử một lần). Sự kiện "error" của ảnh không
+ * nổi bọt nên phải nghe ở pha capture; gắn ngay để bắt cả ảnh lỗi trước khi DOM xong.
+ */
+document.addEventListener("error", (event) => {
+    const image = event.target;
+    if (!(image instanceof HTMLImageElement) || !image.dataset.fallbackSrc ||
+        image.dataset.fallbackAttempted === "true") return;
+    image.dataset.fallbackAttempted = "true";
+    image.src = image.dataset.fallbackSrc;
+}, true);
 
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        `
+function onReady(callback) {
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", callback, { once: true });
+    else callback();
+}
+
+/** Thêm class `is-visible` khi phần tử vào khung nhìn (một IntersectionObserver cho mỗi ngưỡng). */
+const visibilityObservers = new Map();
+function revealWhenVisible(elements, threshold) {
+    if (!elements.length) return;
+    if (!("IntersectionObserver" in window)) {
+        elements.forEach((element) => element.classList.add("is-visible"));
+        return;
+    }
+
+    let observer = visibilityObservers.get(threshold);
+    if (!observer) {
+        observer = new IntersectionObserver((entries, currentObserver) => {
+            entries.forEach((entry) => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add("is-visible");
+                currentObserver.unobserve(entry.target);
+            });
+        }, { threshold });
+        visibilityObservers.set(threshold, observer);
+    }
+    elements.forEach((element) => observer.observe(element));
+}
+
+/* ============================ 2. Điều hướng ============================ */
+
+const DROPDOWN_POINTER_CLOSE_DELAY_MS = 160;
+const DROPDOWN_FOCUS_CLOSE_DELAY_MS = 100;
+
+function initializeNavigation() {
+    const menuButton = byId("mobile-menu-btn");
+    const mobileNav = byId("mobile-nav-menu");
+    const menuIcon = byId("mobile-menu-icon");
+    const dropdowns = Array.from(document.querySelectorAll(".section.dropdown"));
+    let closeTimer = 0;
+
+    function cancelDropdownClose() {
+        if (!closeTimer) return;
+        window.clearTimeout(closeTimer);
+        closeTimer = 0;
+    }
+
+    function setDropdownState(dropdown, open) {
+        const trigger = dropdown.querySelector(".dropdown-trigger");
+        dropdown.classList.toggle("active", open);
+        if (trigger) trigger.setAttribute("aria-expanded", String(open));
+        if (open) delete dropdown.dataset.escapeClosed;
+    }
+
+    function closeDropdowns() {
+        cancelDropdownClose();
+        dropdowns.forEach((dropdown) => setDropdownState(dropdown, false));
+    }
+
+    function setMobileNavOpen(open) {
+        mobileNav.classList.toggle("active", open);
+        menuButton.setAttribute("aria-expanded", String(open));
+        menuButton.setAttribute("aria-label", open ? "Đóng menu điều hướng" : "Mở menu điều hướng");
+        document.documentElement.classList.toggle("nav-open", open);
+        document.body.classList.toggle("nav-open", open);
+        if (!open) closeDropdowns();
+        if (menuIcon) {
+            menuIcon.classList.toggle("bx-x", open);
+            menuIcon.classList.toggle("bx-menu", !open);
+        }
+    }
+
+    function closeMobileNav({ restoreFocus = false } = {}) {
+        if (!mobileNav || !menuButton) return;
+        setMobileNavOpen(false);
+        if (restoreFocus) menuButton.focus();
+    }
+
+    menuButton?.addEventListener("click", () => {
+        if (!mobileNav || !isMobileNav()) return;
+        setMobileNavOpen(!mobileNav.classList.contains("active"));
+    });
+
+    // Đóng dropdown sau một khoảng trễ nếu con trỏ/focus đã rời khỏi nó.
+    function scheduleDropdownClose(dropdown, delay) {
+        cancelDropdownClose();
+        closeTimer = window.setTimeout(() => {
+            closeTimer = 0;
+            if (!dropdown.matches(":hover") && !dropdown.contains(document.activeElement)) {
+                delete dropdown.dataset.escapeClosed;
+                setDropdownState(dropdown, false);
+            }
+        }, delay);
+    }
+
+    // Trên desktop: mở khi trỏ/focus vào, trừ khi người dùng vừa chủ động đóng bằng Esc/click.
+    function openDropdownOnDesktop(dropdown) {
+        if (isMobileNav()) return;
+        closeDropdowns();
+        if (dropdown.dataset.escapeClosed !== "true") setDropdownState(dropdown, true);
+    }
+
+    dropdowns.forEach((dropdown) => {
+        const trigger = dropdown.querySelector(".dropdown-trigger");
+        if (!trigger) return;
+
+        trigger.addEventListener("click", (event) => {
+            event.preventDefault();
+            const shouldOpen = !dropdown.classList.contains("active");
+
+            closeDropdowns();
+            setDropdownState(dropdown, shouldOpen);
+
+            if (!shouldOpen && !isMobileNav()) {
+                dropdown.dataset.escapeClosed = "true";
+                trigger.blur();
+            }
+        });
+
+        dropdown.addEventListener("pointerenter", () => openDropdownOnDesktop(dropdown));
+        dropdown.addEventListener("focusin", () => openDropdownOnDesktop(dropdown));
+        dropdown.addEventListener("pointerleave", () => {
+            if (!isMobileNav()) scheduleDropdownClose(dropdown, DROPDOWN_POINTER_CLOSE_DELAY_MS);
+        });
+        dropdown.addEventListener("focusout", (event) => {
+            if (isMobileNav() || dropdown.contains(event.relatedTarget)) return;
+            scheduleDropdownClose(dropdown, DROPDOWN_FOCUS_CLOSE_DELAY_MS);
+        });
+    });
+
+    document.addEventListener("click", (event) => {
+        if (isMobileNav() && mobileNav?.classList.contains("active")) {
+            if (mobileNav.contains(event.target) || menuButton?.contains(event.target)) return;
+            closeMobileNav();
+            return;
+        }
+        if (!dropdowns.some((dropdown) => dropdown.contains(event.target))) closeDropdowns();
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+
+        const openDropdown = dropdowns.find((dropdown) => dropdown.classList.contains("active"));
+        if (openDropdown) {
+            setDropdownState(openDropdown, false);
+            openDropdown.dataset.escapeClosed = "true";
+            openDropdown.querySelector(".dropdown-trigger")?.focus();
+            return;
+        }
+        if (mobileNav?.classList.contains("active")) closeMobileNav({ restoreFocus: true });
+    });
+
+    let lastViewportWidth = window.innerWidth;
+    window.addEventListener("resize", () => {
+        // Trình duyệt mobile bắn "resize" khi thanh địa chỉ ẩn/hiện lúc cuộn;
+        // chỉ phản ứng khi chiều rộng thật sự đổi để không đóng menu giữa chừng.
+        if (window.innerWidth === lastViewportWidth) return;
+        lastViewportWidth = window.innerWidth;
+        closeDropdowns();
+        if (!isMobileNav()) closeMobileNav();
+    });
+
+    mobileNav?.addEventListener("click", (event) => {
+        if (event.target.closest("a") && isMobileNav()) closeMobileNav();
+    });
+
+    markCurrentRoute(mobileNav, dropdowns);
+    return { mobileNav, closeMobileNav };
+}
+
+function normalizePath(path) {
+    return path.replace(/\/+$/, "") || "/";
+}
+
+/** Đánh dấu liên kết điều hướng khớp trang hiện tại (đường dẫn dài nhất; ưu tiên khớp #hash). */
+function markCurrentRoute(mobileNav, dropdowns) {
+    if (!mobileNav) return;
+
+    const currentPath = normalizePath(window.location.pathname.toLowerCase());
+    const currentHash = window.location.hash;
+    const links = Array.from(document.querySelectorAll(".page-header .nav-link, .page-header .dropdown-menu a"));
+
+    links.forEach((link) => {
+        link.classList.remove("nav-link--active");
+        link.removeAttribute("aria-current");
+    });
+    dropdowns.forEach((dropdown) => dropdown.classList.remove("has-current"));
+
+    const candidates = links
+        .map((link) => ({ link, url: new URL(link.href, window.location.origin) }))
+        .filter(({ url }) => {
+            if (url.origin !== window.location.origin) return false;
+
+            const linkPath = normalizePath(url.pathname.toLowerCase());
+            if (url.hash && url.hash !== currentHash) return false;
+            if (linkPath === "/" && currentPath !== "/") return false;
+
+            return currentPath === linkPath || (linkPath !== "/" && currentPath.startsWith(linkPath + "/"));
+        })
+        .map((candidate) => ({
+            ...candidate,
+            score: normalizePath(candidate.url.pathname).length +
+                (candidate.url.hash && candidate.url.hash === currentHash ? 10000 : 0)
+        }))
+        .sort((a, b) => b.score - a.score);
+
+    const activeLink = candidates[0]?.link;
+    if (!activeLink) return;
+
+    activeLink.classList.add("nav-link--active");
+    activeLink.setAttribute("aria-current", "page");
+    activeLink.closest(".section.dropdown")?.classList.add("has-current");
+}
+
+/* ============================ 3. Cuộn trang ============================ */
+
+const BACK_TO_TOP_THRESHOLD_PX = 100;
+const TIMELINE_ANCHOR_RATIO = 0.7;
+const TIMELINE_ITEM_VISIBLE_THRESHOLD = 0.18;
+
+function initializeScrollEffects() {
+    const backToTop = byId("back-to-top");
+    const timeline = document.querySelector(".timeline");
+    let backToTopShown = false;
+    let lastTimelineProgress = "";
+
+    function handleScrollEffects() {
+        const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+        const shouldShow = scrollTop > BACK_TO_TOP_THRESHOLD_PX;
+        if (backToTop && shouldShow !== backToTopShown) {
+            backToTopShown = shouldShow;
+            backToTop.classList.toggle("show", shouldShow);
+        }
+
+        if (!timeline) return;
+        const rect = timeline.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        if (rect.top >= windowHeight || rect.bottom <= 0) return;
+
+        const percent = ((windowHeight * TIMELINE_ANCHOR_RATIO - rect.top) / (rect.bottom - rect.top)) * 100;
+        const progress = Math.min(Math.max(percent, 0), 100) + "%";
+        if (progress !== lastTimelineProgress) {
+            lastTimelineProgress = progress;
+            timeline.style.setProperty("--timeline-progress", progress);
+        }
+    }
+
+    // Gộp các sự kiện scroll thành một lần xử lý mỗi khung hình.
+    let frameQueued = false;
+    window.addEventListener("scroll", () => {
+        if (frameQueued) return;
+        frameQueued = true;
+        window.requestAnimationFrame(() => {
+            frameQueued = false;
+            handleScrollEffects();
+        });
+    }, { passive: true });
+    window.addEventListener("load", handleScrollEffects);
+
+    backToTop?.addEventListener("click", () => {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+    });
+
+    revealWhenVisible(Array.from(document.querySelectorAll("[data-timeline-item]")), TIMELINE_ITEM_VISIBLE_THRESHOLD);
+}
+
+/* ============================ 4. Tìm kiếm toàn site ============================ */
+
+const SEARCH_MAX_RESULTS = 15;
+const SEARCH_DEBOUNCE_MS = 140;
+const SEARCH_SUMMARY_MAX_CHARS = 140;
+const SEARCH_MODAL_HTML = `
         <div id="search-modal" class="search-modal-overlay" aria-hidden="true">
             <section class="search-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="global-search-title">
                 <div class="search-modal-header">
@@ -603,105 +585,147 @@ function initializeGlobalSearch() {
                 <p id="global-search-status" class="visually-hidden" role="status" aria-live="polite"></p>
                 <div id="global-search-results" class="search-modal-results" role="list" aria-label="Kết quả tìm kiếm"></div>
             </section>
-        </div>`,
-    );
+        </div>`;
 
-    const modal = document.getElementById("search-modal");
-    const closeButton = document.getElementById("close-search-modal");
-    const input = document.getElementById("global-search-input");
-    const results = document.getElementById("global-search-results");
-    const statusEl = document.getElementById("global-search-status");
+/** Điểm khớp của một mục chỉ mục với truy vấn đã chuẩn hoá; 0 nghĩa là không khớp. */
+function scoreSearchItem(normalizedFields, query, terms) {
+    const hasAll = (text) => terms.every((term) => text.includes(term));
+    let score = 0;
+    if (normalizedFields.title.startsWith(query)) score += 5;
+    else if (hasAll(normalizedFields.title)) score += 4;
+    if (hasAll(normalizedFields.summary)) score += 2;
+    if (hasAll(normalizedFields.content)) score += 1;
+    if (hasAll(normalizedFields.tags) || hasAll(normalizedFields.category)) score += 2;
+    return score;
+}
+
+const compareSearchMatches = (a, b) => b.score - a.score || a.item.title.localeCompare(b.item.title, "vi");
+
+/** Chèn `candidate` vào danh sách top đã sắp xếp (tìm nhị phân), giữ tối đa `limit` mục. */
+function insertTopMatch(matches, candidate, limit) {
+    let low = 0;
+    let high = matches.length;
+    while (low < high) {
+        const middle = (low + high) >>> 1;
+        if (compareSearchMatches(candidate, matches[middle]) < 0) high = middle;
+        else low = middle + 1;
+    }
+    if (low >= limit) return;
+    matches.splice(low, 0, candidate);
+    if (matches.length > limit) matches.pop();
+}
+
+function parseSearchIndex(entries) {
+    return entries
+        .map((entry) => ({
+            title: String(entry.title || "").trim(),
+            link: String(entry.url || entry.link || "").trim(),
+            summary: String(entry.summary || ""),
+            content: String(entry.content || ""),
+            category: String(entry.category || ""),
+            tags: Array.isArray(entry.tags) ? entry.tags.map(String).join(" ") : String(entry.tags || "")
+        }))
+        .filter((item) => item.title && item.link)
+        // Chuẩn hoá mọi trường tìm kiếm đúng một lần khi nạp chỉ mục của Jekyll.
+        .map((item) => ({
+            ...item,
+            normalized: {
+                title: removeVietnameseTones(item.title),
+                summary: removeVietnameseTones(item.summary),
+                content: removeVietnameseTones(item.content),
+                category: removeVietnameseTones(item.category),
+                tags: removeVietnameseTones(item.tags)
+            }
+        }));
+}
+
+function createSearchResultRow(item) {
+    const row = document.createElement("div");
+    row.setAttribute("role", "listitem");
+    const link = document.createElement("a");
+    link.className = "search-result-item";
+    link.href = item.link;
+    const title = document.createElement("h4");
+    title.textContent = item.title;
+    const summary = document.createElement("p");
+    const description = item.summary || item.content || "";
+    summary.textContent = description.length > SEARCH_SUMMARY_MAX_CHARS
+        ? description.slice(0, SEARCH_SUMMARY_MAX_CHARS - 3) + "…"
+        : description;
+    link.append(title, summary);
+    row.appendChild(link);
+    return row;
+}
+
+function initializeGlobalSearch({ mobileNav, closeMobileNav }) {
+    const trigger = byId("open-search-btn");
+    if (!trigger || byId("search-modal")) return;
+
+    document.body.insertAdjacentHTML("beforeend", SEARCH_MODAL_HTML);
+
+    const modal = byId("search-modal");
+    const closeButton = byId("close-search-modal");
+    const input = byId("global-search-input");
+    const results = byId("global-search-results");
+    const statusElement = byId("global-search-status");
     if (!modal || !closeButton || !input || !results) return;
 
-    let searchTimer = null;
+    let searchTimer = 0;
     let index = [];
     let indexReady = false;
     let indexPromise = null;
     let previousOverflow = "";
 
+    const setStatus = (text) => {
+        if (statusElement) statusElement.textContent = text;
+    };
+
     function showMessage(message) {
-        const p = document.createElement("p");
-        p.className = "search-no-results";
-        p.textContent = message;
-        results.replaceChildren(p);
-        if (statusEl) statusEl.textContent = message;
+        const paragraph = document.createElement("p");
+        paragraph.className = "search-no-results";
+        paragraph.textContent = message;
+        results.replaceChildren(paragraph);
+        setStatus(message);
     }
+
     function renderResults(query) {
         const normalized = removeVietnameseTones(query);
         if (!normalized) {
-            showMessage(
-                indexReady
-                    ? "Nhập từ khóa để tìm bài viết, giải đấu và các trang của CLB."
-                    : "Đang tải dữ liệu tìm kiếm…",
-            );
+            showMessage(indexReady
+                ? "Nhập từ khóa để tìm bài viết, giải đấu và các trang của CLB."
+                : "Đang tải dữ liệu tìm kiếm…");
             return;
         }
         if (!indexReady) {
             showMessage("Đang tải dữ liệu tìm kiếm…");
             return;
         }
+
+        // Giữ top-N đã sắp xếp trong lúc quét thay vì sắp xếp toàn bộ kết quả khớp.
         const terms = normalized.split(/\s+/);
-        const hasAll = (text) => terms.every((term) => text.includes(term));
         const matches = [];
-
-        // Keep a sorted top-15 list while scanning; avoid allocating and sorting
-        // an intermediate result for every match in a large search index.
-        const compareMatches = (a, b) =>
-            b.score - a.score || a.item.title.localeCompare(b.item.title, "vi");
-
         for (const item of index) {
-            const text = item.normalized;
-            let score = 0;
-            if (text.title.startsWith(normalized)) score += 5;
-            else if (hasAll(text.title)) score += 4;
-            if (hasAll(text.summary)) score += 2;
-            if (hasAll(text.content)) score += 1;
-            if (hasAll(text.tags) || hasAll(text.category)) score += 2;
-            if (!score) continue;
-
-            const candidate = { item, score };
-            let low = 0;
-            let high = matches.length;
-            while (low < high) {
-                const middle = (low + high) >>> 1;
-                if (compareMatches(candidate, matches[middle]) < 0) high = middle;
-                else low = middle + 1;
-            }
-
-            if (low < 15) {
-                matches.splice(low, 0, candidate);
-                if (matches.length > 15) matches.pop();
-            }
+            const score = scoreSearchItem(item.normalized, normalized, terms);
+            if (score) insertTopMatch(matches, { item, score }, SEARCH_MAX_RESULTS);
         }
+
         if (!matches.length) {
             showMessage("Không tìm thấy kết quả phù hợp.");
             return;
         }
-        if (statusEl) statusEl.textContent = matches.length + " kết quả phù hợp.";
+        setStatus(matches.length + " kết quả phù hợp.");
         const fragment = document.createDocumentFragment();
-        matches.forEach(({ item }) => {
-            const row = document.createElement("div");
-            row.setAttribute("role", "listitem");
-            const link = document.createElement("a");
-            link.className = "search-result-item";
-            link.href = item.link;
-            const title = document.createElement("h4");
-            title.textContent = item.title;
-            const summary = document.createElement("p");
-            const description = item.summary || item.content || "";
-            summary.textContent = description.length > 140 ? description.slice(0, 137) + "…" : description;
-            link.append(title, summary);
-            row.appendChild(link);
-            fragment.appendChild(row);
-        });
+        matches.forEach(({ item }) => fragment.appendChild(createSearchResultRow(item)));
         results.replaceChildren(fragment);
     }
+
     function loadIndex() {
         if (indexReady) {
             renderResults(input.value);
             return Promise.resolve(index);
         }
         if (indexPromise) return indexPromise;
+
         indexPromise = fetch("/search.json", { headers: { Accept: "application/json" } })
             .then((response) => {
                 if (!response.ok) throw new Error("HTTP " + response.status);
@@ -709,27 +733,7 @@ function initializeGlobalSearch() {
             })
             .then((entries) => {
                 if (!Array.isArray(entries)) throw new Error("Chỉ mục tìm kiếm không hợp lệ.");
-                const posts = entries
-                    .map((entry) => ({
-                        title: String(entry.title || "").trim(),
-                        link: String(entry.url || entry.link || "").trim(),
-                        summary: String(entry.summary || ""),
-                        content: String(entry.content || ""),
-                        category: String(entry.category || ""),
-                        tags: Array.isArray(entry.tags) ? entry.tags.map(String).join(" ") : String(entry.tags || ""),
-                    }))
-                    .filter((item) => item.title && item.link);
-                // Normalize every searchable field once when Jekyll's index is loaded.
-                index = posts.map((item) => ({
-                    ...item,
-                    normalized: {
-                        title: removeVietnameseTones(item.title),
-                        summary: removeVietnameseTones(item.summary),
-                        content: removeVietnameseTones(item.content),
-                        category: removeVietnameseTones(item.category),
-                        tags: removeVietnameseTones(item.tags),
-                    },
-                }));
+                index = parseSearchIndex(entries);
                 indexReady = true;
                 renderResults(input.value);
                 return index;
@@ -742,6 +746,7 @@ function initializeGlobalSearch() {
             });
         return indexPromise;
     }
+
     function openModal() {
         if (mobileNav?.classList.contains("active")) closeMobileNav();
         previousOverflow = document.body.style.overflow;
@@ -751,6 +756,7 @@ function initializeGlobalSearch() {
         input.focus();
         loadIndex();
     }
+
     function closeModal() {
         window.clearTimeout(searchTimer);
         modal.classList.remove("active");
@@ -758,15 +764,20 @@ function initializeGlobalSearch() {
         document.body.style.overflow = previousOverflow;
         input.value = "";
         results.textContent = "";
-        if (statusEl) statusEl.textContent = "";
+        setStatus("");
         trigger.focus();
     }
+
     trigger.addEventListener("click", openModal);
     closeButton.addEventListener("click", closeModal);
+    modal.addEventListener("click", (event) => {
+        if (event.target === modal) closeModal();
+    });
+
     input.addEventListener("input", (event) => {
         window.clearTimeout(searchTimer);
         const query = event.target.value;
-        searchTimer = window.setTimeout(() => renderResults(query), 140);
+        searchTimer = window.setTimeout(() => renderResults(query), SEARCH_DEBOUNCE_MS);
     });
     input.addEventListener("keydown", (event) => {
         if (event.key !== "ArrowDown") return;
@@ -784,17 +795,16 @@ function initializeGlobalSearch() {
         if (next < 0) input.focus();
         else links[next]?.focus();
     });
-    modal.addEventListener("click", (event) => {
-        if (event.target === modal) closeModal();
-    });
+
+    // Giữ Tab trong hộp thoại.
     modal.addEventListener("keydown", (event) => {
         if (event.key !== "Tab") return;
         const focusable = Array.from(
             modal.querySelectorAll("button:not([disabled]),input:not([disabled]),a[href]"),
         ).filter((element) => element.offsetParent !== null);
         if (!focusable.length) return;
-        const first = focusable[0],
-            last = focusable[focusable.length - 1];
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
         if (event.shiftKey && document.activeElement === first) {
             event.preventDefault();
             last.focus();
@@ -803,18 +813,16 @@ function initializeGlobalSearch() {
             first.focus();
         }
     });
+
+    // Ctrl/Cmd+K bật/tắt tìm kiếm (trừ khi đang gõ ở ô nhập khác); Esc đóng.
+    // `event.key` có thể undefined với sự kiện do autofill của trình duyệt tạo ra.
     document.addEventListener("keydown", (event) => {
         const target = event.target;
         const isEditingOutsideSearch = target instanceof HTMLElement &&
             !modal.contains(target) &&
             (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName));
 
-        if (
-            (event.ctrlKey || event.metaKey) &&
-            !event.altKey &&
-            !event.shiftKey &&
-            event.key.toLowerCase() === "k"
-        ) {
+        if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key?.toLowerCase() === "k") {
             if (isEditingOutsideSearch) return;
             event.preventDefault();
             if (modal.classList.contains("active")) closeModal();
@@ -826,7 +834,12 @@ function initializeGlobalSearch() {
     });
 }
 
-/** Copy text with a fallback for browsers without the Clipboard API. */
+/* ============================ 5. Tiện ích đọc bài ============================ */
+
+const WORDS_PER_MINUTE = 200;
+const COPY_FEEDBACK_MS = 1600;
+
+/** Sao chép văn bản; dùng execCommand khi trình duyệt không có Clipboard API. */
 async function copyTextToClipboard(value) {
     const text = String(value ?? "");
     if (navigator.clipboard && window.isSecureContext) {
@@ -844,91 +857,96 @@ async function copyTextToClipboard(value) {
     textarea.remove();
     if (!copied) throw new Error("Trình duyệt không hỗ trợ sao chép.");
 }
-function showCopiedState(button, originalText) {
-    button.textContent = "Đã sao chép";
-    button.classList.add("is-copied");
-    window.setTimeout(() => {
-        button.textContent = originalText;
-        button.classList.remove("is-copied");
-    }, 1600);
+
+/**
+ * Nút sao chép: hiện phản hồi ngắn rồi trả về nhãn gốc. Nhãn gốc được ghi nhớ
+ * một lần, nên bấm liên tiếp hoặc sau lỗi không làm kẹt nhãn phản hồi.
+ */
+function bindCopyButton(button, getText, { errorLabel }) {
+    const originalLabel = button.textContent.trim();
+    let resetTimer = 0;
+
+    const flash = (label, copied) => {
+        window.clearTimeout(resetTimer);
+        button.textContent = label;
+        button.classList.toggle("is-copied", copied);
+        resetTimer = window.setTimeout(() => {
+            button.textContent = originalLabel;
+            button.classList.remove("is-copied");
+        }, COPY_FEEDBACK_MS);
+    };
+
+    button.addEventListener("click", async () => {
+        try {
+            await copyTextToClipboard(getText());
+            flash("Đã sao chép", true);
+        } catch (error) {
+            console.error(error);
+            flash(errorLabel, false);
+        }
+    });
 }
 
-/** Reading time, automatic TOC, page-link and tournament/code copy actions. */
 function showReadingTime(article) {
     const wordCount = (article.textContent || "").trim().split(/\s+/).filter(Boolean).length;
     const badge = document.querySelector(".reading-time");
-    if (badge) badge.textContent = `${Math.max(1, Math.ceil(wordCount / 200))} phút đọc`;
+    if (badge) badge.textContent = `${Math.max(1, Math.ceil(wordCount / WORDS_PER_MINUTE))} phút đọc`;
 }
 
 function buildTableOfContents(article) {
     const headings = Array.from(article.querySelectorAll("h2,h3"));
-    if (headings.length >= 2 && !article.querySelector("#post-toc")) {
-        const toc = document.createElement("nav");
-        toc.id = "post-toc";
-        toc.className = "post-toc";
-        toc.setAttribute("aria-label", "Mục lục bài viết");
-        const label = document.createElement("strong");
-        label.textContent = "Mục lục";
-        const list = document.createElement("ol");
-        const used = new Set();
-        headings.forEach((heading, index) => {
-            let base =
-                heading.id ||
-                removeVietnameseTones(heading.textContent)
-                    .replace(/[^a-z0-9]+/g, "-")
-                    .replace(/^-|-$/g, "");
-            if (!base) base = "muc-" + (index + 1);
-            let id = base,
-                suffix = 2;
-            while (used.has(id) || (document.getElementById(id) && heading.id !== id))
-                id = base + "-" + suffix++;
-            used.add(id);
-            heading.id = id;
-            const li = document.createElement("li");
-            if (heading.tagName === "H3") li.classList.add("post-toc__subitem");
-            const link = document.createElement("a");
-            link.href = "#" + id;
-            link.textContent = heading.textContent.trim();
-            li.appendChild(link);
-            list.appendChild(li);
-        });
-        toc.append(label, list);
-        article.insertBefore(toc, article.firstChild);
-    }
+    if (headings.length < 2 || article.querySelector("#post-toc")) return;
+
+    const toc = document.createElement("nav");
+    toc.id = "post-toc";
+    toc.className = "post-toc";
+    toc.setAttribute("aria-label", "Mục lục bài viết");
+    const label = document.createElement("strong");
+    label.textContent = "Mục lục";
+    const list = document.createElement("ol");
+    const usedIds = new Set();
+
+    headings.forEach((heading, headingIndex) => {
+        let base = heading.id ||
+            removeVietnameseTones(heading.textContent).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        if (!base) base = "muc-" + (headingIndex + 1);
+
+        let id = base;
+        let suffix = 2;
+        while (usedIds.has(id) || (byId(id) && heading.id !== id)) id = base + "-" + suffix++;
+        usedIds.add(id);
+        heading.id = id;
+
+        const item = document.createElement("li");
+        if (heading.tagName === "H3") item.classList.add("post-toc__subitem");
+        const link = document.createElement("a");
+        link.href = "#" + id;
+        link.textContent = heading.textContent.trim();
+        item.appendChild(link);
+        list.appendChild(item);
+    });
+
+    toc.append(label, list);
+    article.insertBefore(toc, article.firstChild);
 }
 
 function addCopyButtons(article) {
-    const copyPage = document.getElementById("copy-page-link");
+    const copyPage = byId("copy-page-link");
     if (copyPage && copyPage.dataset.initialized !== "true") {
         copyPage.dataset.initialized = "true";
-        copyPage.addEventListener("click", async () => {
-            const original = copyPage.textContent.trim();
-            try {
-                await copyTextToClipboard(window.location.href);
-                showCopiedState(copyPage, original);
-            } catch (error) {
-                console.error(error);
-                copyPage.textContent = "Không sao chép được";
-            }
-        });
+        bindCopyButton(copyPage, () => window.location.href, { errorLabel: "Không sao chép được" });
     }
+
     article.querySelectorAll("pre").forEach((pre) => {
         if (pre.querySelector(".copy-code-btn")) return;
         const button = document.createElement("button");
         button.type = "button";
         button.className = "copy-code-btn";
         button.textContent = "Sao chép mã";
-        button.addEventListener("click", async () => {
-            try {
-                await copyTextToClipboard(pre.querySelector("code")?.textContent || pre.textContent);
-                showCopiedState(button, "Sao chép mã");
-            } catch (error) {
-                console.error(error);
-                button.textContent = "Lỗi sao chép";
-            }
-        });
+        bindCopyButton(button, () => pre.querySelector("code")?.textContent || pre.textContent, { errorLabel: "Lỗi sao chép" });
         pre.appendChild(button);
     });
+
     article.querySelectorAll(".tournament-code,[data-tournament-code]").forEach((element) => {
         if (element.dataset.copyButtonAdded === "true") return;
         element.dataset.copyButtonAdded = "true";
@@ -936,16 +954,7 @@ function addCopyButtons(article) {
         button.type = "button";
         button.className = "copy-code-btn copy-code-btn--inline";
         button.textContent = "Sao chép mã";
-        button.addEventListener("click", async () => {
-            const code = element.dataset.tournamentCode || element.textContent.trim();
-            try {
-                await copyTextToClipboard(code);
-                showCopiedState(button, "Sao chép mã");
-            } catch (error) {
-                console.error(error);
-                button.textContent = "Lỗi sao chép";
-            }
-        });
+        bindCopyButton(button, () => element.dataset.tournamentCode || element.textContent.trim(), { errorLabel: "Lỗi sao chép" });
         element.insertAdjacentElement("afterend", button);
     });
 }
@@ -958,144 +967,72 @@ function initializeReadingUtilities() {
     addCopyButtons(article);
 }
 
+/* ============================ 6. Hiệu ứng thẻ ============================ */
+
+// Thẻ có ánh sáng theo con trỏ (trang chủ + các trang con).
+const POINTER_CARD_SELECTOR = [
+    ".event-card", ".post-card", ".partner-item",
+    ".list-item-people", ".category-card", ".social-card", ".social-card-group", ".social-link-item",
+    ".contact-card", ".contact-method", ".contact-donation", ".video-card", ".card-list .card",
+    ".about-card", ".tournament-card", ".event-winner-card"
+].join(", ");
+// Thẻ trang con tự hiện dần (class is-visible) khi cuộn tới.
+const SUBPAGE_REVEAL_SELECTOR = ".list-item-people, .category-card, .social-card, .social-card-group, .social-link-item, .contact-card, .contact-method, .contact-donation, .video-card, .card-list .card, .about-card, .tournament-card, .event-winner-card";
+const REVEAL_VISIBLE_THRESHOLD = 0.1;
+
 /**
- * Shared card effects. Pointer coordinates are coalesced to one layout read/write per frame.
+ * Một listener pointermove cho cả trang (thay vì mỗi thẻ một listener); mọi thẻ
+ * lồng nhau chứa con trỏ đều được cập nhật, và vị trí được gộp thành một lần
+ * đọc + một lần ghi layout mỗi khung hình.
  */
-function initializeCardEffects(pointerTargets, revealTargets = pointerTargets) {
+function initializePointerGlow() {
+    let frameId = 0;
+    let pending = null;
+
+    function flush() {
+        frameId = 0;
+        const { cards, x, y } = pending;
+        const bounds = cards.map((card) => card.getBoundingClientRect());
+        cards.forEach((card, position) => {
+            card.style.setProperty("--mouse-x", `${x - bounds[position].left}px`);
+            card.style.setProperty("--mouse-y", `${y - bounds[position].top}px`);
+        });
+    }
+
+    document.addEventListener("pointermove", (event) => {
+        if (!(event.target instanceof Element)) return;
+
+        const cards = [];
+        for (let card = event.target.closest(POINTER_CARD_SELECTOR); card; card = card.parentElement?.closest(POINTER_CARD_SELECTOR)) {
+            cards.push(card);
+        }
+        if (!cards.length) return;
+
+        pending = { cards, x: event.clientX, y: event.clientY };
+        if (!frameId) frameId = window.requestAnimationFrame(flush);
+    }, { passive: true });
+}
+
+function initializeCardEffects() {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    if (!reduceMotion && finePointer) initializePointerGlow();
 
-    if (!reduceMotion && finePointer) {
-        pointerTargets.forEach((card) => {
-            let frameId = 0;
-            let pointerX = 0;
-            let pointerY = 0;
-            card.addEventListener("pointermove", (event) => {
-                pointerX = event.clientX;
-                pointerY = event.clientY;
-                if (frameId) return;
-                frameId = window.requestAnimationFrame(() => {
-                    frameId = 0;
-                    const bounds = card.getBoundingClientRect();
-                    card.style.setProperty("--mouse-x", `${pointerX - bounds.left}px`);
-                    card.style.setProperty("--mouse-y", `${pointerY - bounds.top}px`);
-                });
-            }, { passive: true });
-        });
-    }
-
-    if (!revealTargets.length) return;
-    if (reduceMotion || !("IntersectionObserver" in window)) {
-        revealTargets.forEach((item) => item.classList.add("is-visible"));
-        return;
-    }
-    const observer = new IntersectionObserver((entries, currentObserver) => {
-        entries.forEach((entry) => {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add("is-visible");
-            currentObserver.unobserve(entry.target);
-        });
-    }, { threshold: 0.1 });
-    revealTargets.forEach((item) => observer.observe(item));
+    const revealTargets = new Set([
+        ...document.querySelectorAll(".reveal-on-scroll,[data-reveal]"),
+        ...document.querySelectorAll(SUBPAGE_REVEAL_SELECTOR)
+    ]);
+    if (reduceMotion) revealTargets.forEach((element) => element.classList.add("is-visible"));
+    else revealWhenVisible(Array.from(revealTargets), REVEAL_VISIBLE_THRESHOLD);
 }
 
-function initHomeInteractiveEffects() {
-    const pointerCards = document.querySelectorAll(".event-card,.post-card,.partner-item");
-    const revealItems = document.querySelectorAll(".reveal-on-scroll,[data-reveal]");
-    initializeCardEffects(pointerCards, revealItems);
-}
-function initializeSharedPageFeatures() {
-    initializeGlobalSearch();
+/* ============================ Khởi tạo ============================ */
+
+onReady(() => {
+    const navigation = initializeNavigation();
+    initializeScrollEffects();
+    initializeGlobalSearch(navigation);
     initializeReadingUtilities();
-    initHomeInteractiveEffects();
-}
-if (document.readyState === "loading")
-    document.addEventListener("DOMContentLoaded", initializeSharedPageFeatures, { once: true });
-else initializeSharedPageFeatures();
-
-function initSubpageInteractiveEffects() {
-    const cards = document.querySelectorAll(
-        ".list-item-people, .category-card, .social-card, .social-card-group, .social-link-item, .contact-card, .contact-method, .contact-donation, .video-card, .card-list .card, .about-card, .tournament-card, .event-winner-card"
-    );
-    initializeCardEffects(cards);
-}
-if (document.readyState === "loading")
-    document.addEventListener("DOMContentLoaded", initSubpageInteractiveEffects, { once: true });
-else initSubpageInteractiveEffects();
-async function initHomepageStatsSync() {
-    const card = document.querySelector(".bento-card--stats");
-    const ytEl = document.getElementById("stat-youtube-subs");
-    const ccEl = document.getElementById("stat-chesscom-members");
-    const peEl = document.getElementById("stat-prize-events");
-    if (!ytEl && !ccEl && !peEl) return;
-
-    const statsApiUrl = (card?.getAttribute("data-stats-api") || "").trim();
-    // Build-time snapshot (_data/stats.json); a cache older than it must not override it.
-    const builtAt = Date.parse(card?.getAttribute("data-updated-at") || "") || 0;
-    const CACHE_KEY = "tvlt_homepage_stats_cache_v1";
-    const CACHE_TTL_MS = 3 * 24 * 60 * 60 * 1000;
-
-    const setStat = (element, value) => {
-        if (!element || !value) return;
-        element.dataset.finalValue = value; // lets home.js count-up end on the fresh value
-        element.textContent = value;
-    };
-    const applyStats = (stats) => {
-        if (!stats) return;
-        setStat(ytEl, stats.youtubeSubs);
-        setStat(ccEl, stats.chesscomMembers);
-        setStat(peEl, stats.prizeEvents);
-    };
-    const saveCache = (value) => {
-        try { localStorage.setItem(CACHE_KEY, JSON.stringify(value)); } catch (error) { /* storage unavailable */ }
-    };
-
-    try {
-        const cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null");
-        const isFresh = cached && Date.now() - cached.updatedAt < CACHE_TTL_MS && cached.updatedAt > builtAt;
-        if (isFresh) {
-            const usable = statsApiUrl
-                ? cached.source === "apps-script" && (cached.youtubeSubs || cached.chesscomMembers || cached.prizeEvents)
-                : cached.chesscomMembers;
-            if (usable) {
-                applyStats(cached);
-                return;
-            }
-        }
-    } catch (error) { /* ignore corrupt cache */ }
-
-    if (statsApiUrl) {
-        try {
-            const response = await fetch(statsApiUrl);
-            if (response.ok) {
-                const data = await response.json();
-                const next = {
-                    youtubeSubs: data.youtube_subs || "",
-                    chesscomMembers: data.chesscom_members || "",
-                    prizeEvents: data.prize_events || "",
-                    source: "apps-script",
-                    updatedAt: Date.now(),
-                };
-                if (next.youtubeSubs || next.chesscomMembers || next.prizeEvents) {
-                    applyStats(next);
-                    saveCache(next);
-                    return;
-                }
-            }
-        } catch (error) { /* fall through to Chess.com */ }
-    }
-
-    if (!ccEl) return;
-    try {
-        const response = await fetch("https://api.chess.com/pub/club/thi-vua-lay-tot-tungjohn-playing-chess");
-        if (!response.ok) return;
-        const data = await response.json();
-        if (typeof data.members_count === "number" && data.members_count > 0) {
-            const formatted = data.members_count >= 1000 ? `${Math.floor(data.members_count / 1000)}K+` : String(data.members_count);
-            setStat(ccEl, formatted);
-            saveCache({ chesscomMembers: formatted, source: "chesscom-api", updatedAt: Date.now() });
-        }
-    } catch (error) { /* keep build-time value */ }
-}
-if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initHomepageStatsSync, { once: true });
-else initHomepageStatsSync();
+    initializeCardEffects();
+});
+})();
